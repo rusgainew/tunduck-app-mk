@@ -1,0 +1,18 @@
+# Dockerfile для Go API (Staging)
+FROM golang:1.25-alpine AS builder
+
+WORKDIR /app
+COPY go-api/go.mod go-api/go.sum ./
+RUN go mod download
+
+COPY go-api . .
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o api cmd/api/main.go
+
+FROM alpine:latest
+RUN apk --no-cache add ca-certificates
+WORKDIR /root/
+
+COPY --from=builder /app/api .
+EXPOSE 8080
+
+CMD ["./api"]
