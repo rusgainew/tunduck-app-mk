@@ -1,0 +1,134 @@
+syntax = "proto3";
+
+package api.company;
+
+option go_package = "github.com/rusgainew/tunduck/gen/proto/company";
+
+import "api/proto/common.proto";
+
+/**
+ * CompanyService provides organization management operations
+ * Используется:
+ * - company-service: реализует этот сервис
+ * - document-service: клиент для получения информации об организации
+ * - api-gateway: клиент для маршрутизации запросов
+ */
+service CompanyService {
+  /**
+   * Get organization by ID
+   * Request: organization_id
+   * Response: organization
+   */
+  rpc GetOrganization(GetOrganizationRequest) returns (Organization);
+
+  /**
+   * Create new organization
+   * Request: name, description, owner_id
+   * Response: organization
+   * Emits: OrganizationCreatedEvent (via RabbitMQ)
+   */
+  rpc CreateOrganization(CreateOrganizationRequest) returns (Organization);
+
+  /**
+   * Update organization
+   * Request: id, name, description
+   * Response: organization
+   * Emits: OrganizationUpdatedEvent (via RabbitMQ)
+   */
+  rpc UpdateOrganization(UpdateOrganizationRequest) returns (Organization);
+
+  /**
+   * Delete organization
+   * Request: organization_id
+   * Response: empty
+   * Emits: OrganizationDeletedEvent (via RabbitMQ)
+   */
+  rpc DeleteOrganization(DeleteOrganizationRequest) returns (api.common.Empty);
+
+  /**
+   * List organizations with pagination
+   * Request: page, per_page, owner_id (optional)
+   * Response: organizations list with pagination info
+   */
+  rpc ListOrganizations(ListOrganizationsRequest) returns (ListOrganizationsResponse);
+
+  /**
+   * Get organization members
+   * Request: organization_id, page, per_page
+   * Response: employees list
+   */
+  rpc GetOrganizationMembers(GetOrganizationMembersRequest) returns (ListEmployeesResponse);
+
+  /**
+   * Add member to organization
+   * Request: organization_id, user_id, role
+   * Response: employee
+   * Emits: EmployeeAddedEvent (via RabbitMQ)
+   */
+  rpc AddMember(AddMemberRequest) returns (Employee);
+
+  /**
+   * Remove member from organization
+   * Request: organization_id, employee_id
+   * Response: empty
+   * Emits: EmployeeRemovedEvent (via RabbitMQ)
+   */
+  rpc RemoveMember(RemoveMemberRequest) returns (api.common.Empty);
+}
+
+// ============================================
+// Request/Response Messages
+// ============================================
+
+message GetOrganizationRequest {
+  string organization_id = 1;
+}
+
+message CreateOrganizationRequest {
+  string name = 1;
+  string description = 2;
+  string owner_id = 3;
+}
+
+message UpdateOrganizationRequest {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+}
+
+message DeleteOrganizationRequest {
+  string organization_id = 1;
+}
+
+message ListOrganizationsRequest {
+  int32 page = 1;
+  int32 per_page = 2;
+  string owner_id = 3; // Filter by owner (optional)
+}
+
+message ListOrganizationsResponse {
+  repeated Organization organizations = 1;
+  api.common.PageInfo page_info = 2;
+}
+
+message GetOrganizationMembersRequest {
+  string organization_id = 1;
+  int32 page = 2;
+  int32 per_page = 3;
+}
+
+message ListEmployeesResponse {
+  repeated Employee employees = 1;
+  api.common.PageInfo page_info = 2;
+}
+
+message AddMemberRequest {
+  string organization_id = 1;
+  string user_id = 2;
+  string role = 3; // "member", "manager", "admin"
+}
+
+message RemoveMemberRequest {
+  string organization_id = 1;
+  string employee_id = 2;
+}

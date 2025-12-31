@@ -1,0 +1,53 @@
+syntax = "proto3";
+
+package api.common;
+
+option go_package = "github.com/rusgainew/tunduck/gen/proto/common";
+
+/**
+ * Empty message for operations that don't return data
+ * Used by RPC methods that only return status
+ */
+message Empty {}
+
+/**
+ * Error information
+ * Returned when RPC operations fail
+ */
+message Error {
+  // HTTP-like error code
+  int32 code = 1;
+  // Error message
+  string message = 2;
+  // Additional error details
+  string details = 3;
+  // Error trace ID for debugging
+  string trace_id = 4;
+}
+
+/**
+ * Pagination information
+ * Used in list responses
+ */
+message PageInfo {
+  // Current page number (1-based)
+  int32 page = 1;
+  // Items per page
+  int32 per_page = 2;
+  // Total number of items
+  int64 total = 3;
+  // Total number of pages
+  int32 total_pages = 4;
+}
+
+/**
+ * Timestamp with optional timezone
+ */
+message Timestamp {
+  // Unix timestamp in seconds
+  int64 seconds = 1;
+  // Nanoseconds adjustment
+  int32 nanos = 2;
+  // ISO 8601 formatted timestamp
+  string iso_string = 3;
+}

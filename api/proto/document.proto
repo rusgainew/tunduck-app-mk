@@ -1,0 +1,152 @@
+syntax = "proto3";
+
+package api.document;
+
+option go_package = "github.com/rusgainew/tunduck/gen/proto/document";
+
+/**
+ * Document aggregate root
+ * Represents a document in the system with workflow capability
+ */
+message Document {
+  // Unique document identifier (UUID)
+  string id = 1;
+  // Organization ID (reference to company-service)
+  string organization_id = 2;
+  // Document title
+  string title = 3;
+  // Document content
+  string content = 4;
+  // Document status: "draft", "sent", "approved", "rejected", "archived"
+  string status = 5;
+  // User who created the document (reference to auth-service)
+  string created_by = 6;
+  // Current document owner/assignee
+  string assigned_to = 7;
+  // Document creation timestamp (Unix milliseconds)
+  int64 created_at = 8;
+  // Last updated timestamp (Unix milliseconds)
+  int64 updated_at = 9;
+  // Last status change timestamp (Unix milliseconds)
+  int64 status_changed_at = 10;
+  // Document entries (key-value pairs)
+  repeated DocumentEntry entries = 11;
+  // Document version number (for optimistic locking)
+  int32 version = 12;
+  // Workflow metadata
+  DocumentWorkflow workflow = 13;
+}
+
+/**
+ * DocumentEntry value object
+ * Key-value pair within a document
+ */
+message DocumentEntry {
+  // Unique entry identifier (UUID)
+  string id = 1;
+  // Document ID
+  string document_id = 2;
+  // Entry key
+  string key = 3;
+  // Entry value
+  string value = 4;
+  // Creation timestamp (Unix milliseconds)
+  int64 created_at = 5;
+  // Last updated timestamp (Unix milliseconds)
+  int64 updated_at = 6;
+}
+
+/**
+ * DocumentWorkflow value object
+ * Handles document approval workflow state
+ */
+message DocumentWorkflow {
+  // Current step in workflow
+  string current_step = 1;
+  // Approvers list
+  repeated ApprovalRequest approvals = 2;
+  // Rejection reason (if rejected)
+  string rejection_reason = 3;
+  // Rejection timestamp (Unix milliseconds)
+  int64 rejected_at = 4;
+  // Approval timestamp (Unix milliseconds)
+  int64 approved_at = 5;
+}
+
+/**
+ * ApprovalRequest value object
+ * Tracks approval status for each approver
+ */
+message ApprovalRequest {
+  // Approver user ID (reference to auth-service)
+  string approver_id = 1;
+  // Approval status: "pending", "approved", "rejected"
+  string status = 2;
+  // Approver comments
+  string comments = 3;
+  // When approval request was created (Unix milliseconds)
+  int64 created_at = 4;
+  // When approval/rejection was done (Unix milliseconds)
+  int64 responded_at = 5;
+}
+
+/**
+ * DocumentVersion value object
+ * Stores document revision history
+ */
+message DocumentVersion {
+  // Version number
+  int32 version = 1;
+  // Document snapshot at this version
+  Document document_snapshot = 2;
+  // Changed by user ID
+  string changed_by = 3;
+  // Change timestamp (Unix milliseconds)
+  int64 changed_at = 4;
+  // Change description
+  string change_description = 5;
+}
+
+/**
+ * DocumentTemplate value object
+ * Predefined document templates
+ */
+message DocumentTemplate {
+  // Template identifier (UUID)
+  string id = 1;
+  // Organization ID (template owner)
+  string organization_id = 2;
+  // Template name
+  string name = 3;
+  // Template description
+  string description = 4;
+  // Template content (with placeholders like {{key}})
+  string content = 5;
+  // Template entries definition
+  repeated TemplateEntry entries = 6;
+  // Is active template
+  bool is_active = 7;
+  // Creation timestamp (Unix milliseconds)
+  int64 created_at = 8;
+}
+
+/**
+ * TemplateEntry value object
+ * Defines template field structure
+ */
+message TemplateEntry {
+  // Field key name
+  string key = 1;
+  // Field display label
+  string label = 2;
+  // Field type: "text", "number", "date", "select", "textarea"
+  string field_type = 3;
+  // Is required field
+  bool required = 4;
+  // Field order
+  int32 order = 5;
+  // Field validation pattern (regex)
+  string validation_pattern = 6;
+  // Field default value
+  string default_value = 7;
+}

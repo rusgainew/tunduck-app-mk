@@ -1,0 +1,250 @@
+version: "3.8"
+
+services:
+  # ============================================
+  # PostgreSQL - Shared Database (Phase 1-5)
+  # ============================================
+  postgres:
+    image: postgres:16-alpine
+    container_name: tunduck-postgres
+    environment:
+      POSTGRES_USER: tunduck_user
+      POSTGRES_PASSWORD: tunduck_password_dev
+      POSTGRES_DB: tunduck_db
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    networks:
+      - tunduck-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tunduck_user"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # ============================================
+  # Redis - Caching & Token Blacklist
+  # ============================================
+  redis:
+    image: redis:7-alpine
+    container_name: tunduck-redis
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - tunduck-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # ============================================
+  # RabbitMQ - Message Queue & Event Bus
+  # ============================================
+  rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    container_name: tunduck-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: tunduck_user
+      RABBITMQ_DEFAULT_PASS: tunduck_password_dev
+      RABBITMQ_DEFAULT_VHOST: /tunduck
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+      - ./config/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
+      - ./scripts/init-rabbitmq.sh:/docker-entrypoint-initdb.d/init-rabbitmq.sh:ro
+    ports:
+      - "5672:5672" # AMQP port
+      - "15672:15672" # Management UI
+    networks:
+      - tunduck-network
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # ============================================
+  # Auth Service (Phase 2 - under development)
+  # ============================================
+  # auth-service:
+  #   build:
+  #     context: ./auth-service
+  #     dockerfile: docker/Dockerfile
+  #   container_name: tunduck-auth-service
+  #   environment:
+  #     # Database
+  #     DB_HOST: postgres
+  #     DB_PORT: 5432
+  #     DB_USER: tunduck_user
+  #     DB_PASSWORD: tunduck_password_dev
+  #     DB_NAME: tunduck_db
+  #
+  #     # Redis
+  #     REDIS_HOST: redis
+  #     REDIS_PORT: 6379
+  #
+  #     # RabbitMQ
+  #     RABBITMQ_URL: amqp://tunduck_user:tunduck_password_dev@rabbitmq:5672/tunduck
+  #
+  #     # Service
+  #     SERVICE_PORT: 8001
+  #     GRPC_PORT: 9001
+  #     ENV: development
+  #   ports:
+  #     - "8001:8001"   # HTTP
+  #     - "9001:9001"   # gRPC
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #     redis:
+  #       condition: service_healthy
+  #     rabbitmq:
+  #       condition: service_healthy
+  #   networks:
+  #     - tunduck-network
+  #   restart: unless-stopped
+
+  # ============================================
+  # Company Service (Phase 3 - planned)
+  # ============================================
+  # company-service:
+  #   build:
+  #     context: ./company-service
+  #     dockerfile: docker/Dockerfile
+  #   container_name: tunduck-company-service
+  #   environment:
+  #     DB_HOST: postgres
+  #     DB_PORT: 5432
+  #     DB_USER: tunduck_user
+  #     DB_PASSWORD: tunduck_password_dev
+  #     DB_NAME: tunduck_db
+  #     REDIS_HOST: redis
+  #     REDIS_PORT: 6379
+  #     RABBITMQ_URL: amqp://tunduck_user:tunduck_password_dev@rabbitmq:5672/tunduck
+  #     SERVICE_PORT: 8002
+  #     GRPC_PORT: 9002
+  #     AUTH_SERVICE_GRPC: auth-service:9001
+  #   ports:
+  #     - "8002:8002"
+  #     - "9002:9002"
+  #   depends_on:
+  #     - postgres
+  #     - redis
+  #     - rabbitmq
+  #   networks:
+  #     - tunduck-network
+  #   restart: unless-stopped
+
+  # ============================================
+  # Document Service (Phase 4 - planned)
+  # ============================================
+  # document-service:
+  #   build:
+  #     context: ./document-service
+  #     dockerfile: docker/Dockerfile
+  #   container_name: tunduck-document-service
+  #   environment:
+  #     DB_HOST: postgres
+  #     DB_PORT: 5432
+  #     DB_USER: tunduck_user
+  #     DB_PASSWORD: tunduck_password_dev
+  #     DB_NAME: tunduck_db
+  #     REDIS_HOST: redis
+  #     REDIS_PORT: 6379
+  #     RABBITMQ_URL: amqp://tunduck_user:tunduck_password_dev@rabbitmq:5672/tunduck
+  #     SERVICE_PORT: 8003
+  #     GRPC_PORT: 9003
+  #     AUTH_SERVICE_GRPC: auth-service:9001
+  #     COMPANY_SERVICE_GRPC: company-service:9002
+  #   ports:
+  #     - "8003:8003"
+  #     - "9003:9003"
+  #   depends_on:
+  #     - postgres
+  #     - redis
+  #     - rabbitmq
+  #   networks:
+  #     - tunduck-network
+  #   restart: unless-stopped
+
+  # ============================================
+  # API Gateway (Phase 5 - planned)
+  # ============================================
+  # api-gateway:
+  #   build:
+  #     context: ./api-gateway
+  #     dockerfile: docker/Dockerfile
+  #   container_name: tunduck-api-gateway
+  #   environment:
+  #     GATEWAY_PORT: 8000
+  #     AUTH_SERVICE_GRPC: auth-service:9001
+  #     COMPANY_SERVICE_GRPC: company-service:9002
+  #     DOCUMENT_SERVICE_GRPC: document-service:9003
+  #     ENV: development
+  #   ports:
+  #     - "8000:8000"   # Main API entry point
+  #   depends_on:
+  #     - postgres
+  #     - redis
+  #     - rabbitmq
+  #   networks:
+  #     - tunduck-network
+  #   restart: unless-stopped
+
+  # ============================================
+  # Optional: Prometheus (Metrics)
+  # ============================================
+  # prometheus:
+  #   image: prom/prometheus:latest
+  #   container_name: tunduck-prometheus
+  #   volumes:
+  #     - ./config/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+  #     - prometheus_data:/prometheus
+  #   ports:
+  #     - "9090:9090"
+  #   networks:
+  #     - tunduck-network
+  #   restart: unless-stopped
+
+  # ============================================
+  # Optional: Grafana (Visualization)
+  # ============================================
+  # grafana:
+  #   image: grafana/grafana:latest
+  #   container_name: tunduck-grafana
+  #   environment:
+  #     GF_SECURITY_ADMIN_PASSWORD: admin
+  #     GF_SECURITY_ADMIN_USER: admin
+  #   volumes:
+  #     - grafana_data:/var/lib/grafana
+  #     - ./config/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+  #     - ./config/grafana/datasources:/etc/grafana/provisioning/datasources:ro
+  #   ports:
+  #     - "3000:3000"
+  #   networks:
+  #     - tunduck-network
+  #   restart: unless-stopped
+
+networks:
+  tunduck-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  rabbitmq_data:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local

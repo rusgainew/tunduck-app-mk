@@ -1,0 +1,95 @@
+syntax = "proto3";
+
+package api.company;
+
+option go_package = "github.com/rusgainew/tunduck/gen/proto/company";
+
+/**
+ * Organization aggregate root
+ * Represents a company/organization in the system
+ */
+message Organization {
+  // Unique organization identifier (UUID)
+  string id = 1;
+  // Organization name
+  string name = 2;
+  // Organization description
+  string description = 3;
+  // Owner user ID (reference to auth-service)
+  string owner_id = 4;
+  // Total number of members
+  int32 member_count = 5;
+  // Organization creation timestamp (Unix milliseconds)
+  int64 created_at = 6;
+  // Last updated timestamp (Unix milliseconds)
+  int64 updated_at = 7;
+  // Organization status: "active", "inactive", "archived"
+  string status = 8;
+}
+
+/**
+ * Employee aggregate root
+ * Represents user's membership in an organization
+ */
+message Employee {
+  // Unique employee identifier (UUID)
+  string id = 1;
+  // Organization ID
+  string organization_id = 2;
+  // User ID (reference to auth-service)
+  string user_id = 3;
+  // Employee role: "member", "manager", "admin"
+  string role = 4;
+  // Employee status: "active", "inactive"
+  string status = 5;
+  // Position or job title
+  string position = 6;
+  // Department (optional)
+  string department = 7;
+  // Join date timestamp (Unix milliseconds)
+  int64 joined_at = 8;
+  // Last activity timestamp (Unix milliseconds)
+  int64 last_active_at = 9;
+}
+
+/**
+ * Department value object
+ * Organizational structure unit
+ */
+message Department {
+  // Unique department identifier (UUID)
+  string id = 1;
+  // Organization ID
+  string organization_id = 2;
+  // Department name
+  string name = 3;
+  // Department description
+  string description = 4;
+  // Parent department ID (for hierarchy)
+  string parent_id = 5;
+  // Manager employee ID
+  string manager_id = 6;
+  // Creation timestamp (Unix milliseconds)
+  int64 created_at = 7;
+}
+
+/**
+ * Role value object
+ * Organization-specific role
+ */
+message OrganizationRole {
+  // Role identifier
+  string id = 1;
+  // Organization ID
+  string organization_id = 2;
+  // Role name: "member", "manager", "admin"
+  string name = 3;
+  // Role description
+  string description = 4;
+  // Permissions codes
+  repeated string permissions = 5;
+  // Is this a system role (cannot be deleted)
+  bool is_system = 6;
+  // Creation timestamp (Unix milliseconds)
+  int64 created_at = 7;
+}
