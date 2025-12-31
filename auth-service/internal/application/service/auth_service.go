@@ -176,3 +176,9 @@ func (s *TokenService) ValidateRefreshToken(ctx context.Context, token string) (
 		return "", err
 	}
 	return claims.UserID, nil
+}
+
+// GetJWTManager - Expose JWT manager for external use
+func (s *TokenService) GetJWTManager() *jwt.JWTManager {
+	return s.jwtManager
+}

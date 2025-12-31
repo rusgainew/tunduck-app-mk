@@ -16,6 +16,7 @@ import (
 	"github.com/rusgainew/tunduck-app-mk/auth-service/internal/infrastructure/event/rabbitmq"
 	"github.com/rusgainew/tunduck-app-mk/auth-service/internal/infrastructure/jwt"
 	"github.com/rusgainew/tunduck-app-mk/auth-service/internal/infrastructure/persistence/postgres"
+	"github.com/rusgainew/tunduck-app-mk/auth-service/internal/interfaces/grpc"
 	"github.com/rusgainew/tunduck-app-mk/auth-service/internal/interfaces/http/server"
 )
 
@@ -85,7 +86,7 @@ func main() {
 	registerService := service.NewRegisterUserService(userRepo, eventPublisher)
 	loginService := service.NewLoginUserService(userRepo, tokenService, eventPublisher)
 
-	// 6. Запустить HTTP сервер
+	// 6. Запустить HTTP и gRPC серверы параллельно
 	httpServer := server.NewHTTPServer(
 		cfg,
 		registerService,
@@ -94,13 +95,26 @@ func main() {
 		userRepo,
 	)
 
-	if err := httpServer.Start(); err != nil {
-		log.Fatalf("Failed to start HTTP server: %v", err)
+	// gRPC server
+	grpcAddr := fmt.Sprintf(":%d", cfg.GrpcPort)
+	authServiceServer := grpc.NewAuthServiceServer(
+		registerService,
+		loginService,
+		tokenService,
+		userRepo,
+		tokenBlacklist,
+	)
+	grpcServer := grpc.NewGRPCServer(grpcAddr, authServiceServer)
+
+	// Start HTTP server in goroutine
+	go func() {
+		if err := httpServer.Start(); err != nil {
+			log.Fatalf("Failed to start HTTP server: %v", err)
+		}
+	}()
+
+	// Start gRPC server (blocking)
+	if err := grpcServer.Start(); err != nil {
+		log.Fatalf("Failed to start gRPC server: %v", err)
 	}
 }
-
-// TODO: Добавить gRPC сервер (proto/grpc handlers)
-// TODO: Добавить graceful shutdown
-// TODO: Добавить логирование
-// TODO: Добавить метрики (Prometheus)
-// TODO: Добавить middleware (CORS, request logging, etc)
