@@ -2,8 +2,10 @@ package handler
 
 import (
 	"context"
+	"time"
 
 	"github.com/rusgainew/tunduck-app-mk/auth-service/internal/application/service"
+	"github.com/rusgainew/tunduck-app-mk/auth-service/internal/domain/entity"
 	"github.com/rusgainew/tunduck-app-mk/auth-service/internal/interfaces/grpc/adapter"
 	"github.com/rusgainew/tunduck-app-mk/auth-service/internal/interfaces/grpc/mapper"
 	"github.com/rusgainew/tunduck-app-mk/auth-service/internal/interfaces/grpc/validator"
@@ -12,16 +14,24 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-// RegisterHandler обрабатывает регистрацию пользователя
+// RegisterHandler - обработчик запроса регистрации пользователя через gRPC
 type RegisterHandler struct {
-	validator       *validator.RequestValidator
-	adapter         *adapter.RequestAdapter
-	registerService *service.RegisterUserService
-	responseMapper  *mapper.AuthResponseMapper
-	tokenMapper     *mapper.TokenMapper
+	validator       *validator.RequestValidator  // валидатор входящих запросов
+	adapter         *adapter.RequestAdapter      // адаптер для преобразования в DTO
+	registerService *service.RegisterUserService // сервис бизнес-логики регистрации
+	responseMapper  *mapper.AuthResponseMapper   // маппер для преобразования ответа
+	tokenMapper     *mapper.TokenMapper          // маппер для преобразования токенов
 }
 
-// NewRegisterHandler создает обработчик регистрации
+// NewRegisterHandler - конструктор для создания обработчика регистрации
+// Параметры:
+//   - validator: валидатор для проверки входящих запросов
+//   - adapter: адаптер для преобразования gRPC запроса в DTO
+//   - registerService: сервис для обработки бизнес-логики регистрации
+//   - responseMapper: маппер для преобразования ответа
+//   - tokenMapper: маппер для преобразования токенов
+//
+// Возвращает: указатель на структуру RegisterHandler
 func NewRegisterHandler(
 	validator *validator.RequestValidator,
 	adapter *adapter.RequestAdapter,
@@ -38,36 +48,50 @@ func NewRegisterHandler(
 	}
 }
 
-// Handle обрабатывает запрос регистрации
+// Handle - обрабатывает запрос регистрации нового пользователя
+// Параметры:
+//   - ctx: контекст запроса
+//   - req: gRPC запрос с данными для регистрации (email, пароль, имя, фамилия)
+//
+// Возвращает: ответ с информацией о пользователе, или ошибка
 func (h *RegisterHandler) Handle(ctx context.Context, req *authpb.RegisterRequest) (*authpb.AuthResponse, error) {
-	// Валидация
+	// Валидация входящего запроса (проверка email, пароля и т.д.)
 	if err := h.validator.ValidateRegisterRequest(req); err != nil {
 		return nil, err
 	}
 
-	// Адаптация к DTO
+	// Адаптация gRPC запроса к DTO для использования в сервисе
 	registerDTO := h.adapter.ToRegisterDTO(req)
 
-	// Выполнение бизнес-логики
+	// Выполнение бизнес-логики регистрации (сохранение в БД, отправка событий)
 	resp, err := h.registerService.Execute(ctx, registerDTO)
 	if err != nil {
-		return nil, status.Error(codes.Internal, err.Error())
+		switch err {
+		case entity.ErrUserAlreadyExists:
+			return nil, status.Error(codes.AlreadyExists, err.Error())
+		default:
+			return nil, status.Error(codes.Internal, err.Error())
+		}
 	}
 
-	// Создание ответа (токен выдаётся при логине)
-	// TODO: переделать на получение entity.User из сервиса
-	// Пока используем временное решение
-	user := &authpb.User{
-		Id:        resp.ID,
+	createdAt := time.Now()
+	if parsedTime, parseErr := time.Parse(time.RFC3339, resp.CreatedAt); parseErr == nil {
+		createdAt = parsedTime
+	}
+
+	user := &entity.User{
+		ID:        resp.ID,
 		Email:     resp.Email,
-		FirstName: req.FirstName,
-		LastName:  req.LastName,
-		Status:    "active",
+		Name:      resp.Name,
+		Status:    entity.UserStatus(resp.Status),
+		CreatedAt: createdAt,
+		UpdatedAt: createdAt,
 	}
 
-	return &authpb.AuthResponse{
-		User:      user,
-		Token:     h.tokenMapper.ToEmptyToken(),
-		Timestamp: 0, // будет установлен в responseMapper
-	}, nil
+	return h.responseMapper.ToAuthResponseWithNames(
+		user,
+		req.FirstName,
+		req.LastName,
+		h.tokenMapper.ToEmptyToken(),
+	), nil
 }
