@@ -4,8 +4,8 @@ package api.auth;
 
 option go_package = "github.com/rusgainew/tunduck-app-mk/proto-lib/auth";
 
-import "auth.proto";
-import "common.proto";
+import "legacy/auth.proto";
+import "legacy/common.proto";
 
 /**
  * AuthService provides authentication and user management operations

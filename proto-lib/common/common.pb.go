@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.36.11
 // 	protoc        v3.21.12
-// source: common.proto
+// source: legacy/common.proto
 
 package common
 
@@ -32,7 +32,7 @@ type Empty struct {
 
 func (x *Empty) Reset() {
 	*x = Empty{}
-	mi := &file_common_proto_msgTypes[0]
+	mi := &file_legacy_common_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -44,7 +44,7 @@ func (x *Empty) String() string {
 func (*Empty) ProtoMessage() {}
 
 func (x *Empty) ProtoReflect() protoreflect.Message {
-	mi := &file_common_proto_msgTypes[0]
+	mi := &file_legacy_common_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -57,7 +57,7 @@ func (x *Empty) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Empty.ProtoReflect.Descriptor instead.
 func (*Empty) Descriptor() ([]byte, []int) {
-	return file_common_proto_rawDescGZIP(), []int{0}
+	return file_legacy_common_proto_rawDescGZIP(), []int{0}
 }
 
 // *
@@ -79,7 +79,7 @@ type Error struct {
 
 func (x *Error) Reset() {
 	*x = Error{}
-	mi := &file_common_proto_msgTypes[1]
+	mi := &file_legacy_common_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -91,7 +91,7 @@ func (x *Error) String() string {
 func (*Error) ProtoMessage() {}
 
 func (x *Error) ProtoReflect() protoreflect.Message {
-	mi := &file_common_proto_msgTypes[1]
+	mi := &file_legacy_common_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -104,7 +104,7 @@ func (x *Error) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Error.ProtoReflect.Descriptor instead.
 func (*Error) Descriptor() ([]byte, []int) {
-	return file_common_proto_rawDescGZIP(), []int{1}
+	return file_legacy_common_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *Error) GetCode() int32 {
@@ -154,7 +154,7 @@ type PageInfo struct {
 
 func (x *PageInfo) Reset() {
 	*x = PageInfo{}
-	mi := &file_common_proto_msgTypes[2]
+	mi := &file_legacy_common_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -166,7 +166,7 @@ func (x *PageInfo) String() string {
 func (*PageInfo) ProtoMessage() {}
 
 func (x *PageInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_common_proto_msgTypes[2]
+	mi := &file_legacy_common_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -179,7 +179,7 @@ func (x *PageInfo) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PageInfo.ProtoReflect.Descriptor instead.
 func (*PageInfo) Descriptor() ([]byte, []int) {
-	return file_common_proto_rawDescGZIP(), []int{2}
+	return file_legacy_common_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *PageInfo) GetPage() int32 {
@@ -226,7 +226,7 @@ type Timestamp struct {
 
 func (x *Timestamp) Reset() {
 	*x = Timestamp{}
-	mi := &file_common_proto_msgTypes[3]
+	mi := &file_legacy_common_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -238,7 +238,7 @@ func (x *Timestamp) String() string {
 func (*Timestamp) ProtoMessage() {}
 
 func (x *Timestamp) ProtoReflect() protoreflect.Message {
-	mi := &file_common_proto_msgTypes[3]
+	mi := &file_legacy_common_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -251,7 +251,7 @@ func (x *Timestamp) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Timestamp.ProtoReflect.Descriptor instead.
 func (*Timestamp) Descriptor() ([]byte, []int) {
-	return file_common_proto_rawDescGZIP(), []int{3}
+	return file_legacy_common_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *Timestamp) GetSeconds() int64 {
@@ -275,11 +275,11 @@ func (x *Timestamp) GetIsoString() string {
 	return ""
 }
 
-var File_common_proto protoreflect.FileDescriptor
+var File_legacy_common_proto protoreflect.FileDescriptor
 
-const file_common_proto_rawDesc = "" +
+const file_legacy_common_proto_rawDesc = "" +
 	"\n" +
-	"\fcommon.proto\x12\n" +
+	"\x13legacy/common.proto\x12\n" +
 	"api.common\"\a\n" +
 	"\x05Empty\"j\n" +
 	"\x05Error\x12\x12\n" +
@@ -300,25 +300,25 @@ const file_common_proto_rawDesc = "" +
 	"iso_string\x18\x03 \x01(\tR\tisoStringB6Z4github.com/rusgainew/tunduck-app-mk/proto-lib/commonb\x06proto3"
 
 var (
-	file_common_proto_rawDescOnce sync.Once
-	file_common_proto_rawDescData []byte
+	file_legacy_common_proto_rawDescOnce sync.Once
+	file_legacy_common_proto_rawDescData []byte
 )
 
-func file_common_proto_rawDescGZIP() []byte {
-	file_common_proto_rawDescOnce.Do(func() {
-		file_common_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_common_proto_rawDesc), len(file_common_proto_rawDesc)))
+func file_legacy_common_proto_rawDescGZIP() []byte {
+	file_legacy_common_proto_rawDescOnce.Do(func() {
+		file_legacy_common_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_legacy_common_proto_rawDesc), len(file_legacy_common_proto_rawDesc)))
 	})
-	return file_common_proto_rawDescData
+	return file_legacy_common_proto_rawDescData
 }
 
-var file_common_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
-var file_common_proto_goTypes = []any{
+var file_legacy_common_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_legacy_common_proto_goTypes = []any{
 	(*Empty)(nil),     // 0: api.common.Empty
 	(*Error)(nil),     // 1: api.common.Error
 	(*PageInfo)(nil),  // 2: api.common.PageInfo
 	(*Timestamp)(nil), // 3: api.common.Timestamp
 }
-var file_common_proto_depIdxs = []int32{
+var file_legacy_common_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
 	0, // [0:0] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
@@ -326,26 +326,26 @@ var file_common_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for field type_name
 }
 
-func init() { file_common_proto_init() }
-func file_common_proto_init() {
-	if File_common_proto != nil {
+func init() { file_legacy_common_proto_init() }
+func file_legacy_common_proto_init() {
+	if File_legacy_common_proto != nil {
 		return
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_common_proto_rawDesc), len(file_common_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_legacy_common_proto_rawDesc), len(file_legacy_common_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
-		GoTypes:           file_common_proto_goTypes,
-		DependencyIndexes: file_common_proto_depIdxs,
-		MessageInfos:      file_common_proto_msgTypes,
+		GoTypes:           file_legacy_common_proto_goTypes,
+		DependencyIndexes: file_legacy_common_proto_depIdxs,
+		MessageInfos:      file_legacy_common_proto_msgTypes,
 	}.Build()
-	File_common_proto = out.File
-	file_common_proto_goTypes = nil
-	file_common_proto_depIdxs = nil
+	File_legacy_common_proto = out.File
+	file_legacy_common_proto_goTypes = nil
+	file_legacy_common_proto_depIdxs = nil
 }

@@ -4,8 +4,8 @@ package api.document;
 
 option go_package = "github.com/rusgainew/tunduck-app-mk/proto-lib/document";
 
-import "common.proto";
-import "document.proto";
+import "legacy/common.proto";
+import "legacy/document.proto";
 
 /**
  * DocumentService provides document management and workflow operations

@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.36.11
 // 	protoc        v3.21.12
-// source: document_service.proto
+// source: legacy/document_service.proto
 
 package document
 
@@ -31,7 +31,7 @@ type GetDocumentRequest struct {
 
 func (x *GetDocumentRequest) Reset() {
 	*x = GetDocumentRequest{}
-	mi := &file_document_service_proto_msgTypes[0]
+	mi := &file_legacy_document_service_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -43,7 +43,7 @@ func (x *GetDocumentRequest) String() string {
 func (*GetDocumentRequest) ProtoMessage() {}
 
 func (x *GetDocumentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_document_service_proto_msgTypes[0]
+	mi := &file_legacy_document_service_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -56,7 +56,7 @@ func (x *GetDocumentRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetDocumentRequest.ProtoReflect.Descriptor instead.
 func (*GetDocumentRequest) Descriptor() ([]byte, []int) {
-	return file_document_service_proto_rawDescGZIP(), []int{0}
+	return file_legacy_document_service_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *GetDocumentRequest) GetDocumentId() string {
@@ -78,7 +78,7 @@ type CreateDocumentRequest struct {
 
 func (x *CreateDocumentRequest) Reset() {
 	*x = CreateDocumentRequest{}
-	mi := &file_document_service_proto_msgTypes[1]
+	mi := &file_legacy_document_service_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -90,7 +90,7 @@ func (x *CreateDocumentRequest) String() string {
 func (*CreateDocumentRequest) ProtoMessage() {}
 
 func (x *CreateDocumentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_document_service_proto_msgTypes[1]
+	mi := &file_legacy_document_service_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -103,7 +103,7 @@ func (x *CreateDocumentRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateDocumentRequest.ProtoReflect.Descriptor instead.
 func (*CreateDocumentRequest) Descriptor() ([]byte, []int) {
-	return file_document_service_proto_rawDescGZIP(), []int{1}
+	return file_legacy_document_service_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *CreateDocumentRequest) GetOrganizationId() string {
@@ -145,7 +145,7 @@ type UpdateDocumentRequest struct {
 
 func (x *UpdateDocumentRequest) Reset() {
 	*x = UpdateDocumentRequest{}
-	mi := &file_document_service_proto_msgTypes[2]
+	mi := &file_legacy_document_service_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -157,7 +157,7 @@ func (x *UpdateDocumentRequest) String() string {
 func (*UpdateDocumentRequest) ProtoMessage() {}
 
 func (x *UpdateDocumentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_document_service_proto_msgTypes[2]
+	mi := &file_legacy_document_service_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -170,7 +170,7 @@ func (x *UpdateDocumentRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateDocumentRequest.ProtoReflect.Descriptor instead.
 func (*UpdateDocumentRequest) Descriptor() ([]byte, []int) {
-	return file_document_service_proto_rawDescGZIP(), []int{2}
+	return file_legacy_document_service_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *UpdateDocumentRequest) GetId() string {
@@ -205,7 +205,7 @@ type SendDocumentRequest struct {
 
 func (x *SendDocumentRequest) Reset() {
 	*x = SendDocumentRequest{}
-	mi := &file_document_service_proto_msgTypes[3]
+	mi := &file_legacy_document_service_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -217,7 +217,7 @@ func (x *SendDocumentRequest) String() string {
 func (*SendDocumentRequest) ProtoMessage() {}
 
 func (x *SendDocumentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_document_service_proto_msgTypes[3]
+	mi := &file_legacy_document_service_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -230,7 +230,7 @@ func (x *SendDocumentRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SendDocumentRequest.ProtoReflect.Descriptor instead.
 func (*SendDocumentRequest) Descriptor() ([]byte, []int) {
-	return file_document_service_proto_rawDescGZIP(), []int{3}
+	return file_legacy_document_service_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *SendDocumentRequest) GetDocumentId() string {
@@ -265,7 +265,7 @@ type ApproveDocumentRequest struct {
 
 func (x *ApproveDocumentRequest) Reset() {
 	*x = ApproveDocumentRequest{}
-	mi := &file_document_service_proto_msgTypes[4]
+	mi := &file_legacy_document_service_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -277,7 +277,7 @@ func (x *ApproveDocumentRequest) String() string {
 func (*ApproveDocumentRequest) ProtoMessage() {}
 
 func (x *ApproveDocumentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_document_service_proto_msgTypes[4]
+	mi := &file_legacy_document_service_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -290,7 +290,7 @@ func (x *ApproveDocumentRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ApproveDocumentRequest.ProtoReflect.Descriptor instead.
 func (*ApproveDocumentRequest) Descriptor() ([]byte, []int) {
-	return file_document_service_proto_rawDescGZIP(), []int{4}
+	return file_legacy_document_service_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *ApproveDocumentRequest) GetDocumentId() string {
@@ -325,7 +325,7 @@ type RejectDocumentRequest struct {
 
 func (x *RejectDocumentRequest) Reset() {
 	*x = RejectDocumentRequest{}
-	mi := &file_document_service_proto_msgTypes[5]
+	mi := &file_legacy_document_service_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -337,7 +337,7 @@ func (x *RejectDocumentRequest) String() string {
 func (*RejectDocumentRequest) ProtoMessage() {}
 
 func (x *RejectDocumentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_document_service_proto_msgTypes[5]
+	mi := &file_legacy_document_service_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -350,7 +350,7 @@ func (x *RejectDocumentRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RejectDocumentRequest.ProtoReflect.Descriptor instead.
 func (*RejectDocumentRequest) Descriptor() ([]byte, []int) {
-	return file_document_service_proto_rawDescGZIP(), []int{5}
+	return file_legacy_document_service_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *RejectDocumentRequest) GetDocumentId() string {
@@ -383,7 +383,7 @@ type ArchiveDocumentRequest struct {
 
 func (x *ArchiveDocumentRequest) Reset() {
 	*x = ArchiveDocumentRequest{}
-	mi := &file_document_service_proto_msgTypes[6]
+	mi := &file_legacy_document_service_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -395,7 +395,7 @@ func (x *ArchiveDocumentRequest) String() string {
 func (*ArchiveDocumentRequest) ProtoMessage() {}
 
 func (x *ArchiveDocumentRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_document_service_proto_msgTypes[6]
+	mi := &file_legacy_document_service_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -408,7 +408,7 @@ func (x *ArchiveDocumentRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ArchiveDocumentRequest.ProtoReflect.Descriptor instead.
 func (*ArchiveDocumentRequest) Descriptor() ([]byte, []int) {
-	return file_document_service_proto_rawDescGZIP(), []int{6}
+	return file_legacy_document_service_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *ArchiveDocumentRequest) GetDocumentId() string {
@@ -431,7 +431,7 @@ type ListDocumentsRequest struct {
 
 func (x *ListDocumentsRequest) Reset() {
 	*x = ListDocumentsRequest{}
-	mi := &file_document_service_proto_msgTypes[7]
+	mi := &file_legacy_document_service_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -443,7 +443,7 @@ func (x *ListDocumentsRequest) String() string {
 func (*ListDocumentsRequest) ProtoMessage() {}
 
 func (x *ListDocumentsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_document_service_proto_msgTypes[7]
+	mi := &file_legacy_document_service_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -456,7 +456,7 @@ func (x *ListDocumentsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListDocumentsRequest.ProtoReflect.Descriptor instead.
 func (*ListDocumentsRequest) Descriptor() ([]byte, []int) {
-	return file_document_service_proto_rawDescGZIP(), []int{7}
+	return file_legacy_document_service_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *ListDocumentsRequest) GetOrganizationId() string {
@@ -504,7 +504,7 @@ type ListDocumentsResponse struct {
 
 func (x *ListDocumentsResponse) Reset() {
 	*x = ListDocumentsResponse{}
-	mi := &file_document_service_proto_msgTypes[8]
+	mi := &file_legacy_document_service_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -516,7 +516,7 @@ func (x *ListDocumentsResponse) String() string {
 func (*ListDocumentsResponse) ProtoMessage() {}
 
 func (x *ListDocumentsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_document_service_proto_msgTypes[8]
+	mi := &file_legacy_document_service_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -529,7 +529,7 @@ func (x *ListDocumentsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListDocumentsResponse.ProtoReflect.Descriptor instead.
 func (*ListDocumentsResponse) Descriptor() ([]byte, []int) {
-	return file_document_service_proto_rawDescGZIP(), []int{8}
+	return file_legacy_document_service_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *ListDocumentsResponse) GetDocuments() []*Document {
@@ -557,7 +557,7 @@ type AddDocumentEntryRequest struct {
 
 func (x *AddDocumentEntryRequest) Reset() {
 	*x = AddDocumentEntryRequest{}
-	mi := &file_document_service_proto_msgTypes[9]
+	mi := &file_legacy_document_service_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -569,7 +569,7 @@ func (x *AddDocumentEntryRequest) String() string {
 func (*AddDocumentEntryRequest) ProtoMessage() {}
 
 func (x *AddDocumentEntryRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_document_service_proto_msgTypes[9]
+	mi := &file_legacy_document_service_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -582,7 +582,7 @@ func (x *AddDocumentEntryRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AddDocumentEntryRequest.ProtoReflect.Descriptor instead.
 func (*AddDocumentEntryRequest) Descriptor() ([]byte, []int) {
-	return file_document_service_proto_rawDescGZIP(), []int{9}
+	return file_legacy_document_service_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *AddDocumentEntryRequest) GetDocumentId() string {
@@ -617,7 +617,7 @@ type UpdateDocumentEntryRequest struct {
 
 func (x *UpdateDocumentEntryRequest) Reset() {
 	*x = UpdateDocumentEntryRequest{}
-	mi := &file_document_service_proto_msgTypes[10]
+	mi := &file_legacy_document_service_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -629,7 +629,7 @@ func (x *UpdateDocumentEntryRequest) String() string {
 func (*UpdateDocumentEntryRequest) ProtoMessage() {}
 
 func (x *UpdateDocumentEntryRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_document_service_proto_msgTypes[10]
+	mi := &file_legacy_document_service_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -642,7 +642,7 @@ func (x *UpdateDocumentEntryRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateDocumentEntryRequest.ProtoReflect.Descriptor instead.
 func (*UpdateDocumentEntryRequest) Descriptor() ([]byte, []int) {
-	return file_document_service_proto_rawDescGZIP(), []int{10}
+	return file_legacy_document_service_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *UpdateDocumentEntryRequest) GetEntryId() string {
@@ -675,7 +675,7 @@ type RemoveDocumentEntryRequest struct {
 
 func (x *RemoveDocumentEntryRequest) Reset() {
 	*x = RemoveDocumentEntryRequest{}
-	mi := &file_document_service_proto_msgTypes[11]
+	mi := &file_legacy_document_service_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -687,7 +687,7 @@ func (x *RemoveDocumentEntryRequest) String() string {
 func (*RemoveDocumentEntryRequest) ProtoMessage() {}
 
 func (x *RemoveDocumentEntryRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_document_service_proto_msgTypes[11]
+	mi := &file_legacy_document_service_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -700,7 +700,7 @@ func (x *RemoveDocumentEntryRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RemoveDocumentEntryRequest.ProtoReflect.Descriptor instead.
 func (*RemoveDocumentEntryRequest) Descriptor() ([]byte, []int) {
-	return file_document_service_proto_rawDescGZIP(), []int{11}
+	return file_legacy_document_service_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *RemoveDocumentEntryRequest) GetEntryId() string {
@@ -721,7 +721,7 @@ type GetDocumentHistoryRequest struct {
 
 func (x *GetDocumentHistoryRequest) Reset() {
 	*x = GetDocumentHistoryRequest{}
-	mi := &file_document_service_proto_msgTypes[12]
+	mi := &file_legacy_document_service_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -733,7 +733,7 @@ func (x *GetDocumentHistoryRequest) String() string {
 func (*GetDocumentHistoryRequest) ProtoMessage() {}
 
 func (x *GetDocumentHistoryRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_document_service_proto_msgTypes[12]
+	mi := &file_legacy_document_service_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -746,7 +746,7 @@ func (x *GetDocumentHistoryRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetDocumentHistoryRequest.ProtoReflect.Descriptor instead.
 func (*GetDocumentHistoryRequest) Descriptor() ([]byte, []int) {
-	return file_document_service_proto_rawDescGZIP(), []int{12}
+	return file_legacy_document_service_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *GetDocumentHistoryRequest) GetDocumentId() string {
@@ -780,7 +780,7 @@ type DocumentHistoryResponse struct {
 
 func (x *DocumentHistoryResponse) Reset() {
 	*x = DocumentHistoryResponse{}
-	mi := &file_document_service_proto_msgTypes[13]
+	mi := &file_legacy_document_service_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -792,7 +792,7 @@ func (x *DocumentHistoryResponse) String() string {
 func (*DocumentHistoryResponse) ProtoMessage() {}
 
 func (x *DocumentHistoryResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_document_service_proto_msgTypes[13]
+	mi := &file_legacy_document_service_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -805,7 +805,7 @@ func (x *DocumentHistoryResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DocumentHistoryResponse.ProtoReflect.Descriptor instead.
 func (*DocumentHistoryResponse) Descriptor() ([]byte, []int) {
-	return file_document_service_proto_rawDescGZIP(), []int{13}
+	return file_legacy_document_service_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *DocumentHistoryResponse) GetVersions() []*DocumentVersion {
@@ -822,11 +822,11 @@ func (x *DocumentHistoryResponse) GetPageInfo() *common.PageInfo {
 	return nil
 }
 
-var File_document_service_proto protoreflect.FileDescriptor
+var File_legacy_document_service_proto protoreflect.FileDescriptor
 
-const file_document_service_proto_rawDesc = "" +
+const file_legacy_document_service_proto_rawDesc = "" +
 	"\n" +
-	"\x16document_service.proto\x12\fapi.document\x1a\fcommon.proto\x1a\x0edocument.proto\"5\n" +
+	"\x1dlegacy/document_service.proto\x12\fapi.document\x1a\x13legacy/common.proto\x1a\x15legacy/document.proto\"5\n" +
 	"\x12GetDocumentRequest\x12\x1f\n" +
 	"\vdocument_id\x18\x01 \x01(\tR\n" +
 	"documentId\"\x8f\x01\n" +
@@ -904,19 +904,19 @@ const file_document_service_proto_rawDesc = "" +
 	"\x12GetDocumentHistory\x12'.api.document.GetDocumentHistoryRequest\x1a%.api.document.DocumentHistoryResponseB8Z6github.com/rusgainew/tunduck-app-mk/proto-lib/documentb\x06proto3"
 
 var (
-	file_document_service_proto_rawDescOnce sync.Once
-	file_document_service_proto_rawDescData []byte
+	file_legacy_document_service_proto_rawDescOnce sync.Once
+	file_legacy_document_service_proto_rawDescData []byte
 )
 
-func file_document_service_proto_rawDescGZIP() []byte {
-	file_document_service_proto_rawDescOnce.Do(func() {
-		file_document_service_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_document_service_proto_rawDesc), len(file_document_service_proto_rawDesc)))
+func file_legacy_document_service_proto_rawDescGZIP() []byte {
+	file_legacy_document_service_proto_rawDescOnce.Do(func() {
+		file_legacy_document_service_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_legacy_document_service_proto_rawDesc), len(file_legacy_document_service_proto_rawDesc)))
 	})
-	return file_document_service_proto_rawDescData
+	return file_legacy_document_service_proto_rawDescData
 }
 
-var file_document_service_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
-var file_document_service_proto_goTypes = []any{
+var file_legacy_document_service_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
+var file_legacy_document_service_proto_goTypes = []any{
 	(*GetDocumentRequest)(nil),         // 0: api.document.GetDocumentRequest
 	(*CreateDocumentRequest)(nil),      // 1: api.document.CreateDocumentRequest
 	(*UpdateDocumentRequest)(nil),      // 2: api.document.UpdateDocumentRequest
@@ -937,7 +937,7 @@ var file_document_service_proto_goTypes = []any{
 	(*DocumentEntry)(nil),              // 17: api.document.DocumentEntry
 	(*common.Empty)(nil),               // 18: api.common.Empty
 }
-var file_document_service_proto_depIdxs = []int32{
+var file_legacy_document_service_proto_depIdxs = []int32{
 	14, // 0: api.document.ListDocumentsResponse.documents:type_name -> api.document.Document
 	15, // 1: api.document.ListDocumentsResponse.page_info:type_name -> api.common.PageInfo
 	16, // 2: api.document.DocumentHistoryResponse.versions:type_name -> api.document.DocumentVersion
@@ -973,27 +973,27 @@ var file_document_service_proto_depIdxs = []int32{
 	0,  // [0:4] is the sub-list for field type_name
 }
 
-func init() { file_document_service_proto_init() }
-func file_document_service_proto_init() {
-	if File_document_service_proto != nil {
+func init() { file_legacy_document_service_proto_init() }
+func file_legacy_document_service_proto_init() {
+	if File_legacy_document_service_proto != nil {
 		return
 	}
-	file_document_proto_init()
+	file_legacy_document_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_document_service_proto_rawDesc), len(file_document_service_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_legacy_document_service_proto_rawDesc), len(file_legacy_document_service_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   14,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_document_service_proto_goTypes,
-		DependencyIndexes: file_document_service_proto_depIdxs,
-		MessageInfos:      file_document_service_proto_msgTypes,
+		GoTypes:           file_legacy_document_service_proto_goTypes,
+		DependencyIndexes: file_legacy_document_service_proto_depIdxs,
+		MessageInfos:      file_legacy_document_service_proto_msgTypes,
 	}.Build()
-	File_document_service_proto = out.File
-	file_document_service_proto_goTypes = nil
-	file_document_service_proto_depIdxs = nil
+	File_legacy_document_service_proto = out.File
+	file_legacy_document_service_proto_goTypes = nil
+	file_legacy_document_service_proto_depIdxs = nil
 }

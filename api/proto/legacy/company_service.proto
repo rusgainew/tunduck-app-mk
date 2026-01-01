@@ -4,8 +4,8 @@ package api.company;
 
 option go_package = "github.com/rusgainew/tunduck-app-mk/proto-lib/company";
 
-import "common.proto";
-import "company.proto";
+import "legacy/common.proto";
+import "legacy/company.proto";
 
 /**
  * CompanyService provides organization management operations

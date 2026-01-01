@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.36.11
 // 	protoc        v3.21.12
-// source: document.proto
+// source: legacy/document.proto
 
 package document
 
@@ -58,7 +58,7 @@ type Document struct {
 
 func (x *Document) Reset() {
 	*x = Document{}
-	mi := &file_document_proto_msgTypes[0]
+	mi := &file_legacy_document_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -70,7 +70,7 @@ func (x *Document) String() string {
 func (*Document) ProtoMessage() {}
 
 func (x *Document) ProtoReflect() protoreflect.Message {
-	mi := &file_document_proto_msgTypes[0]
+	mi := &file_legacy_document_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -83,7 +83,7 @@ func (x *Document) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Document.ProtoReflect.Descriptor instead.
 func (*Document) Descriptor() ([]byte, []int) {
-	return file_document_proto_rawDescGZIP(), []int{0}
+	return file_legacy_document_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *Document) GetId() string {
@@ -200,7 +200,7 @@ type DocumentEntry struct {
 
 func (x *DocumentEntry) Reset() {
 	*x = DocumentEntry{}
-	mi := &file_document_proto_msgTypes[1]
+	mi := &file_legacy_document_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -212,7 +212,7 @@ func (x *DocumentEntry) String() string {
 func (*DocumentEntry) ProtoMessage() {}
 
 func (x *DocumentEntry) ProtoReflect() protoreflect.Message {
-	mi := &file_document_proto_msgTypes[1]
+	mi := &file_legacy_document_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -225,7 +225,7 @@ func (x *DocumentEntry) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DocumentEntry.ProtoReflect.Descriptor instead.
 func (*DocumentEntry) Descriptor() ([]byte, []int) {
-	return file_document_proto_rawDescGZIP(), []int{1}
+	return file_legacy_document_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *DocumentEntry) GetId() string {
@@ -291,7 +291,7 @@ type DocumentWorkflow struct {
 
 func (x *DocumentWorkflow) Reset() {
 	*x = DocumentWorkflow{}
-	mi := &file_document_proto_msgTypes[2]
+	mi := &file_legacy_document_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -303,7 +303,7 @@ func (x *DocumentWorkflow) String() string {
 func (*DocumentWorkflow) ProtoMessage() {}
 
 func (x *DocumentWorkflow) ProtoReflect() protoreflect.Message {
-	mi := &file_document_proto_msgTypes[2]
+	mi := &file_legacy_document_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -316,7 +316,7 @@ func (x *DocumentWorkflow) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DocumentWorkflow.ProtoReflect.Descriptor instead.
 func (*DocumentWorkflow) Descriptor() ([]byte, []int) {
-	return file_document_proto_rawDescGZIP(), []int{2}
+	return file_legacy_document_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *DocumentWorkflow) GetCurrentStep() string {
@@ -375,7 +375,7 @@ type ApprovalRequest struct {
 
 func (x *ApprovalRequest) Reset() {
 	*x = ApprovalRequest{}
-	mi := &file_document_proto_msgTypes[3]
+	mi := &file_legacy_document_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -387,7 +387,7 @@ func (x *ApprovalRequest) String() string {
 func (*ApprovalRequest) ProtoMessage() {}
 
 func (x *ApprovalRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_document_proto_msgTypes[3]
+	mi := &file_legacy_document_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -400,7 +400,7 @@ func (x *ApprovalRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ApprovalRequest.ProtoReflect.Descriptor instead.
 func (*ApprovalRequest) Descriptor() ([]byte, []int) {
-	return file_document_proto_rawDescGZIP(), []int{3}
+	return file_legacy_document_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *ApprovalRequest) GetApproverId() string {
@@ -459,7 +459,7 @@ type DocumentVersion struct {
 
 func (x *DocumentVersion) Reset() {
 	*x = DocumentVersion{}
-	mi := &file_document_proto_msgTypes[4]
+	mi := &file_legacy_document_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -471,7 +471,7 @@ func (x *DocumentVersion) String() string {
 func (*DocumentVersion) ProtoMessage() {}
 
 func (x *DocumentVersion) ProtoReflect() protoreflect.Message {
-	mi := &file_document_proto_msgTypes[4]
+	mi := &file_legacy_document_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -484,7 +484,7 @@ func (x *DocumentVersion) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DocumentVersion.ProtoReflect.Descriptor instead.
 func (*DocumentVersion) Descriptor() ([]byte, []int) {
-	return file_document_proto_rawDescGZIP(), []int{4}
+	return file_legacy_document_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *DocumentVersion) GetVersion() int32 {
@@ -549,7 +549,7 @@ type DocumentTemplate struct {
 
 func (x *DocumentTemplate) Reset() {
 	*x = DocumentTemplate{}
-	mi := &file_document_proto_msgTypes[5]
+	mi := &file_legacy_document_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -561,7 +561,7 @@ func (x *DocumentTemplate) String() string {
 func (*DocumentTemplate) ProtoMessage() {}
 
 func (x *DocumentTemplate) ProtoReflect() protoreflect.Message {
-	mi := &file_document_proto_msgTypes[5]
+	mi := &file_legacy_document_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -574,7 +574,7 @@ func (x *DocumentTemplate) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DocumentTemplate.ProtoReflect.Descriptor instead.
 func (*DocumentTemplate) Descriptor() ([]byte, []int) {
-	return file_document_proto_rawDescGZIP(), []int{5}
+	return file_legacy_document_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *DocumentTemplate) GetId() string {
@@ -658,7 +658,7 @@ type TemplateEntry struct {
 
 func (x *TemplateEntry) Reset() {
 	*x = TemplateEntry{}
-	mi := &file_document_proto_msgTypes[6]
+	mi := &file_legacy_document_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -670,7 +670,7 @@ func (x *TemplateEntry) String() string {
 func (*TemplateEntry) ProtoMessage() {}
 
 func (x *TemplateEntry) ProtoReflect() protoreflect.Message {
-	mi := &file_document_proto_msgTypes[6]
+	mi := &file_legacy_document_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -683,7 +683,7 @@ func (x *TemplateEntry) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TemplateEntry.ProtoReflect.Descriptor instead.
 func (*TemplateEntry) Descriptor() ([]byte, []int) {
-	return file_document_proto_rawDescGZIP(), []int{6}
+	return file_legacy_document_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *TemplateEntry) GetKey() string {
@@ -735,11 +735,11 @@ func (x *TemplateEntry) GetDefaultValue() string {
 	return ""
 }
 
-var File_document_proto protoreflect.FileDescriptor
+var File_legacy_document_proto protoreflect.FileDescriptor
 
-const file_document_proto_rawDesc = "" +
+const file_legacy_document_proto_rawDesc = "" +
 	"\n" +
-	"\x0edocument.proto\x12\fapi.document\"\xc2\x03\n" +
+	"\x15legacy/document.proto\x12\fapi.document\"\xc2\x03\n" +
 	"\bDocument\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12'\n" +
 	"\x0forganization_id\x18\x02 \x01(\tR\x0eorganizationId\x12\x14\n" +
@@ -814,19 +814,19 @@ const file_document_proto_rawDesc = "" +
 	"\rdefault_value\x18\a \x01(\tR\fdefaultValueB8Z6github.com/rusgainew/tunduck-app-mk/proto-lib/documentb\x06proto3"
 
 var (
-	file_document_proto_rawDescOnce sync.Once
-	file_document_proto_rawDescData []byte
+	file_legacy_document_proto_rawDescOnce sync.Once
+	file_legacy_document_proto_rawDescData []byte
 )
 
-func file_document_proto_rawDescGZIP() []byte {
-	file_document_proto_rawDescOnce.Do(func() {
-		file_document_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_document_proto_rawDesc), len(file_document_proto_rawDesc)))
+func file_legacy_document_proto_rawDescGZIP() []byte {
+	file_legacy_document_proto_rawDescOnce.Do(func() {
+		file_legacy_document_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_legacy_document_proto_rawDesc), len(file_legacy_document_proto_rawDesc)))
 	})
-	return file_document_proto_rawDescData
+	return file_legacy_document_proto_rawDescData
 }
 
-var file_document_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
-var file_document_proto_goTypes = []any{
+var file_legacy_document_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+var file_legacy_document_proto_goTypes = []any{
 	(*Document)(nil),         // 0: api.document.Document
 	(*DocumentEntry)(nil),    // 1: api.document.DocumentEntry
 	(*DocumentWorkflow)(nil), // 2: api.document.DocumentWorkflow
@@ -835,7 +835,7 @@ var file_document_proto_goTypes = []any{
 	(*DocumentTemplate)(nil), // 5: api.document.DocumentTemplate
 	(*TemplateEntry)(nil),    // 6: api.document.TemplateEntry
 }
-var file_document_proto_depIdxs = []int32{
+var file_legacy_document_proto_depIdxs = []int32{
 	1, // 0: api.document.Document.entries:type_name -> api.document.DocumentEntry
 	2, // 1: api.document.Document.workflow:type_name -> api.document.DocumentWorkflow
 	3, // 2: api.document.DocumentWorkflow.approvals:type_name -> api.document.ApprovalRequest
@@ -848,26 +848,26 @@ var file_document_proto_depIdxs = []int32{
 	0, // [0:5] is the sub-list for field type_name
 }
 
-func init() { file_document_proto_init() }
-func file_document_proto_init() {
-	if File_document_proto != nil {
+func init() { file_legacy_document_proto_init() }
+func file_legacy_document_proto_init() {
+	if File_legacy_document_proto != nil {
 		return
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_document_proto_rawDesc), len(file_document_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_legacy_document_proto_rawDesc), len(file_legacy_document_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
-		GoTypes:           file_document_proto_goTypes,
-		DependencyIndexes: file_document_proto_depIdxs,
-		MessageInfos:      file_document_proto_msgTypes,
+		GoTypes:           file_legacy_document_proto_goTypes,
+		DependencyIndexes: file_legacy_document_proto_depIdxs,
+		MessageInfos:      file_legacy_document_proto_msgTypes,
 	}.Build()
-	File_document_proto = out.File
-	file_document_proto_goTypes = nil
-	file_document_proto_depIdxs = nil
+	File_legacy_document_proto = out.File
+	file_legacy_document_proto_goTypes = nil
+	file_legacy_document_proto_depIdxs = nil
 }

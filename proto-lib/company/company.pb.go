@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.36.11
 // 	protoc        v3.21.12
-// source: company.proto
+// source: legacy/company.proto
 
 package company
 
@@ -48,7 +48,7 @@ type Organization struct {
 
 func (x *Organization) Reset() {
 	*x = Organization{}
-	mi := &file_company_proto_msgTypes[0]
+	mi := &file_legacy_company_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -60,7 +60,7 @@ func (x *Organization) String() string {
 func (*Organization) ProtoMessage() {}
 
 func (x *Organization) ProtoReflect() protoreflect.Message {
-	mi := &file_company_proto_msgTypes[0]
+	mi := &file_legacy_company_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -73,7 +73,7 @@ func (x *Organization) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Organization.ProtoReflect.Descriptor instead.
 func (*Organization) Descriptor() ([]byte, []int) {
-	return file_company_proto_rawDescGZIP(), []int{0}
+	return file_legacy_company_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *Organization) GetId() string {
@@ -161,7 +161,7 @@ type Employee struct {
 
 func (x *Employee) Reset() {
 	*x = Employee{}
-	mi := &file_company_proto_msgTypes[1]
+	mi := &file_legacy_company_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -173,7 +173,7 @@ func (x *Employee) String() string {
 func (*Employee) ProtoMessage() {}
 
 func (x *Employee) ProtoReflect() protoreflect.Message {
-	mi := &file_company_proto_msgTypes[1]
+	mi := &file_legacy_company_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -186,7 +186,7 @@ func (x *Employee) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Employee.ProtoReflect.Descriptor instead.
 func (*Employee) Descriptor() ([]byte, []int) {
-	return file_company_proto_rawDescGZIP(), []int{1}
+	return file_legacy_company_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *Employee) GetId() string {
@@ -277,7 +277,7 @@ type Department struct {
 
 func (x *Department) Reset() {
 	*x = Department{}
-	mi := &file_company_proto_msgTypes[2]
+	mi := &file_legacy_company_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -289,7 +289,7 @@ func (x *Department) String() string {
 func (*Department) ProtoMessage() {}
 
 func (x *Department) ProtoReflect() protoreflect.Message {
-	mi := &file_company_proto_msgTypes[2]
+	mi := &file_legacy_company_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -302,7 +302,7 @@ func (x *Department) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Department.ProtoReflect.Descriptor instead.
 func (*Department) Descriptor() ([]byte, []int) {
-	return file_company_proto_rawDescGZIP(), []int{2}
+	return file_legacy_company_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *Department) GetId() string {
@@ -379,7 +379,7 @@ type OrganizationRole struct {
 
 func (x *OrganizationRole) Reset() {
 	*x = OrganizationRole{}
-	mi := &file_company_proto_msgTypes[3]
+	mi := &file_legacy_company_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -391,7 +391,7 @@ func (x *OrganizationRole) String() string {
 func (*OrganizationRole) ProtoMessage() {}
 
 func (x *OrganizationRole) ProtoReflect() protoreflect.Message {
-	mi := &file_company_proto_msgTypes[3]
+	mi := &file_legacy_company_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -404,7 +404,7 @@ func (x *OrganizationRole) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OrganizationRole.ProtoReflect.Descriptor instead.
 func (*OrganizationRole) Descriptor() ([]byte, []int) {
-	return file_company_proto_rawDescGZIP(), []int{3}
+	return file_legacy_company_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *OrganizationRole) GetId() string {
@@ -456,11 +456,11 @@ func (x *OrganizationRole) GetCreatedAt() int64 {
 	return 0
 }
 
-var File_company_proto protoreflect.FileDescriptor
+var File_legacy_company_proto protoreflect.FileDescriptor
 
-const file_company_proto_rawDesc = "" +
+const file_legacy_company_proto_rawDesc = "" +
 	"\n" +
-	"\rcompany.proto\x12\vapi.company\"\xe8\x01\n" +
+	"\x14legacy/company.proto\x12\vapi.company\"\xe8\x01\n" +
 	"\fOrganization\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12 \n" +
@@ -506,25 +506,25 @@ const file_company_proto_rawDesc = "" +
 	"created_at\x18\a \x01(\x03R\tcreatedAtB7Z5github.com/rusgainew/tunduck-app-mk/proto-lib/companyb\x06proto3"
 
 var (
-	file_company_proto_rawDescOnce sync.Once
-	file_company_proto_rawDescData []byte
+	file_legacy_company_proto_rawDescOnce sync.Once
+	file_legacy_company_proto_rawDescData []byte
 )
 
-func file_company_proto_rawDescGZIP() []byte {
-	file_company_proto_rawDescOnce.Do(func() {
-		file_company_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_company_proto_rawDesc), len(file_company_proto_rawDesc)))
+func file_legacy_company_proto_rawDescGZIP() []byte {
+	file_legacy_company_proto_rawDescOnce.Do(func() {
+		file_legacy_company_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_legacy_company_proto_rawDesc), len(file_legacy_company_proto_rawDesc)))
 	})
-	return file_company_proto_rawDescData
+	return file_legacy_company_proto_rawDescData
 }
 
-var file_company_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
-var file_company_proto_goTypes = []any{
+var file_legacy_company_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_legacy_company_proto_goTypes = []any{
 	(*Organization)(nil),     // 0: api.company.Organization
 	(*Employee)(nil),         // 1: api.company.Employee
 	(*Department)(nil),       // 2: api.company.Department
 	(*OrganizationRole)(nil), // 3: api.company.OrganizationRole
 }
-var file_company_proto_depIdxs = []int32{
+var file_legacy_company_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
 	0, // [0:0] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
@@ -532,26 +532,26 @@ var file_company_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for field type_name
 }
 
-func init() { file_company_proto_init() }
-func file_company_proto_init() {
-	if File_company_proto != nil {
+func init() { file_legacy_company_proto_init() }
+func file_legacy_company_proto_init() {
+	if File_legacy_company_proto != nil {
 		return
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_company_proto_rawDesc), len(file_company_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_legacy_company_proto_rawDesc), len(file_legacy_company_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
-		GoTypes:           file_company_proto_goTypes,
-		DependencyIndexes: file_company_proto_depIdxs,
-		MessageInfos:      file_company_proto_msgTypes,
+		GoTypes:           file_legacy_company_proto_goTypes,
+		DependencyIndexes: file_legacy_company_proto_depIdxs,
+		MessageInfos:      file_legacy_company_proto_msgTypes,
 	}.Build()
-	File_company_proto = out.File
-	file_company_proto_goTypes = nil
-	file_company_proto_depIdxs = nil
+	File_legacy_company_proto = out.File
+	file_legacy_company_proto_goTypes = nil
+	file_legacy_company_proto_depIdxs = nil
 }

@@ -9,11 +9,11 @@ PROTOC_BASE := \
 	protoc --proto_path=$(PROTO_DIR) \
 		--go_opt=paths=source_relative --go-grpc_opt=paths=source_relative
 
-# Legacy proto files
-PROTO_AUTH := auth.proto auth_service.proto
-PROTO_COMPANY := company.proto company_service.proto
-PROTO_DOCUMENT := document.proto document_service.proto
-PROTO_COMMON := common.proto
+# Legacy proto files (organized in legacy/ directory)
+PROTO_LEGACY_AUTH := $(wildcard legacy/auth*.proto)
+PROTO_LEGACY_COMPANY := $(wildcard legacy/company*.proto)
+PROTO_LEGACY_DOCUMENT := $(wildcard legacy/document*.proto)
+PROTO_LEGACY_COMMON := $(wildcard legacy/common.proto)
 
 # New organized proto files
 PROTO_DICTIONARIES := $(wildcard dictionaries/*.proto)
@@ -27,10 +27,10 @@ proto: proto-clean proto-dirs proto-legacy proto-new
 .PHONY: proto-legacy
 proto-legacy:
 	@echo "Building legacy proto files..."
-	$(PROTOC_BASE) --go_out=$(PROTO_LIB_DIR)/common --go-grpc_out=$(PROTO_LIB_DIR)/common $(PROTO_COMMON)
-	$(PROTOC_BASE) --go_out=$(PROTO_LIB_DIR)/auth --go-grpc_out=$(PROTO_LIB_DIR)/auth $(PROTO_AUTH)
-	$(PROTOC_BASE) --go_out=$(PROTO_LIB_DIR)/company --go-grpc_out=$(PROTO_LIB_DIR)/company $(PROTO_COMPANY)
-	$(PROTOC_BASE) --go_out=$(PROTO_LIB_DIR)/document --go-grpc_out=$(PROTO_LIB_DIR)/document $(PROTO_DOCUMENT)
+	$(PROTOC_BASE) --go_out=$(PROTO_LIB_DIR) --go-grpc_out=$(PROTO_LIB_DIR) legacy/common.proto
+	$(PROTOC_BASE) --go_out=$(PROTO_LIB_DIR) --go-grpc_out=$(PROTO_LIB_DIR) legacy/auth.proto legacy/auth_service.proto
+	$(PROTOC_BASE) --go_out=$(PROTO_LIB_DIR) --go-grpc_out=$(PROTO_LIB_DIR) legacy/company.proto legacy/company_service.proto
+	$(PROTOC_BASE) --go_out=$(PROTO_LIB_DIR) --go-grpc_out=$(PROTO_LIB_DIR) legacy/document.proto legacy/document_service.proto
 
 .PHONY: proto-new
 proto-new:
