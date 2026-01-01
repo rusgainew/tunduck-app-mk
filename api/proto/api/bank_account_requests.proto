@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package api;
+
+option go_package = "github.com/rusgainew/tunduck-app-mk/proto-lib/api";
+
+import "dictionaries/reference_item.proto";
+import "dictionaries/bank.proto";
+
+// CreateBankAccountRequest представляет запрос на создание банковского счета.
+// Используется для POST запроса /api/command/legal-person/bank-account/create
+message CreateBankAccountRequest {
+  string account_name = 1;
+  string bank_account = 2;
+  string contractor_tin = 3;
+  dictionaries.ReferenceItem currency = 4;
+  dictionaries.Bank bank = 5;
+  bool is_resident = 6;
+}
+
+// UpdateBankAccountRequest представляет запрос на обновление банковского счета.
+// Используется для PUT запроса /api/command/legal-person/bank-account/edit/{id}
+message UpdateBankAccountRequest {
+  int64 id = 1;
+  string account_name = 2;
+  string bank_account = 3;
+  dictionaries.ReferenceItem currency = 4;
+  dictionaries.Bank bank = 5;
+  bool is_resident = 6;
+}

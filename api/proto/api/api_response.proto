@@ -1,0 +1,121 @@
+syntax = "proto3";
+
+package api;
+
+option go_package = "github.com/rusgainew/tunduck-app-mk/proto-lib/api";
+
+import "google/protobuf/wrappers.proto";
+import "entities/invoice.proto";
+import "entities/invoice_detail.proto";
+import "dictionaries/bank_account.proto";
+import "dictionaries/catalog.proto";
+
+// APIResponse представляет базовый обобщенный ответ API.
+// Используется как базовая структура для всех endpoints в ESF API.
+// Это универсальная структура, которая может содержать различные типы данных.
+//
+// Структура позволяет:
+//   - Унифицировать формат ответов всех API endpoints
+//   - Включить общую информацию о запросе/ответе (ID, пользователь, клиент)
+//   - Поддерживать пагинацию при необходимости
+//   - Возвращать ошибки в стандартном формате
+//
+// Поле Data используется для хранения основных данных ответа,
+// тип которого зависит от конкретного endpoint.
+message APIResponse {
+  // RequestID - Уникальный идентификатор входящего запроса.
+  // Генерируется клиентом и отправляется в каждом запросе.
+  // Используется для отслеживания запроса в логах системы.
+  // Может быть nil, если клиент не предоставил ID запроса.
+  google.protobuf.StringValue request_id = 1;
+
+  // ResponseID - Уникальный идентификатор ответа.
+  // Генерируется сервером при обработке запроса.
+  // Может использоваться для поддержки клиентом и связи с сервером.
+  google.protobuf.StringValue response_id = 2;
+
+  // UserID - Идентификатор пользователя, от которого пришел запрос.
+  // Полезен для аудита и логирования операций.
+  // Может быть nil, если информация недоступна.
+  google.protobuf.StringValue user_id = 3;
+
+  // ClientID - Идентификатор клиентского приложения или системы.
+  // Используется при интеграции с внешними системами через API.
+  // Может быть nil.
+  google.protobuf.StringValue client_id = 4;
+
+  // TotalElements - Общее количество элементов во всех страницах.
+  // Заполняется только для endpoint'ов, возвращающих списки.
+  // Может быть nil для endpoint'ов, возвращающих одиночный объект.
+  google.protobuf.Int32Value total_elements = 5;
+
+  // TotalPage - Общее количество страниц.
+  // Заполняется только для endpoint'ов, возвращающих списки с пагинацией.
+  // Может быть nil.
+  google.protobuf.Int32Value total_page = 6;
+
+  // Data - Основной контент ответа.
+  // Тип данных зависит от вызываемого endpoint:
+  //   - Для одиночных объектов: Invoice, BankAccount, Catalog и т.д.
+  //   - Для списков: InvoiceListResponse, BankAccountListResponse и т.д.
+  //   - Для операций: результат операции или статус выполнения
+  // В protobuf используется oneof для различных типов данных
+  oneof data {
+    entities.Invoice invoice = 7;
+    InvoiceListResponse invoice_list = 8;
+    dictionaries.BankAccount bank_account = 9;
+    BankAccountListResponse bank_account_list = 10;
+    dictionaries.Catalog catalog = 11;
+    CatalogListResponse catalog_list = 12;
+  }
+}
+
+// InvoiceListResponse представляет специализированный ответ со списком счетов-фактур.
+// Используется для endpoint'ов, возвращающих множество счетов с пагинацией.
+message InvoiceListResponse {
+  // Page - Номер текущей страницы (отсчет с нуля: 0, 1, 2, ...)
+  int32 page = 1;
+
+  // Size - Количество счетов на текущей странице (максимальный размер страницы)
+  int32 size = 2;
+
+  // TotalElements - Общее количество счетов, доступных в системе
+  // (не только на текущей странице, а все счета целиком)
+  int32 total_elements = 3;
+
+  // TotalPage - Общее количество страниц для получения всех счетов
+  int32 total_page = 4;
+
+  // Invoices - Список счетов-фактур на текущей странице.
+  // Максимальное количество элементов определяется параметром size запроса.
+  // Каждый элемент содержит полную информацию о счете.
+  repeated entities.Invoice invoices = 5;
+}
+
+// DetailListResponse представляет специализированный ответ со списком деталей счета.
+// Используется для endpoint'ов, возвращающих строки/позиции счета-фактуры с пагинацией.
+message DetailListResponse {
+  int32 page = 1;
+  int32 size = 2;
+  int32 total_elements = 3;
+  int32 total_page = 4;
+  repeated entities.InvoiceDetail details = 5;
+}
+
+// BankAccountListResponse представляет специализированный ответ со списком банковских счетов.
+message BankAccountListResponse {
+  int32 page = 1;
+  int32 size = 2;
+  int32 total_elements = 3;
+  int32 total_page = 4;
+  repeated dictionaries.BankAccount bank_accounts = 5;
+}
+
+// CatalogListResponse представляет специализированный ответ со списком элементов каталога.
+message CatalogListResponse {
+  int32 page = 1;
+  int32 size = 2;
+  int32 total_elements = 3;
+  int32 total_page = 4;
+  repeated dictionaries.Catalog catalogs = 5;
+}

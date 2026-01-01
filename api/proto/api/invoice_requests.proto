@@ -1,0 +1,67 @@
+syntax = "proto3";
+
+package api;
+
+option go_package = "github.com/rusgainew/tunduck-app-mk/proto-lib/api";
+
+import "google/protobuf/wrappers.proto";
+import "entities/party.proto";
+import "entities/invoice_detail.proto";
+import "dictionaries/reference_item.proto";
+import "dictionaries/vat_tax_type.proto";
+
+// CreateInvoiceRequest представляет запрос на создание счета-фактуры.
+// Используется для POST запроса /api/command/invoice/{type}/create
+message CreateInvoiceRequest {
+  string invoice_number = 1;
+  google.protobuf.StringValue invoice_date = 2;
+  google.protobuf.StringValue delivery_date = 3;
+  double total_amount = 4;
+  bool is_resident = 5;
+  string note = 6;
+  entities.Party legal_person = 7;
+  entities.Party contractor = 8;
+  dictionaries.ReferenceItem currency = 9;
+  dictionaries.ReferenceItem payment_type = 10;
+  dictionaries.ReferenceItem delivery_type = 11;
+  dictionaries.VATTaxType vat_tax_type = 12;
+  repeated entities.InvoiceDetail details = 13;
+}
+
+// UpdateInvoiceRequest представляет запрос на обновление/редактирование счета-фактуры.
+// Используется для PUT запроса /api/command/invoice/{type}/edit/{id}
+message UpdateInvoiceRequest {
+  int64 id = 1;
+  string invoice_number = 2;
+  google.protobuf.StringValue invoice_date = 3;
+  google.protobuf.StringValue delivery_date = 4;
+  double total_amount = 5;
+  bool is_resident = 6;
+  string note = 7;
+  dictionaries.ReferenceItem currency = 8;
+  dictionaries.ReferenceItem payment_type = 9;
+  dictionaries.ReferenceItem delivery_type = 10;
+  dictionaries.VATTaxType vat_tax_type = 11;
+  repeated entities.InvoiceDetail details = 12;
+}
+
+// AcceptOrRejectRequest представляет запрос на принятие или отклонение счета-фактуры.
+// Используется для POST запроса /api/command/invoice/{type}/accept-or-reject
+message AcceptOrRejectRequest {
+  string document_uuid = 1;
+  bool accept = 2;
+  string reject_reason = 3;
+}
+
+// RevokeRequest представляет запрос на отзыв (отмену) документа.
+// Используется для POST запроса /api/command/invoice/{type}/revoke
+message RevokeRequest {
+  string document_uuid = 1;
+}
+
+// SignRequest представляет запрос на подписание документа.
+// Используется для POST запроса /api/command/invoice/{type}/sign
+message SignRequest {
+  string document_uuid = 1;
+  string signature = 2;
+}

@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package api;
+
+option go_package = "github.com/rusgainew/tunduck-app-mk/proto-lib/api";
+
+// CreateForeignCompanyRequest представляет запрос на создание иностранной компании.
+// Используется для POST запроса /api/command/foreign-company/create
+message CreateForeignCompanyRequest {
+  string pin = 1;
+  string full_name = 2;
+}
+
+// UpdateForeignCompanyRequest представляет запрос на обновление иностранной компании.
+// Используется для PUT запроса /api/command/foreign-company/edit/{id}
+message UpdateForeignCompanyRequest {
+  int64 id = 1;
+  string pin = 2;
+  string full_name = 3;
+}

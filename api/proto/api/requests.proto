@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package api;
+
+option go_package = "github.com/rusgainew/tunduck-app-mk/proto-lib/api";
+
+// DEPRECATED: This file is deprecated. Use specific request files instead:
+// - invoice_requests.proto for invoice-related requests
+// - bank_account_requests.proto for bank account requests
+// - catalog_requests.proto for catalog requests
+// - foreign_company_requests.proto for foreign company requests
+//
+// This file is kept for backward compatibility only.
+
+import "api/invoice_requests.proto";
+import "api/bank_account_requests.proto";
+import "api/catalog_requests.proto";
+import "api/foreign_company_requests.proto";

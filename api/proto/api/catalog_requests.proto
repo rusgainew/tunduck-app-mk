@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package api;
+
+option go_package = "github.com/rusgainew/tunduck-app-mk/proto-lib/api";
+
+import "dictionaries/reference_item.proto";
+
+// CreateCatalogRequest представляет запрос на создание элемента справочника.
+// Используется для POST запроса /api/command/legal-person/catalog/create
+message CreateCatalogRequest {
+  string name = 1;
+  string number = 2;
+  string tnved_code = 3;
+  string gked_code = 4;
+  dictionaries.ReferenceItem unit_classification = 5;
+  dictionaries.ReferenceItem catalog_type = 6;
+}
+
+// UpdateCatalogRequest представляет запрос на обновление элемента справочника.
+// Используется для PUT запроса /api/command/legal-person/catalog/edit/{id}
+message UpdateCatalogRequest {
+  int64 id = 1;
+  string name = 2;
+  string number = 3;
+  string tnved_code = 4;
+  string gked_code = 5;
+  dictionaries.ReferenceItem unit_classification = 6;
+  dictionaries.ReferenceItem catalog_type = 7;
+}
