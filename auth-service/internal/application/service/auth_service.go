@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"time"
 
@@ -32,17 +31,23 @@ func NewRegisterUserService(
 
 // Execute - Бизнес-логика регистрации
 func (s *RegisterUserService) Execute(ctx context.Context, req *dto.RegisterRequest) (*dto.RegisterResponse, error) {
-	// 1. Проверить, есть ли уже пользователь с таким email
-	exists, err := s.userRepo.UserExists(ctx, req.Email)
+	// 1. Валидация credential через domain layer
+	credential, err := entity.NewCredential(req.Email, req.Password)
+	if err != nil {
+		return nil, err
+	}
+
+	// 2. Проверить, есть ли уже пользователь с таким email
+	exists, err := s.userRepo.UserExists(ctx, credential.Email)
 	if err != nil {
 		return nil, fmt.Errorf("failed to check user existence: %w", err)
 	}
 	if exists {
-		return nil, errors.New("user with this email already exists")
+		return nil, entity.ErrUserAlreadyExists
 	}
 
 	// 3. Хеширование пароля
-	passwordHash, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
+	passwordHash, err := bcrypt.GenerateFromPassword([]byte(credential.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return nil, fmt.Errorf("failed to hash password: %w", err)
 	}
@@ -51,7 +56,7 @@ func (s *RegisterUserService) Execute(ctx context.Context, req *dto.RegisterRequ
 	userID := fmt.Sprintf("user_%d", time.Now().UnixNano())
 	user, err := entity.NewUser(
 		userID,
-		req.Email,
+		credential.Email,
 		req.Name,
 		string(passwordHash),
 	)
@@ -59,18 +64,21 @@ func (s *RegisterUserService) Execute(ctx context.Context, req *dto.RegisterRequ
 		return nil, fmt.Errorf("failed to create user: %w", err)
 	}
 
-	// 4. Сохранить в БД
+	// 5. Сохранить в БД
 	if err := s.userRepo.CreateUser(ctx, user); err != nil {
 		return nil, fmt.Errorf("failed to save user: %w", err)
 	}
 
-	// 5. Опубликовать событие
-	if err := s.eventPublisher.PublishUserRegistered(ctx, user); err != nil {
-		// Логировать ошибку, но не падать (eventual consistency)
-		fmt.Printf("failed to publish user_registered event: %v\n", err)
+	// 6. Опубликовать domain events
+	for _, event := range user.DomainEvents() {
+		if err := s.eventPublisher.Publish(ctx, event); err != nil {
+			// Логировать ошибку, но не падать (eventual consistency)
+			fmt.Printf("failed to publish event %s: %v\n", event.EventName(), err)
+		}
 	}
+	user.ClearDomainEvents()
 
-	// 6. Вернуть response
+	// 7. Вернуть response
 	return dto.UserToRegisterResponse(user), nil
 }
 
@@ -95,25 +103,30 @@ func NewLoginUserService(
 }
 
 // Execute - Бизнес-логика входа
-func (s *LoginUserService) Execute(ctx context.Context, req *dto.LoginRequest) (*dto.LoginResponse, error) {
+func (s *LoginUserService) Execute(ctx context.Context, req *dto.LoginRequest, ipAddress string) (*dto.LoginResponse, error) {
 	// 1. Найти пользователя
 	user, err := s.userRepo.GetUserByEmail(ctx, req.Email)
 	if err != nil {
-		return nil, errors.New("invalid credentials")
+		return nil, entity.ErrInvalidCredentials
 	}
 
 	// 2. Проверить активность
 	if !user.IsActive() {
-		return nil, errors.New("user account is not active")
+		return nil, entity.ErrUserInactive
 	}
 
-	// 3. Проверить пароль
+	// 3. Проверить блокировку
+	if user.IsBlocked() {
+		return nil, entity.ErrUserBlocked
+	}
+
+	// 4. Проверить пароль
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password)); err != nil {
-		return nil, errors.New("invalid credentials")
+		return nil, entity.ErrInvalidCredentials
 	}
 
-	// 5. Обновить последний вход
-	user.UpdateLastLogin()
+	// 5. Обновить последний вход с IP адресом
+	user.UpdateLastLogin(ipAddress)
 	if err := s.userRepo.UpdateUser(ctx, user); err != nil {
 		return nil, fmt.Errorf("failed to update user: %w", err)
 	}
@@ -124,12 +137,15 @@ func (s *LoginUserService) Execute(ctx context.Context, req *dto.LoginRequest) (
 		return nil, fmt.Errorf("failed to generate tokens: %w", err)
 	}
 
-	// 6. Опубликовать событие
-	if err := s.eventPublisher.PublishUserLoggedIn(ctx, user.ID); err != nil {
-		fmt.Printf("failed to publish user_logged_in event: %v\n", err)
+	// 7. Опубликовать domain events
+	for _, event := range user.DomainEvents() {
+		if err := s.eventPublisher.Publish(ctx, event); err != nil {
+			fmt.Printf("failed to publish event %s: %v\n", event.EventName(), err)
+		}
 	}
+	user.ClearDomainEvents()
 
-	// 7. Вернуть response
+	// 8. Вернуть response
 	return dto.TokenToLoginResponse(token), nil
 }
 

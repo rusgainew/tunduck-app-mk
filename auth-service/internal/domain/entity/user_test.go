@@ -5,99 +5,396 @@ import (
 	"time"
 )
 
-// TestUserCreation tests the User aggregate factory
-func TestUserCreation(t *testing.T) {
-	user, err := NewUser("1", "test@example.com", "Test User", "hashedpassword")
-
-	if err != nil {
-		t.Errorf("Expected no error, got %v", err)
+func TestNewUser(t *testing.T) {
+	tests := []struct {
+		name          string
+		id            string
+		email         string
+		userName      string
+		passwordHash  string
+		expectedError error
+	}{
+		{
+			name:          "valid user",
+			id:            "user-123",
+			email:         "test@example.com",
+			userName:      "Test User",
+			passwordHash:  "hashed_password",
+			expectedError: nil,
+		},
+		{
+			name:          "empty email",
+			id:            "user-123",
+			email:         "",
+			userName:      "Test User",
+			passwordHash:  "hashed_password",
+			expectedError: ErrInvalidEmail,
+		},
+		{
+			name:          "invalid email format",
+			id:            "user-123",
+			email:         "invalid-email",
+			userName:      "Test User",
+			passwordHash:  "hashed_password",
+			expectedError: ErrInvalidEmail,
+		},
+		{
+			name:          "empty password",
+			id:            "user-123",
+			email:         "test@example.com",
+			userName:      "Test User",
+			passwordHash:  "",
+			expectedError: ErrInvalidPassword,
+		},
 	}
 
-	if user.Email != "test@example.com" {
-		t.Errorf("Expected email test@example.com, got %s", user.Email)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			user, err := NewUser(tt.id, tt.email, tt.userName, tt.passwordHash)
+
+			if tt.expectedError != nil {
+				if err != tt.expectedError {
+					t.Errorf("expected error %v, got %v", tt.expectedError, err)
+				}
+				return
+			}
+
+			if err != nil {
+				t.Errorf("unexpected error: %v", err)
+				return
+			}
+
+			if user.ID != tt.id {
+				t.Errorf("expected ID %s, got %s", tt.id, user.ID)
+			}
+
+			if user.Email != tt.email {
+				t.Errorf("expected email %s, got %s", tt.email, user.Email)
+			}
+
+			if user.Status != UserStatusActive {
+				t.Errorf("expected status %s, got %s", UserStatusActive, user.Status)
+			}
+
+			// Check domain event was added
+			events := user.DomainEvents()
+			if len(events) != 1 {
+				t.Errorf("expected 1 domain event, got %d", len(events))
+			}
+
+			if events[0].EventName() != "user.registered" {
+				t.Errorf("expected event 'user.registered', got %s", events[0].EventName())
+			}
+		})
+	}
+}
+
+func TestUserIsActive(t *testing.T) {
+	user, _ := NewUser("user-123", "test@example.com", "Test", "hash")
+
+	if !user.IsActive() {
+		t.Error("new user should be active")
+	}
+
+	user.Status = UserStatusInactive
+	if user.IsActive() {
+		t.Error("inactive user should not be active")
+	}
+}
+
+func TestUserIsBlocked(t *testing.T) {
+	user, _ := NewUser("user-123", "test@example.com", "Test", "hash")
+
+	if user.IsBlocked() {
+		t.Error("new user should not be blocked")
+	}
+
+	user.Status = UserStatusBlocked
+	if !user.IsBlocked() {
+		t.Error("blocked user should be blocked")
+	}
+}
+
+func TestUserActivate(t *testing.T) {
+	user, _ := NewUser("user-123", "test@example.com", "Test", "hash")
+	user.Status = UserStatusInactive
+
+	err := user.Activate()
+	if err != nil {
+		t.Errorf("unexpected error: %v", err)
 	}
 
 	if user.Status != UserStatusActive {
-		t.Errorf("Expected status %s, got %s", UserStatusActive, user.Status)
+		t.Errorf("expected status %s, got %s", UserStatusActive, user.Status)
+	}
+
+	// Blocked user cannot be activated
+	user.Status = UserStatusBlocked
+	err = user.Activate()
+	if err != ErrUserBlocked {
+		t.Errorf("expected error %v, got %v", ErrUserBlocked, err)
 	}
 }
 
-// TestUserCreation_InvalidEmail tests error handling
-func TestUserCreation_InvalidEmail(t *testing.T) {
-	_, err := NewUser("1", "", "Test User", "hashedpassword")
+func TestUserDeactivate(t *testing.T) {
+	user, _ := NewUser("user-123", "test@example.com", "Test", "hash")
 
-	if err == nil {
-		t.Errorf("Expected error for empty email, got nil")
+	user.Deactivate()
+
+	if user.Status != UserStatusInactive {
+		t.Errorf("expected status %s, got %s", UserStatusInactive, user.Status)
 	}
 }
 
-// TestUserIsActive tests the IsActive business logic
-func TestUserIsActive(t *testing.T) {
-	user, _ := NewUser("1", "test@example.com", "Test User", "hashedpassword")
+func TestUserBlock(t *testing.T) {
+	user, _ := NewUser("user-123", "test@example.com", "Test", "hash")
+	user.ClearDomainEvents() // Clear registration event
 
-	if !user.IsActive() {
-		t.Errorf("Expected user to be active")
+	err := user.Block("suspicious activity")
+	if err != nil {
+		t.Errorf("unexpected error: %v", err)
 	}
 
-	user.Block()
-	if user.IsActive() {
-		t.Errorf("Expected user to be inactive after blocking")
+	if user.Status != UserStatusBlocked {
+		t.Errorf("expected status %s, got %s", UserStatusBlocked, user.Status)
+	}
+
+	// Check domain event
+	events := user.DomainEvents()
+	if len(events) != 1 {
+		t.Errorf("expected 1 domain event, got %d", len(events))
+	}
+
+	if events[0].EventName() != "user.blocked" {
+		t.Errorf("expected event 'user.blocked', got %s", events[0].EventName())
+	}
+
+	// Cannot block already blocked user
+	err = user.Block("another reason")
+	if err != ErrUserBlocked {
+		t.Errorf("expected error %v, got %v", ErrUserBlocked, err)
 	}
 }
 
-// TestUserUpdateLastLogin tests UpdateLastLogin method
 func TestUserUpdateLastLogin(t *testing.T) {
-	user, _ := NewUser("1", "test@example.com", "Test User", "hashedpassword")
+	user, _ := NewUser("user-123", "test@example.com", "Test", "hash")
+	user.ClearDomainEvents()
 
-	if user.LastLogin != nil {
-		t.Errorf("Expected no last login initially")
-	}
-
-	before := time.Now()
-	user.UpdateLastLogin()
-	after := time.Now()
+	ipAddress := "192.168.1.1"
+	user.UpdateLastLogin(ipAddress)
 
 	if user.LastLogin == nil {
-		t.Errorf("Expected LastLogin to be set")
+		t.Error("LastLogin should be set")
 	}
 
-	if user.LastLogin.Before(before) || user.LastLogin.After(after.Add(1*time.Second)) {
-		t.Errorf("LastLogin time is not within expected range")
-	}
-}
-
-// TestTokenExpiration tests the Token value object
-func TestTokenExpiration(t *testing.T) {
-	token := NewToken("access", "refresh", 3600)
-
-	if token.IsExpired() {
-		t.Errorf("Expected token to not be expired immediately")
+	if time.Since(*user.LastLogin) > time.Second {
+		t.Error("LastLogin should be recent")
 	}
 
-	expiredToken := NewToken("access", "refresh", -1)
-	if !expiredToken.IsExpired() {
-		t.Errorf("Expected token to be expired")
+	// Check domain event
+	events := user.DomainEvents()
+	if len(events) != 1 {
+		t.Errorf("expected 1 domain event, got %d", len(events))
+	}
+
+	if events[0].EventName() != "user.logged_in" {
+		t.Errorf("expected event 'user.logged_in', got %s", events[0].EventName())
 	}
 }
 
-// TestCredentialCreation tests Credential value object
-func TestCredentialCreation(t *testing.T) {
-	cred, err := NewCredential("test@example.com", "password")
+func TestUserChangePassword(t *testing.T) {
+	user, _ := NewUser("user-123", "test@example.com", "Test", "hash")
+	user.ClearDomainEvents()
 
+	newHash := "new_hashed_password"
+	err := user.ChangePassword(newHash)
 	if err != nil {
-		t.Errorf("Expected no error, got %v", err)
+		t.Errorf("unexpected error: %v", err)
 	}
 
-	if cred.Email != "test@example.com" {
-		t.Errorf("Expected email test@example.com, got %s", cred.Email)
+	if user.Password != newHash {
+		t.Errorf("expected password %s, got %s", newHash, user.Password)
+	}
+
+	// Check domain event
+	events := user.DomainEvents()
+	if len(events) != 1 {
+		t.Errorf("expected 1 domain event, got %d", len(events))
+	}
+
+	if events[0].EventName() != "user.password_changed" {
+		t.Errorf("expected event 'user.password_changed', got %s", events[0].EventName())
+	}
+
+	// Empty password should fail
+	err = user.ChangePassword("")
+	if err != ErrInvalidPassword {
+		t.Errorf("expected error %v, got %v", ErrInvalidPassword, err)
 	}
 }
 
-// TestCredentialCreation_InvalidPassword tests error handling
-func TestCredentialCreation_InvalidPassword(t *testing.T) {
-	_, err := NewCredential("test@example.com", "")
+func TestUserDomainEvents(t *testing.T) {
+	user, _ := NewUser("user-123", "test@example.com", "Test", "hash")
 
-	if err == nil {
-		t.Errorf("Expected error for empty password, got nil")
+	events := user.DomainEvents()
+	if len(events) != 1 {
+		t.Errorf("expected 1 event, got %d", len(events))
+	}
+
+	user.ClearDomainEvents()
+	events = user.DomainEvents()
+	if len(events) != 0 {
+		t.Errorf("expected 0 events after clear, got %d", len(events))
+	}
+}
+
+func TestNewCredential(t *testing.T) {
+	tests := []struct {
+		name          string
+		email         string
+		password      string
+		expectedError error
+	}{
+		{
+			name:          "valid credential",
+			email:         "test@example.com",
+			password:      "ValidPass123!",
+			expectedError: nil,
+		},
+		{
+			name:          "empty email",
+			email:         "",
+			password:      "ValidPass123!",
+			expectedError: ErrInvalidEmail,
+		},
+		{
+			name:          "invalid email",
+			email:         "invalid-email",
+			password:      "ValidPass123!",
+			expectedError: ErrInvalidEmail,
+		},
+		{
+			name:          "empty password",
+			email:         "test@example.com",
+			password:      "",
+			expectedError: ErrInvalidPassword,
+		},
+		{
+			name:          "password too short",
+			email:         "test@example.com",
+			password:      "Pass1!",
+			expectedError: ErrPasswordTooShort,
+		},
+		{
+			name:          "password too weak (no uppercase)",
+			email:         "test@example.com",
+			password:      "password123!",
+			expectedError: ErrPasswordTooWeak,
+		},
+		{
+			name:          "password too weak (no lowercase)",
+			email:         "test@example.com",
+			password:      "PASSWORD123!",
+			expectedError: ErrPasswordTooWeak,
+		},
+		{
+			name:          "password too weak (no number)",
+			email:         "test@example.com",
+			password:      "Password!",
+			expectedError: ErrPasswordTooWeak,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			cred, err := NewCredential(tt.email, tt.password)
+
+			if tt.expectedError != nil {
+				if err != tt.expectedError {
+					t.Errorf("expected error %v, got %v", tt.expectedError, err)
+				}
+				return
+			}
+
+			if err != nil {
+				t.Errorf("unexpected error: %v", err)
+				return
+			}
+
+			if cred.Email != tt.email {
+				t.Errorf("expected email %s, got %s", tt.email, cred.Email)
+			}
+
+			if cred.Password != tt.password {
+				t.Errorf("expected password %s, got %s", tt.password, cred.Password)
+			}
+		})
+	}
+}
+
+func TestValidatePassword(t *testing.T) {
+	tests := []struct {
+		name          string
+		password      string
+		expectedError error
+	}{
+		{
+			name:          "valid password",
+			password:      "ValidPass123!",
+			expectedError: nil,
+		},
+		{
+			name:          "valid password without special char",
+			password:      "ValidPass123",
+			expectedError: nil,
+		},
+		{
+			name:          "too short",
+			password:      "Pass1!",
+			expectedError: ErrPasswordTooShort,
+		},
+		{
+			name:          "no uppercase",
+			password:      "password123",
+			expectedError: ErrPasswordTooWeak,
+		},
+		{
+			name:          "no lowercase",
+			password:      "PASSWORD123",
+			expectedError: ErrPasswordTooWeak,
+		},
+		{
+			name:          "no number",
+			password:      "Password",
+			expectedError: ErrPasswordTooWeak,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := ValidatePassword(tt.password)
+			if err != tt.expectedError {
+				t.Errorf("expected error %v, got %v", tt.expectedError, err)
+			}
+		})
+	}
+}
+
+func TestTokenIsExpired(t *testing.T) {
+	// Non-expired token
+	token := NewToken("access", "refresh", 3600)
+	if token.IsExpired() {
+		t.Error("token should not be expired")
+	}
+
+	// Expired token
+	expiredToken := &Token{
+		AccessToken:  "access",
+		RefreshToken: "refresh",
+		ExpiresIn:    1,
+		IssuedAt:     time.Now().Add(-2 * time.Second),
+	}
+	if !expiredToken.IsExpired() {
+		t.Error("token should be expired")
 	}
 }

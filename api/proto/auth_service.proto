@@ -2,10 +2,10 @@ syntax = "proto3";
 
 package api.auth;
 
-option go_package = "github.com/rusgainew/tunduck/gen/proto/auth";
+option go_package = "github.com/rusgainew/tunduck-app-mk/proto-lib/auth";
 
-import "api/proto/auth.proto";
-import "api/proto/common.proto";
+import "auth.proto";
+import "common.proto";
 
 /**
  * AuthService provides authentication and user management operations

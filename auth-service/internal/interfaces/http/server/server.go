@@ -1,57 +1,38 @@
 package server
 
 import (
-	"fmt"
+	"context"
+	"log"
 	"net/http"
-
-	"github.com/rusgainew/tunduck-app-mk/auth-service/internal/application/service"
-	"github.com/rusgainew/tunduck-app-mk/auth-service/internal/infrastructure/config"
-	"github.com/rusgainew/tunduck-app-mk/auth-service/internal/interfaces/http/handler"
-	"github.com/rusgainew/tunduck-app-mk/auth-service/internal/interfaces/http/middleware"
+	"time"
 )
 
-// HTTPServer - HTTP server для Auth Service
+// HTTPServer wraps the net/http server with sensible timeouts.
 type HTTPServer struct {
-	cfg             *config.Config
-	registerHandler *handler.RegisterHandler
-	loginHandler    *handler.LoginHandler
-	getMeHandler    *handler.GetMeHandler
+	server *http.Server
 }
 
-// NewHTTPServer - Factory
-func NewHTTPServer(
-	cfg *config.Config,
-	registerService *service.RegisterUserService,
-	loginService *service.LoginUserService,
-	tokenService *service.TokenService,
-	userRepo interface{}, // будет заменено на interface{}
-) *HTTPServer {
+// NewHTTPServer creates a configured HTTP server.
+func NewHTTPServer(port string, handler http.Handler) *HTTPServer {
 	return &HTTPServer{
-		cfg:             cfg,
-		registerHandler: handler.NewRegisterHandler(registerService),
-		loginHandler:    handler.NewLoginHandler(loginService),
-		getMeHandler:    handler.NewGetMeHandler(userRepo, tokenService),
+		server: &http.Server{
+			Addr:         ":" + port,
+			Handler:      handler,
+			ReadTimeout:  15 * time.Second,
+			WriteTimeout: 15 * time.Second,
+			IdleTimeout:  60 * time.Second,
+		},
 	}
 }
 
 // Start - запустить HTTP сервер
 func (s *HTTPServer) Start() error {
-	mux := http.NewServeMux()
+	log.Printf("Starting HTTP server on %s\n", s.server.Addr)
+	return s.server.ListenAndServe()
+}
 
-	// Регистрировать endpoints
-	mux.HandleFunc("/health", (&handler.HealthHandler{}).Handle)
-	mux.HandleFunc("/auth/register", s.registerHandler.Handle)
-	mux.HandleFunc("/auth/login", s.loginHandler.Handle)
-	mux.HandleFunc("/auth/me", s.getMeHandler.Handle)
-
-	// Wrap mux with middleware
-	var finalHandler http.Handler = mux
-	finalHandler = middleware.RecoveryMiddleware(finalHandler)
-	finalHandler = middleware.LoggingMiddleware(finalHandler)
-	finalHandler = middleware.CORSMiddleware(finalHandler)
-
-	addr := fmt.Sprintf(":%d", s.cfg.HttpPort)
-	fmt.Printf("Starting HTTP server on %s\n", addr)
-
-	return http.ListenAndServe(addr, finalHandler)
+// Shutdown - корректно остановить сервер
+func (s *HTTPServer) Shutdown(ctx context.Context) error {
+	log.Println("Shutting down HTTP server...")
+	return s.server.Shutdown(ctx)
 }

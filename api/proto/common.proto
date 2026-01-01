@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package api.common;
 
-option go_package = "github.com/rusgainew/tunduck/gen/proto/common";
+option go_package = "github.com/rusgainew/tunduck-app-mk/proto-lib/common";
 
 /**
  * Empty message for operations that don't return data

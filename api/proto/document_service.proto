@@ -2,9 +2,10 @@ syntax = "proto3";
 
 package api.document;
 
-option go_package = "github.com/rusgainew/tunduck/gen/proto/document";
+option go_package = "github.com/rusgainew/tunduck-app-mk/proto-lib/document";
 
-import "api/proto/common.proto";
+import "common.proto";
+import "document.proto";
 
 /**
  * DocumentService provides document management and workflow operations

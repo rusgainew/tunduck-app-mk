@@ -3,12 +3,12 @@ package controllers
 import (
 	"context"
 	"net/http"
-	"os"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 
+	"github.com/rusgainew/tunduck-app/internal/services"
 	"github.com/rusgainew/tunduck-app/pkg/apperror"
 	"github.com/rusgainew/tunduck-app/pkg/entity"
 	"github.com/rusgainew/tunduck-app/pkg/logger"
@@ -17,16 +17,18 @@ import (
 )
 
 type UserController struct {
-	logger *logger.Logger
-	db     *gorm.DB
-	logrus *logrus.Logger
+	logger           *logger.Logger
+	db               *gorm.DB
+	logrus           *logrus.Logger
+	authProxyService services.AuthProxyService
 }
 
-func NewUserController(app *fiber.App, log *logrus.Logger, db *gorm.DB) {
+func NewUserController(app *fiber.App, authProxyService services.AuthProxyService, log *logrus.Logger, db *gorm.DB) {
 	controller := &UserController{
-		logger: logger.New(log),
-		db:     db,
-		logrus: log,
+		logger:           logger.New(log),
+		db:               db,
+		logrus:           log,
+		authProxyService: authProxyService,
 	}
 
 	controller.logger.Info(context.Background(), "UserController initialized", logrus.Fields{})
@@ -42,11 +44,10 @@ func (c *UserController) registerRoutes(app *fiber.App) {
 
 	// Защищённые routes для администраторов
 	// Для обновления: администратор или редактирование собственного профиля
-	jwtSecret := os.Getenv("JWT_SECRET")
-	userGroup.Put("/:id", middleware.JWTAuthMiddleware(jwtSecret, c.logrus), middleware.AdminOrSelfMiddleware(c.logrus, "id"), c.updateUser)
+	userGroup.Put("/:id", middleware.JWTAuthMiddleware(c.authProxyService, c.logrus), middleware.AdminOrSelfMiddleware(c.logrus, "id"), c.updateUser)
 
 	// Для удаления: только администраторы
-	userGroup.Delete("/:id", middleware.JWTAuthMiddleware(jwtSecret, c.logrus), middleware.AdminOnlyMiddleware(c.logrus), c.deleteUser)
+	userGroup.Delete("/:id", middleware.JWTAuthMiddleware(c.authProxyService, c.logrus), middleware.AdminOnlyMiddleware(c.logrus), c.deleteUser)
 }
 
 // getAllUsers возвращает всех пользователей с пагинацией

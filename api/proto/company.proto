@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package api.company;
 
-option go_package = "github.com/rusgainew/tunduck/gen/proto/company";
+option go_package = "github.com/rusgainew/tunduck-app-mk/proto-lib/company";
 
 /**
  * Organization aggregate root

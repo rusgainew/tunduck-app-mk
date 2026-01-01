@@ -14,7 +14,6 @@ services:
       POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
       - "5432:5432"
     networks:
@@ -74,43 +73,86 @@ services:
   # ============================================
   # Auth Service (Phase 2 - under development)
   # ============================================
-  # auth-service:
-  #   build:
-  #     context: ./auth-service
-  #     dockerfile: docker/Dockerfile
-  #   container_name: tunduck-auth-service
-  #   environment:
-  #     # Database
-  #     DB_HOST: postgres
-  #     DB_PORT: 5432
-  #     DB_USER: tunduck_user
-  #     DB_PASSWORD: tunduck_password_dev
-  #     DB_NAME: tunduck_db
-  #
-  #     # Redis
-  #     REDIS_HOST: redis
-  #     REDIS_PORT: 6379
-  #
-  #     # RabbitMQ
-  #     RABBITMQ_URL: amqp://tunduck_user:tunduck_password_dev@rabbitmq:5672/tunduck
-  #
-  #     # Service
-  #     SERVICE_PORT: 8001
-  #     GRPC_PORT: 9001
-  #     ENV: development
-  #   ports:
-  #     - "8001:8001"   # HTTP
-  #     - "9001:9001"   # gRPC
-  #   depends_on:
-  #     postgres:
-  #       condition: service_healthy
-  #     redis:
-  #       condition: service_healthy
-  #     rabbitmq:
-  #       condition: service_healthy
-  #   networks:
-  #     - tunduck-network
-  #   restart: unless-stopped
+  auth-service:
+    build:
+      context: ./auth-service
+      dockerfile: Dockerfile
+    container_name: tunduck-auth-service
+    environment:
+      # Database (auth-service uses DATABASE_URL)
+      DATABASE_URL: postgres://tunduck_user:tunduck_password_dev@postgres:5432/tunduck_db
+
+      # Redis
+      REDIS_ADDR: redis:6379
+
+      # RabbitMQ
+      RABBITMQ_URL: amqp://tunduck_user:tunduck_password_dev@rabbitmq:5672/tunduck
+
+      # JWT
+      JWT_SECRET: change-me-in-prod
+      JWT_EXPIRES: 3600
+
+      # Service ports
+      HTTP_PORT: 8001
+      GRPC_PORT: 9001
+
+      # Environment
+      ENVIRONMENT: development
+    ports:
+      - "8001:8001" # HTTP
+      - "9001:9001" # gRPC
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - tunduck-network
+    restart: unless-stopped
+
+  # ============================================
+  # Go API Gateway
+  # ============================================
+  go-api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    container_name: tunduck-go-api
+    environment:
+      # Ports & environment
+      PORT: 8080
+      ENV: development
+
+      # Auth-service
+      AUTH_SERVICE_GRPC_URL: auth-service:9001
+
+      # Database (shared with auth-service)
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: tunduck_user
+      DB_PASSWORD: tunduck_password_dev
+      DB_NAME: tunduck_db
+
+      # Redis & RabbitMQ
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      RABBITMQ_URL: amqp://tunduck_user:tunduck_password_dev@rabbitmq:5672/tunduck
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      auth-service:
+        condition: service_started
+    networks:
+      - tunduck-network
+    restart: unless-stopped
 
   # ============================================
   # Company Service (Phase 3 - planned)

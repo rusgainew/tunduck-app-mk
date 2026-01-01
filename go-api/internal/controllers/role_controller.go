@@ -19,23 +19,27 @@ import (
 )
 
 type RoleController struct {
-	logger      *logger.Logger
-	roleService services.RoleService
-	db          *gorm.DB
+	logger           *logger.Logger
+	roleService      services.RoleService
+	db               *gorm.DB
+	logrus           *logrus.Logger
+	authProxyService services.AuthProxyService
 }
 
-func NewRoleController(app *fiber.App, log *logrus.Logger, db *gorm.DB) {
+func NewRoleController(app *fiber.App, authProxyService services.AuthProxyService, log *logrus.Logger, db *gorm.DB) {
 	// Инициализируем слои
 	userRepo := repositorypostgres.NewUserRepositoryPostgres(db, log)
 	roleService := serviceimpl.NewRoleService(userRepo, log)
 
 	controller := &RoleController{
-		logger:      logger.New(log),
-		roleService: roleService,
-		db:          db,
+		logger:           logger.New(log),
+		roleService:      roleService,
+		db:               db,
+		logrus:           log,
+		authProxyService: authProxyService,
 	}
 
-	controller.logger.Info(context.Background(), "RoleController инициализирован", logrus.Fields{})
+	controller.logger.Info(context.Background(), "Ролевой контроллер инициализирован", logrus.Fields{})
 	controller.registerRoutes(app)
 }
 
@@ -44,7 +48,7 @@ func (c *RoleController) registerRoutes(app *fiber.App) {
 
 	// Защищенные маршруты (требуют JWT)
 	protected := roleGroup.Group("")
-	protected.Use(middleware.JWTMiddleware())
+	protected.Use(middleware.JWTAuthMiddleware(c.authProxyService, c.logrus))
 
 	// Маршруты требующие роль администратора
 	admin := protected.Group("")

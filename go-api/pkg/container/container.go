@@ -1,11 +1,14 @@
 package container
 
 import (
+	"os"
+
 	"github.com/go-playground/validator/v10"
 	"github.com/redis/go-redis/v9"
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 
+	grpcClient "github.com/rusgainew/tunduck-app/internal/clients/grpc"
 	"github.com/rusgainew/tunduck-app/internal/repository"
 	repositorypostgres "github.com/rusgainew/tunduck-app/internal/repository/repository_postgres"
 	"github.com/rusgainew/tunduck-app/internal/services"
@@ -40,6 +43,10 @@ type Container struct {
 	// Services
 	userService     services.UserService
 	documentService services.EsfDocumentService
+	authProxyService services.AuthProxyService
+
+	// gRPC Clients
+	authClient *grpcClient.AuthClient
 
 	// Validators
 	validator *validator.Validate
@@ -74,6 +81,26 @@ func (c *Container) initRepositories() {
 
 // initServices инициализирует все services
 func (c *Container) initServices() {
+	// Инициализируем gRPC клиент для auth-service
+	authServiceURL := os.Getenv("AUTH_SERVICE_GRPC_URL")
+	if authServiceURL == "" {
+		authServiceURL = "localhost:9001" // default для development
+	}
+	
+	var err error
+	c.authClient, err = grpcClient.NewAuthClient(authServiceURL)
+	if err != nil {
+		c.logrus.WithError(err).Warn("Failed to initialize auth-service gRPC client, auth endpoints may not work")
+	} else {
+		c.logrus.Infof("Connected to auth-service gRPC at %s", authServiceURL)
+	}
+
+	// Инициализируем AuthProxyService
+	if c.authClient != nil {
+		c.authProxyService = service_impl.NewAuthProxyService(c.authClient, c.logrus)
+		c.logrus.Info("AuthProxyService initialized successfully")
+	}
+
 	// Передаем DB через конструктор
 	c.userService = service_impl.NewUserService(c.userRepository, c.db, c.logrus)
 	c.documentService = service_impl.NewEsfDocumentService(c.docRepository, c.db, c.logrus)
@@ -85,6 +112,10 @@ func (c *Container) initServices() {
 		// OrgService would be initialized here if added to container
 		// orgService.SetCacheManager(c.cacheManager)
 	}
+func (c *Container) GetAuthProxyService() services.AuthProxyService {
+	return c.authProxyService
+}
+
 }
 
 // Getters для repositories

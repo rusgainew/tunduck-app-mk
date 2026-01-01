@@ -20,12 +20,14 @@ import (
 )
 
 type EsfDocumentController struct {
-	logger  *logger.Logger
-	service services.EsfDocumentService
-	db      *gorm.DB
+	logger           *logger.Logger
+	service          services.EsfDocumentService
+	db               *gorm.DB
+	logrus           *logrus.Logger
+	authProxyService services.AuthProxyService
 }
 
-func NewEsfDocumentController(app *fiber.App, log *logrus.Logger, db *gorm.DB) {
+func NewEsfDocumentController(app *fiber.App, authProxyService services.AuthProxyService, log *logrus.Logger, db *gorm.DB) {
 	// Инициализируем слои
 	repo := repositorypostgres.NewEsfDocumentRepositoryPostgres(db, log)
 	service := serviceimpl.NewEsfDocumentService(repo, db, log)
@@ -33,9 +35,11 @@ func NewEsfDocumentController(app *fiber.App, log *logrus.Logger, db *gorm.DB) {
 	l := logger.New(log)
 
 	controller := &EsfDocumentController{
-		logger:  l,
-		service: service,
-		db:      db,
+		logger:           l,
+		service:          service,
+		db:               db,
+		logrus:           log,
+		authProxyService: authProxyService,
 	}
 
 	l.Info(context.Background(), "EsfDocumentController initialized")
@@ -52,7 +56,7 @@ func (c *EsfDocumentController) registerRoutes(app *fiber.App) {
 
 	// Защищенные routes (с JWT)
 	protected := esfDocumentGroup.Group("")
-	protected.Use(middleware.JWTMiddleware())
+	protected.Use(middleware.JWTAuthMiddleware(c.authProxyService, c.logrus))
 	protected.Post("/", c.createEsfDocument)
 	protected.Put("/:id", c.updateEsfDocument)
 	protected.Delete("/:id", c.deleteEsfDocument)

@@ -17,24 +17,26 @@ import (
 )
 
 type AuthController struct {
-	logger       *logger.Logger
-	service      services.UserService
-	validate     *validator.Validate
-	cacheManager cache.CacheManager
+	logger           *logger.Logger
+	authProxyService services.AuthProxyService // NEW: proxy to auth-service
+	userService      services.UserService      // LEGACY: will be phased out
+	validate         *validator.Validate
+	cacheManager     cache.CacheManager
 }
 
-// NewAuthController инициализирует контроллер с сервисом из контейнера
-func NewAuthController(app *fiber.App, userService services.UserService, log *logrus.Logger, cacheManager cache.CacheManager) {
+// NewAuthController инициализирует контроллер с сервисами из контейнера
+func NewAuthController(app *fiber.App, authProxyService services.AuthProxyService, userService services.UserService, log *logrus.Logger, cacheManager cache.CacheManager) {
 	l := logger.New(log)
 
 	controller := &AuthController{
-		logger:       l,
-		service:      userService, // Используем сервис из контейнера
-		validate:     validator.New(),
-		cacheManager: cacheManager,
+		logger:           l,
+		authProxyService: authProxyService,
+		userService:      userService, // Сохраняем для обратной совместимости
+		validate:         validator.New(),
+		cacheManager:     cacheManager,
 	}
 
-	l.Info(context.Background(), "AuthController initialized")
+	l.Info(context.Background(), "AuthController initialized with AuthProxyService")
 	controller.registerRoutes(app, log)
 }
 
@@ -54,7 +56,7 @@ func (c *AuthController) registerRoutes(app *fiber.App, log *logrus.Logger) {
 }
 
 // @Summary Регистрация нового пользователя
-// @Description Регистрация с проверкой уникальности логина и email
+// @Description Регистрация через auth-service микросервис
 // @Tags auth
 // @Accept json
 // @Produce json
@@ -71,29 +73,24 @@ func (c *AuthController) register(ctx *fiber.Ctx) error {
 		return ctx.Status(fiber.StatusBadRequest).JSON(apperror.New(apperror.ErrInvalidRequest, "invalid request format").ToResponse())
 	}
 
-	// Валидация
-	if err := c.validate.Struct(req); err != nil {
+	// Валидация через метод модели
+	if err := req.Validate(); err != nil {
 		c.logger.Warn(ctx.Context(), "Validation failed for register request", logrus.Fields{"error": err.Error()})
-		return ctx.Status(fiber.StatusBadRequest).JSON(apperror.New(apperror.ErrValidation, "validation error").WithDetails(err.Error()).ToResponse())
+		return ctx.Status(fiber.StatusBadRequest).JSON(apperror.New(apperror.ErrValidation, err.Error()).ToResponse())
 	}
 
-	// Проверка совпадения паролей
-	if req.Password != req.ConfirmPassword {
-		c.logger.Warn(ctx.Context(), "Password mismatch during registration")
-		return ctx.Status(fiber.StatusBadRequest).JSON(apperror.New(apperror.ErrPasswordMismatch, "passwords do not match").ToResponse())
-	}
-
-	response, err := c.service.Register(ctx.Context(), &req)
+	// НОВОЕ: Вызов auth-service через gRPC proxy
+	response, err := c.authProxyService.Register(ctx.Context(), &req)
 	if err != nil {
 		appErr, ok := err.(*apperror.AppError)
 		if !ok {
 			appErr = apperror.New(apperror.ErrInternal, "registration failed").WithError(err)
 		}
-		c.logger.Error(ctx.Context(), "Registration failed", err, logrus.Fields{"username": req.Username})
+		c.logger.Error(ctx.Context(), "Registration failed via auth-service", err, logrus.Fields{"email": req.Email})
 		return ctx.Status(appErr.HTTPStatus).JSON(appErr.ToResponse())
 	}
 
-	c.logger.Info(ctx.Context(), "User registered successfully", logrus.Fields{"username": req.Username})
+	c.logger.Info(ctx.Context(), "User registered successfully via auth-service", logrus.Fields{"email": req.Email})
 	return ctx.Status(fiber.StatusCreated).JSON(response)
 }
 
@@ -149,7 +146,7 @@ func (c *AuthController) registerAdmin(ctx *fiber.Ctx) error {
 }
 
 // @Summary Вход в систему
-// @Description Аутентификация пользователя по логину и паролю
+// @Description Аутентификация через auth-service микросервис
 // @Tags auth
 // @Accept json
 // @Produce json
@@ -167,18 +164,19 @@ func (c *AuthController) login(ctx *fiber.Ctx) error {
 	}
 
 	// Валидация
-	if err := c.validate.Struct(req); err != nil {
-		c.logger.Warn(ctx.Context(), "Validation failed for login request", logrus.Fields{"error": err.Error()})
-		return ctx.Status(fiber.StatusBadRequest).JSON(apperror.New(apperror.ErrValidation, "validation error").WithDetails(err.Error()).ToResponse())
+	if req.Email == "" || req.Password == "" {
+		c.logger.Warn(ctx.Context(), "Validation failed for login request")
+		return ctx.Status(fiber.StatusBadRequest).JSON(apperror.New(apperror.ErrValidation, "email and password are required").ToResponse())
 	}
 
-	response, err := c.service.Login(ctx.Context(), &req)
+	// НОВОЕ: Вызов auth-service через gRPC proxy
+	response, err := c.authProxyService.Login(ctx.Context(), &req)
 	if err != nil {
 		appErr, ok := err.(*apperror.AppError)
 		if !ok {
 			appErr = apperror.New(apperror.ErrInternal, "login failed").WithError(err)
 		}
-		c.logger.Warn(ctx.Context(), "Login failed", logrus.Fields{"username": req.Username})
+		c.logger.Warn(ctx.Context(), "Login failed via auth-service", logrus.Fields{"email": req.Email})
 		return ctx.Status(appErr.HTTPStatus).JSON(appErr.ToResponse())
 	}
 

@@ -1,4 +1,4 @@
-package main
+package service
 
 import (
 	"context"
@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	"github.com/rusgainew/tunduck-app-mk/auth-service/internal/application/dto"
-	"github.com/rusgainew/tunduck-app-mk/auth-service/internal/application/service"
 	"github.com/rusgainew/tunduck-app-mk/auth-service/internal/domain/entity"
 )
 
@@ -71,36 +70,17 @@ func (m *MockUserRepository) UserExists(ctx context.Context, email string) (bool
 
 // MockEventPublisher - Mock для RabbitMQ
 type MockEventPublisher struct {
-	events []map[string]interface{}
+	events []entity.DomainEvent
 }
 
 func NewMockEventPublisher() *MockEventPublisher {
 	return &MockEventPublisher{
-		events: []map[string]interface{}{},
+		events: []entity.DomainEvent{},
 	}
 }
 
-func (m *MockEventPublisher) PublishUserRegistered(ctx context.Context, user *entity.User) error {
-	m.events = append(m.events, map[string]interface{}{
-		"event_type": "user.registered",
-		"user_id":    user.ID,
-	})
-	return nil
-}
-
-func (m *MockEventPublisher) PublishUserLoggedIn(ctx context.Context, userID string) error {
-	m.events = append(m.events, map[string]interface{}{
-		"event_type": "user.logged_in",
-		"user_id":    userID,
-	})
-	return nil
-}
-
-func (m *MockEventPublisher) PublishUserLoggedOut(ctx context.Context, userID string) error {
-	m.events = append(m.events, map[string]interface{}{
-		"event_type": "user.logged_out",
-		"user_id":    userID,
-	})
+func (m *MockEventPublisher) Publish(ctx context.Context, event entity.DomainEvent) error {
+	m.events = append(m.events, event)
 	return nil
 }
 
@@ -110,15 +90,15 @@ func (m *MockEventPublisher) PublishUserLoggedOut(ctx context.Context, userID st
 func TestRegisterUserService_Success(t *testing.T) {
 	mockRepo := NewMockUserRepository()
 	mockPublisher := NewMockEventPublisher()
-	service := service.NewRegisterUserService(mockRepo, mockPublisher)
+	svc := NewRegisterUserService(mockRepo, mockPublisher)
 
 	req := &dto.RegisterRequest{
 		Email:    "test@example.com",
 		Name:     "Test User",
-		Password: "password123",
+		Password: "ValidPass123",
 	}
 
-	resp, err := service.Execute(context.Background(), req)
+	resp, err := svc.Execute(context.Background(), req)
 
 	if err != nil {
 		t.Errorf("Expected no error, got %v", err)
@@ -140,31 +120,25 @@ func TestRegisterUserService_Success(t *testing.T) {
 func TestRegisterUserService_DuplicateEmail(t *testing.T) {
 	mockRepo := NewMockUserRepository()
 	mockPublisher := NewMockEventPublisher()
-	service := service.NewRegisterUserService(mockRepo, mockPublisher)
+	svc := NewRegisterUserService(mockRepo, mockPublisher)
 
 	// Создать первого пользователя
 	req := &dto.RegisterRequest{
 		Email:    "test@example.com",
 		Name:     "Test User",
-		Password: "password123",
+		Password: "ValidPass123",
 	}
-	service.Execute(context.Background(), req)
+	svc.Execute(context.Background(), req)
 
 	// Попытка создать с тем же email
 	req2 := &dto.RegisterRequest{
 		Email:    "test@example.com",
 		Name:     "Another User",
-		Password: "password456",
+		Password: "ValidPass456",
 	}
-	_, err := service.Execute(context.Background(), req2)
+	_, err := svc.Execute(context.Background(), req2)
 
 	if err == nil {
 		t.Errorf("Expected error for duplicate email, got nil")
 	}
 }
-
-// TODO: Добавить больше тестов
-// - LoginUserService tests
-// - Password validation tests
-// - Token generation tests
-// - Integration tests с реальной БД

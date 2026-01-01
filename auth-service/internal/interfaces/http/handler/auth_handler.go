@@ -4,161 +4,246 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/rusgainew/tunduck-app-mk/auth-service/internal/application/dto"
 	"github.com/rusgainew/tunduck-app-mk/auth-service/internal/application/service"
-	"github.com/rusgainew/tunduck-app-mk/auth-service/internal/domain/repository"
+	"github.com/rusgainew/tunduck-app-mk/auth-service/internal/domain/entity"
 )
 
-// RegisterHandler - HTTP handler для регистрации
-type RegisterHandler struct {
-	registerService *service.RegisterUserService
+// AuthHandler - контейнер для всех auth обработчиков
+type AuthHandler struct {
+	registerService     *service.RegisterUserService
+	loginService        *service.LoginUserService
+	validateService     *service.ValidateTokenService
+	getUserService      *service.GetUserService
+	logoutService       *service.LogoutUserService
+	refreshTokenService *service.RefreshTokenService
 }
 
-// NewRegisterHandler - Factory
-func NewRegisterHandler(registerService *service.RegisterUserService) *RegisterHandler {
-	return &RegisterHandler{
-		registerService: registerService,
+// NewAuthHandler - Factory
+func NewAuthHandler(
+	registerService *service.RegisterUserService,
+	loginService *service.LoginUserService,
+	validateService *service.ValidateTokenService,
+	getUserService *service.GetUserService,
+	logoutService *service.LogoutUserService,
+	refreshTokenService *service.RefreshTokenService,
+) *AuthHandler {
+	return &AuthHandler{
+		registerService:     registerService,
+		loginService:        loginService,
+		validateService:     validateService,
+		getUserService:      getUserService,
+		logoutService:       logoutService,
+		refreshTokenService: refreshTokenService,
 	}
 }
 
-// Handle - Handle POST /auth/register
-func (h *RegisterHandler) Handle(w http.ResponseWriter, r *http.Request) {
+// Register - POST /api/v1/auth/register
+func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		writeErrorResponse(w, http.StatusMethodNotAllowed, "METHOD_NOT_ALLOWED", "Only POST requests are allowed")
 		return
 	}
 
 	var req dto.RegisterRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "Invalid request", http.StatusBadRequest)
+		writeErrorResponse(w, http.StatusBadRequest, "INVALID_REQUEST", "Invalid request format")
 		return
 	}
 
 	resp, err := h.registerService.Execute(r.Context(), &req)
 	if err != nil {
-		errResp := &dto.ErrorResponse{
-			Code:    "REGISTRATION_FAILED",
-			Message: err.Error(),
-		}
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(errResp)
+		handleServiceError(w, err, "registration")
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(resp)
+	writeJSONResponse(w, http.StatusCreated, resp)
 }
 
-// LoginHandler - HTTP handler для входа
-type LoginHandler struct {
-	loginService *service.LoginUserService
-}
-
-// NewLoginHandler - Factory
-func NewLoginHandler(loginService *service.LoginUserService) *LoginHandler {
-	return &LoginHandler{
-		loginService: loginService,
-	}
-}
-
-// Handle - Handle POST /auth/login
-func (h *LoginHandler) Handle(w http.ResponseWriter, r *http.Request) {
+// Login - POST /api/v1/auth/login
+func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		writeErrorResponse(w, http.StatusMethodNotAllowed, "METHOD_NOT_ALLOWED", "Only POST requests are allowed")
 		return
 	}
 
 	var req dto.LoginRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "Invalid request", http.StatusBadRequest)
+		writeErrorResponse(w, http.StatusBadRequest, "INVALID_REQUEST", "Invalid request format")
 		return
 	}
 
-	resp, err := h.loginService.Execute(r.Context(), &req)
+	// Получить IP адрес клиента
+	ipAddress := getClientIP(r)
+
+	resp, err := h.loginService.Execute(r.Context(), &req, ipAddress)
 	if err != nil {
-		errResp := &dto.ErrorResponse{
-			Code:    "LOGIN_FAILED",
-			Message: err.Error(),
-		}
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusUnauthorized)
-		json.NewEncoder(w).Encode(errResp)
+		handleServiceError(w, err, "login")
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(resp)
+	writeJSONResponse(w, http.StatusOK, resp)
 }
 
-// GetMeHandler - HTTP handler для получения профиля
-type GetMeHandler struct {
-	userRepo     repository.UserRepository
-	tokenService *service.TokenService
-}
-
-// NewGetMeHandler - Factory
-func NewGetMeHandler(
-	userRepo repository.UserRepository,
-	tokenService *service.TokenService,
-) *GetMeHandler {
-	return &GetMeHandler{
-		userRepo:     userRepo,
-		tokenService: tokenService,
-	}
-}
-
-// Handle - Handle GET /auth/me
-func (h *GetMeHandler) Handle(w http.ResponseWriter, r *http.Request) {
+// GetMe - GET /api/v1/auth/me
+func (h *AuthHandler) GetMe(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		writeErrorResponse(w, http.StatusMethodNotAllowed, "METHOD_NOT_ALLOWED", "Only GET requests are allowed")
 		return
 	}
 
-	// Извлечь токен из Authorization заголовка
-	token := extractToken(r)
-	if token == "" {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+	// Извлечь userID из контекста (установлено middleware)
+	userID, ok := r.Context().Value("userID").(string)
+	if !ok {
+		writeErrorResponse(w, http.StatusUnauthorized, "UNAUTHORIZED", "Missing user ID")
 		return
 	}
 
-	// Валидировать токен
-	userID, err := h.tokenService.ValidateToken(r.Context(), token)
+	resp, err := h.getUserService.Execute(r.Context(), userID)
 	if err != nil {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		handleServiceError(w, err, "get user")
 		return
 	}
 
-	// Получить пользователя
-	user, err := h.userRepo.GetUserByID(r.Context(), userID)
-	if err != nil {
-		http.Error(w, "User not found", http.StatusNotFound)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(dto.UserToGetMeResponse(user))
+	writeJSONResponse(w, http.StatusOK, resp)
 }
 
-// HealthHandler - HTTP handler для health check
-type HealthHandler struct{}
+// Logout - POST /api/v1/auth/logout
+func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		writeErrorResponse(w, http.StatusMethodNotAllowed, "METHOD_NOT_ALLOWED", "Only POST requests are allowed")
+		return
+	}
 
-// Handle - Handle GET /health
-func (h *HealthHandler) Handle(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, `{"status":"ok"}`)
+	userID, ok := r.Context().Value("userID").(string)
+	if !ok {
+		writeErrorResponse(w, http.StatusUnauthorized, "UNAUTHORIZED", "Missing user ID")
+		return
+	}
+
+	token, ok := r.Context().Value("token").(string)
+	if !ok {
+		writeErrorResponse(w, http.StatusUnauthorized, "UNAUTHORIZED", "Missing token")
+		return
+	}
+
+	err := h.logoutService.Execute(r.Context(), userID, token)
+	if err != nil {
+		handleServiceError(w, err, "logout")
+		return
+	}
+
+	writeJSONResponse(w, http.StatusOK, map[string]string{
+		"message": "Successfully logged out",
+	})
 }
 
-// Вспомогательные функции
-func extractToken(r *http.Request) string {
-	auth := r.Header.Get("Authorization")
-	if len(auth) > 7 && auth[:7] == "Bearer " {
-		return auth[7:]
+// Refresh - POST /api/v1/auth/refresh
+func (h *AuthHandler) Refresh(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		writeErrorResponse(w, http.StatusMethodNotAllowed, "METHOD_NOT_ALLOWED", "Only POST requests are allowed")
+		return
 	}
-	return ""
+
+	var req dto.RefreshTokenRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		writeErrorResponse(w, http.StatusBadRequest, "INVALID_REQUEST", "Invalid request format")
+		return
+	}
+
+	resp, err := h.refreshTokenService.Execute(r.Context(), req.RefreshToken)
+	if err != nil {
+		handleServiceError(w, err, "token refresh")
+		return
+	}
+
+	writeJSONResponse(w, http.StatusOK, resp)
+}
+
+// Health - GET /health
+func (h *AuthHandler) Health(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		writeErrorResponse(w, http.StatusMethodNotAllowed, "METHOD_NOT_ALLOWED", "Only GET requests are allowed")
+		return
+	}
+
+	writeJSONResponse(w, http.StatusOK, map[string]string{
+		"status":  "ok",
+		"service": "auth-service",
+	})
+}
+
+// ============= Вспомогательные функции =============
+
+// writeJSONResponse - записывает JSON ответ
+func writeJSONResponse(w http.ResponseWriter, statusCode int, data interface{}) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(statusCode)
+	json.NewEncoder(w).Encode(data)
+}
+
+// writeErrorResponse - записывает ошибку в JSON формате
+func writeErrorResponse(w http.ResponseWriter, statusCode int, code, message string) {
+	errResp := &dto.ErrorResponse{
+		Code:    code,
+		Message: message,
+	}
+	writeJSONResponse(w, statusCode, errResp)
+}
+
+// handleServiceError - обрабатывает ошибки от сервисов
+func handleServiceError(w http.ResponseWriter, err error, operation string) {
+	switch err {
+	case entity.ErrUserNotFound:
+		writeErrorResponse(w, http.StatusNotFound, "USER_NOT_FOUND", "User not found")
+	case entity.ErrUserAlreadyExists:
+		writeErrorResponse(w, http.StatusConflict, "USER_EXISTS", "User with this email already exists")
+	case entity.ErrUserBlocked:
+		writeErrorResponse(w, http.StatusForbidden, "USER_BLOCKED", "User account is blocked")
+	case entity.ErrUserInactive:
+		writeErrorResponse(w, http.StatusForbidden, "USER_INACTIVE", "User account is not active")
+	case entity.ErrInvalidCredentials:
+		writeErrorResponse(w, http.StatusUnauthorized, "INVALID_CREDENTIALS", "Invalid email or password")
+	case entity.ErrInvalidEmail:
+		writeErrorResponse(w, http.StatusBadRequest, "INVALID_EMAIL", "Invalid email format")
+	case entity.ErrInvalidPassword:
+		writeErrorResponse(w, http.StatusBadRequest, "INVALID_PASSWORD", "Invalid password")
+	case entity.ErrPasswordTooShort:
+		writeErrorResponse(w, http.StatusBadRequest, "PASSWORD_TOO_SHORT", "Password must be at least 8 characters")
+	case entity.ErrPasswordTooWeak:
+		writeErrorResponse(w, http.StatusBadRequest, "PASSWORD_WEAK", "Password must contain uppercase, lowercase, and numbers")
+	case entity.ErrTokenExpired:
+		writeErrorResponse(w, http.StatusUnauthorized, "TOKEN_EXPIRED", "Token has expired")
+	case entity.ErrTokenInvalid:
+		writeErrorResponse(w, http.StatusUnauthorized, "TOKEN_INVALID", "Token is invalid")
+	case entity.ErrTokenRevoked:
+		writeErrorResponse(w, http.StatusUnauthorized, "TOKEN_REVOKED", "Token has been revoked")
+	default:
+		writeErrorResponse(w, http.StatusInternalServerError, "INTERNAL_ERROR", fmt.Sprintf("Failed to complete %s: %v", operation, err))
+	}
+}
+
+// getClientIP - получает IP адрес клиента
+func getClientIP(r *http.Request) string {
+	// Проверить X-Forwarded-For header (для proxy)
+	if xForwardedFor := r.Header.Get("X-Forwarded-For"); xForwardedFor != "" {
+		ips := strings.Split(xForwardedFor, ",")
+		if len(ips) > 0 {
+			return strings.TrimSpace(ips[0])
+		}
+	}
+
+	// Проверить X-Real-IP header
+	if xRealIP := r.Header.Get("X-Real-IP"); xRealIP != "" {
+		return xRealIP
+	}
+
+	// Использовать RemoteAddr
+	if colonIdx := strings.LastIndex(r.RemoteAddr, ":"); colonIdx != -1 {
+		return r.RemoteAddr[:colonIdx]
+	}
+
+	return r.RemoteAddr
 }

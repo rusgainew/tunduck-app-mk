@@ -1,16 +1,34 @@
 # Proto Files Build Configuration
 # Usage: make proto
 
+PROTO_DIR := .
+PROTO_LIB_DIR := ../../proto-lib
+PROTO_MODULE := github.com/rusgainew/tunduck-app-mk/proto-lib
+
+PROTOC_BASE := \
+	protoc --proto_path=$(PROTO_DIR) \
+		--go_opt=paths=source_relative --go-grpc_opt=paths=source_relative
+
+PROTO_AUTH := auth.proto auth_service.proto
+PROTO_COMPANY := company.proto company_service.proto
+PROTO_DOCUMENT := document.proto document_service.proto
+PROTO_COMMON := common.proto
+
 .PHONY: proto
-proto: proto-clean
-	protoc --go_out=. --go-grpc_out=. \
-		--go_opt=paths=source_relative \
-		--go-grpc_opt=paths=source_relative \
-		api/proto/*.proto
+proto: proto-clean proto-dirs
+	$(PROTOC_BASE) --go_out=$(PROTO_LIB_DIR)/common --go-grpc_out=$(PROTO_LIB_DIR)/common $(PROTO_COMMON)
+	$(PROTOC_BASE) --go_out=$(PROTO_LIB_DIR)/auth --go-grpc_out=$(PROTO_LIB_DIR)/auth $(PROTO_AUTH)
+	$(PROTOC_BASE) --go_out=$(PROTO_LIB_DIR)/company --go-grpc_out=$(PROTO_LIB_DIR)/company $(PROTO_COMPANY)
+	$(PROTOC_BASE) --go_out=$(PROTO_LIB_DIR)/document --go-grpc_out=$(PROTO_LIB_DIR)/document $(PROTO_DOCUMENT)
+
+.PHONY: proto-dirs
+proto-dirs:
+	mkdir -p $(PROTO_LIB_DIR)/common $(PROTO_LIB_DIR)/auth $(PROTO_LIB_DIR)/company $(PROTO_LIB_DIR)/document
 
 .PHONY: proto-clean
 proto-clean:
-	find . -name "*.pb.go" -delete
+	@[ -d $(PROTO_LIB_DIR) ] && find $(PROTO_LIB_DIR) -name "*.pb.go" -delete || true
+	find $(PROTO_DIR) -maxdepth 1 -name "*.pb.go" -delete
 
 .PHONY: proto-install-tools
 proto-install-tools:

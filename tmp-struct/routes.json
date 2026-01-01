@@ -1,0 +1,454 @@
+{
+  "metadata": {
+    "api_name": "ESF API",
+    "description": "Система электронных счетов-фактур (ЭСФ) ТУНДУК",
+    "total_routes": 39,
+    "version": "1.0",
+    "generated_date": "2024-01-15"
+  },
+  "statistics": {
+    "by_method": {
+      "GET": 13,
+      "POST": 8,
+      "PUT": 9,
+      "DELETE": 6,
+      "PATCH": 0
+    },
+    "by_category": {
+      "Query": 13,
+      "Command": 15,
+      "Dictionary": 9,
+      "Auth": 1
+    }
+  },
+  "routes": {
+    "query": {
+      "invoices": [
+        {
+          "method": "GET",
+          "path": "/api/query/invoice/realization/document-by-exchange-code",
+          "name": "Get Realization Invoice by UUID",
+          "description": "Получить счет на реализацию по UUID",
+          "required_params": ["documentUuid"],
+          "optional_params": [],
+          "response": "*Invoice"
+        },
+        {
+          "method": "GET",
+          "path": "/api/query/invoice/income/document-by-exchange-code",
+          "name": "Get Income Invoice by UUID",
+          "description": "Получить счет на приобретение по UUID",
+          "required_params": ["documentUuid"],
+          "optional_params": [],
+          "response": "*Invoice"
+        },
+        {
+          "method": "GET",
+          "path": "/api/query/invoice/correction/document-by-exchange-code",
+          "name": "Get Correction Invoice by UUID",
+          "description": "Получить корректировочный счет по UUID",
+          "required_params": ["documentUuid"],
+          "optional_params": [],
+          "response": "*Invoice"
+        },
+        {
+          "method": "GET",
+          "path": "/api/query/invoice/realization/all-documents",
+          "name": "Get All Realization Invoices",
+          "description": "Получить список счетов на реализацию",
+          "required_params": [],
+          "optional_params": ["page", "size", "sort", "documentUuid", "invoiceNumber", "status"],
+          "response": "*InvoiceListResponse"
+        },
+        {
+          "method": "GET",
+          "path": "/api/query/invoice/income/all-documents",
+          "name": "Get All Income Invoices",
+          "description": "Получить список счетов на приобретение",
+          "required_params": [],
+          "optional_params": ["page", "size", "sort", "documentUuid", "invoiceNumber", "status"],
+          "response": "*InvoiceListResponse"
+        },
+        {
+          "method": "GET",
+          "path": "/api/query/invoice/correction/all-documents",
+          "name": "Get All Correction Invoices",
+          "description": "Получить список корректировочных счетов",
+          "required_params": [],
+          "optional_params": ["page", "size", "sort", "documentUuid", "invoiceNumber", "status"],
+          "response": "*InvoiceListResponse"
+        }
+      ],
+      "details": [
+        {
+          "method": "GET",
+          "path": "/api/query/detail/details-by-exchange-code",
+          "name": "Get Invoice Details (Paginated)",
+          "description": "Получить детали счета с пагинацией",
+          "required_params": ["invoiceUuid"],
+          "optional_params": ["page", "size", "sort"],
+          "response": "*DetailListResponse"
+        },
+        {
+          "method": "GET",
+          "path": "/api/query/detail/v2/details-by-exchange-code",
+          "name": "Get Invoice Details (Full List)",
+          "description": "Получить все детали счета без пагинации",
+          "required_params": ["invoiceUuid"],
+          "optional_params": [],
+          "response": "*DetailListResponse"
+        }
+      ],
+      "bank_accounts": [
+        {
+          "method": "GET",
+          "path": "/api/query/legal-person/bank-accounts",
+          "name": "Get Bank Accounts",
+          "description": "Получить список банковских счетов",
+          "required_params": [],
+          "optional_params": ["page", "size", "sort"],
+          "response": "*BankAccountListResponse"
+        },
+        {
+          "method": "GET",
+          "path": "/api/query/legal-person/bank-account/{id}",
+          "name": "Get Bank Account by ID",
+          "description": "Получить банковский счет по ID",
+          "required_params": ["id", "tin"],
+          "optional_params": [],
+          "response": "*BankAccount"
+        }
+      ],
+      "catalogs": [
+        {
+          "method": "GET",
+          "path": "/api/query/legal-person/catalogs",
+          "name": "Get Catalogs",
+          "description": "Получить список справочников товаров/услуг",
+          "required_params": [],
+          "optional_params": ["page", "size", "sort", "catalogType"],
+          "response": "*CatalogListResponse"
+        },
+        {
+          "method": "GET",
+          "path": "/api/query/legal-person/catalog/{id}",
+          "name": "Get Catalog by ID",
+          "description": "Получить элемент справочника по ID",
+          "required_params": ["id", "tin"],
+          "optional_params": [],
+          "response": "*Catalog"
+        }
+      ],
+      "foreign_companies": [
+        {
+          "method": "GET",
+          "path": "/api/query/legal-person/foreign-companies",
+          "name": "Get Foreign Companies",
+          "description": "Получить список иностранных компаний",
+          "required_params": [],
+          "optional_params": ["foreignTin", "fullName", "sort", "page", "size"],
+          "response": "[]*ForeignCompany"
+        },
+        {
+          "method": "GET",
+          "path": "/api/query/legal-person/foreign-company/{id}",
+          "name": "Get Foreign Company by ID",
+          "description": "Получить иностранную компанию по ID",
+          "required_params": ["id"],
+          "optional_params": [],
+          "response": "*ForeignCompany"
+        }
+      ]
+    },
+    "command": {
+      "invoices": [
+        {
+          "method": "POST",
+          "path": "/api/command/invoice/create",
+          "name": "Create Invoice",
+          "description": "Создать новый счет-фактуру",
+          "required_params": ["invoiceNumber", "totalAmount", "legalPerson", "contractor", "details"],
+          "optional_params": ["invoiceDate", "deliveryDate", "note", "currency", "paymentType", "deliveryType"],
+          "response": "*Invoice"
+        },
+        {
+          "method": "PUT",
+          "path": "/api/command/invoice/edit/{id}",
+          "name": "Edit Invoice",
+          "description": "Отредактировать счет-фактуру",
+          "required_params": ["id"],
+          "optional_params": ["invoiceNumber", "invoiceDate", "deliveryDate", "totalAmount", "note", "details"],
+          "response": "*Invoice"
+        },
+        {
+          "method": "DELETE",
+          "path": "/api/command/invoice/delete/{id}",
+          "name": "Delete Invoice",
+          "description": "Удалить счет-фактуру",
+          "required_params": ["id"],
+          "optional_params": [],
+          "response": "map[string]interface{}"
+        },
+        {
+          "method": "POST",
+          "path": "/api/command/invoice/accept-or-reject",
+          "name": "Accept or Reject Invoice",
+          "description": "Принять или отклонить счет",
+          "required_params": ["documentUuid", "accept"],
+          "optional_params": ["rejectReason"],
+          "response": "*Invoice"
+        },
+        {
+          "method": "PUT",
+          "path": "/api/command/invoice/revoke",
+          "name": "Revoke Invoice",
+          "description": "Отозвать счет",
+          "required_params": ["documentUuid"],
+          "optional_params": [],
+          "response": "*Invoice"
+        },
+        {
+          "method": "POST",
+          "path": "/api/command/invoice/correction/create/{primaryId}",
+          "name": "Create Correction Invoice",
+          "description": "Создать корректировочный счет",
+          "required_params": ["primaryId", "details"],
+          "optional_params": ["correctionReason", "note"],
+          "response": "*Invoice"
+        },
+        {
+          "method": "PUT",
+          "path": "/api/command/invoice/correction/edit/{id}",
+          "name": "Edit Correction Invoice",
+          "description": "Отредактировать корректировочный счет",
+          "required_params": ["id"],
+          "optional_params": ["details", "note"],
+          "response": "*Invoice"
+        }
+      ],
+      "signing": [
+        {
+          "method": "PUT",
+          "path": "/api/command/invoice/sign",
+          "name": "Sign Invoice",
+          "description": "Подписать счет электронной подписью",
+          "required_params": ["documentUuid", "signature"],
+          "optional_params": [],
+          "response": "*Invoice"
+        },
+        {
+          "method": "PUT",
+          "path": "/api/command/invoice/sign-with-infocom",
+          "name": "Sign Invoice with Infocom",
+          "description": "Подписать счет через Инфокома",
+          "required_params": ["documentUuid"],
+          "optional_params": [],
+          "response": "*Invoice"
+        }
+      ],
+      "bank_accounts": [
+        {
+          "method": "POST",
+          "path": "/api/command/legal-person/bank/create",
+          "name": "Create Bank Account",
+          "description": "Создать банковский счет",
+          "required_params": ["accountName", "bankAccount", "currency", "bank"],
+          "optional_params": ["contractorTin", "isResident"],
+          "response": "*BankAccount"
+        },
+        {
+          "method": "PUT",
+          "path": "/api/command/legal-person/bank/edit/{id}",
+          "name": "Edit Bank Account",
+          "description": "Отредактировать банковский счет",
+          "required_params": ["id"],
+          "optional_params": ["accountName", "bankAccount", "currency", "bank", "isResident"],
+          "response": "*BankAccount"
+        },
+        {
+          "method": "DELETE",
+          "path": "/api/command/legal-person/bank/delete/{id}",
+          "name": "Delete Bank Account",
+          "description": "Удалить банковский счет",
+          "required_params": ["id"],
+          "optional_params": [],
+          "response": "map[string]interface{}"
+        }
+      ],
+      "catalogs": [
+        {
+          "method": "POST",
+          "path": "/api/command/legal-person/catalog/create",
+          "name": "Create Catalog",
+          "description": "Создать элемент справочника",
+          "required_params": ["name", "number", "unitClassification", "catalogType"],
+          "optional_params": ["tnvedCode", "gkedCode"],
+          "response": "*Catalog"
+        },
+        {
+          "method": "PUT",
+          "path": "/api/command/legal-person/catalog/edit/{id}",
+          "name": "Edit Catalog",
+          "description": "Отредактировать элемент справочника",
+          "required_params": ["id"],
+          "optional_params": ["name", "number", "tnvedCode", "gkedCode", "unitClassification", "catalogType"],
+          "response": "*Catalog"
+        },
+        {
+          "method": "DELETE",
+          "path": "/api/command/legal-person/catalog/delete/{id}",
+          "name": "Delete Catalog",
+          "description": "Удалить элемент справочника",
+          "required_params": ["id"],
+          "optional_params": [],
+          "response": "map[string]interface{}"
+        }
+      ],
+      "foreign_companies": [
+        {
+          "method": "POST",
+          "path": "/api/command/legal-person/foreign-company/create",
+          "name": "Create Foreign Company",
+          "description": "Создать иностранную компанию",
+          "required_params": ["pin", "fullName"],
+          "optional_params": [],
+          "response": "*ForeignCompany"
+        },
+        {
+          "method": "PUT",
+          "path": "/api/command/legal-person/foreign-company/edit/{id}",
+          "name": "Edit Foreign Company",
+          "description": "Отредактировать иностранную компанию",
+          "required_params": ["id"],
+          "optional_params": ["pin", "fullName"],
+          "response": "*ForeignCompany"
+        },
+        {
+          "method": "DELETE",
+          "path": "/api/command/legal-person/foreign-company/delete/{id}",
+          "name": "Delete Foreign Company",
+          "description": "Удалить иностранную компанию",
+          "required_params": ["id"],
+          "optional_params": [],
+          "response": "map[string]interface{}"
+        }
+      ]
+    },
+    "dictionary": [
+      {
+        "method": "GET",
+        "path": "/api/dictionary-service/dictionary-types",
+        "name": "Get Dictionary Types",
+        "description": "Получить типы справочников",
+        "required_params": [],
+        "optional_params": ["name", "shortName"],
+        "response": "[]*DictionaryType"
+      },
+      {
+        "method": "GET",
+        "path": "/api/dictionary-service/dictionaries",
+        "name": "Get Dictionaries",
+        "description": "Получить элементы справочника",
+        "required_params": ["type"],
+        "optional_params": ["sort", "size", "page"],
+        "response": "[]*DictionaryItem"
+      },
+      {
+        "method": "GET",
+        "path": "/api/dictionary-service/banks",
+        "name": "Get Banks",
+        "description": "Получить список банков",
+        "required_params": [],
+        "optional_params": [],
+        "response": "[]*Bank"
+      },
+      {
+        "method": "GET",
+        "path": "/api/dictionary-service/goods-classification",
+        "name": "Get Goods Classification",
+        "description": "Получить классификацию товаров",
+        "required_params": [],
+        "optional_params": ["size", "name", "sort"],
+        "response": "[]*GoodsClassification"
+      },
+      {
+        "method": "GET",
+        "path": "/api/dictionary-service/countries",
+        "name": "Get Countries",
+        "description": "Получить список стран",
+        "required_params": [],
+        "optional_params": ["size"],
+        "response": "[]*Country"
+      },
+      {
+        "method": "GET",
+        "path": "/api/dictionary-service/document-statuses",
+        "name": "Get Document Statuses",
+        "description": "Получить статусы документов",
+        "required_params": [],
+        "optional_params": [],
+        "response": "[]*DocumentStatus"
+      },
+      {
+        "method": "GET",
+        "path": "/api/dictionary-service/services-classification",
+        "name": "Get Services Classification",
+        "description": "Получить классификацию услуг",
+        "required_params": [],
+        "optional_params": ["size"],
+        "response": "[]*ServicesClassification"
+      },
+      {
+        "method": "GET",
+        "path": "/api/dictionary-service/taxes",
+        "name": "Get Taxes",
+        "description": "Получить налоговые ставки",
+        "required_params": [],
+        "optional_params": ["size"],
+        "response": "[]*TaxType"
+      },
+      {
+        "method": "GET",
+        "path": "/api/dictionary-service/legal-person-info",
+        "name": "Get Legal Person Info",
+        "description": "Получить информацию о юридических лицах",
+        "required_params": [],
+        "optional_params": ["isResident", "fullName", "tin", "size"],
+        "response": "[]*Party"
+      }
+    ],
+    "auth": [
+      {
+        "method": "POST",
+        "path": "/api/account/auth",
+        "name": "Authenticate",
+        "description": "Получить токен авторизации",
+        "required_params": ["username", "password"],
+        "optional_params": [],
+        "response": "map[string]interface{}",
+        "authenticated": false
+      }
+    ]
+  },
+  "headers": {
+    "required": [
+      "Authorization: Bearer {token}",
+      "X-Road-Client: {client-id}",
+      "ClientUUID: {client-uuid}",
+      "USER-TIN: {user-tin}",
+      "Content-Type: application/json"
+    ],
+    "note": "Для всех endpoints кроме /api/account/auth"
+  },
+  "pagination": {
+    "parameters": {
+      "page": "номер страницы (начиная с 0)",
+      "size": "количество элементов на странице",
+      "sort": "поле и направление сортировки (field,asc|desc)"
+    },
+    "default_values": {
+      "page": 0,
+      "size": 20
+    }
+  }
+}

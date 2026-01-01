@@ -2,119 +2,210 @@ package main
 
 import (
 	"context"
-	"database/sql"
-	"fmt"
 	"log"
+	"os"
+	"os/signal"
+	"syscall"
 
-	_ "github.com/lib/pq"
-	amqp "github.com/rabbitmq/amqp091-go"
-	"github.com/redis/go-redis/v9"
+	// Infrastructure
+	redisInfra "github.com/rusgainew/tunduck-app-mk/auth-service/internal/infrastructure/cache/redis"
+	rabbitmqInfra "github.com/rusgainew/tunduck-app-mk/auth-service/internal/infrastructure/event/rabbitmq"
+	jwtInfra "github.com/rusgainew/tunduck-app-mk/auth-service/internal/infrastructure/jwt"
+	postgresInfra "github.com/rusgainew/tunduck-app-mk/auth-service/internal/infrastructure/persistence/postgres"
 
-	"github.com/rusgainew/tunduck-app-mk/auth-service/internal/application/service"
-	"github.com/rusgainew/tunduck-app-mk/auth-service/internal/infrastructure/cache/redis"
-	"github.com/rusgainew/tunduck-app-mk/auth-service/internal/infrastructure/config"
-	"github.com/rusgainew/tunduck-app-mk/auth-service/internal/infrastructure/event/rabbitmq"
-	"github.com/rusgainew/tunduck-app-mk/auth-service/internal/infrastructure/jwt"
-	"github.com/rusgainew/tunduck-app-mk/auth-service/internal/infrastructure/persistence/postgres"
-	"github.com/rusgainew/tunduck-app-mk/auth-service/internal/interfaces/grpc"
+	// Application
+	authService "github.com/rusgainew/tunduck-app-mk/auth-service/internal/application/service"
+
+	// Interfaces
+	authgrpc "github.com/rusgainew/tunduck-app-mk/auth-service/internal/interfaces/grpc"
+	httprouter "github.com/rusgainew/tunduck-app-mk/auth-service/internal/interfaces/http"
 	"github.com/rusgainew/tunduck-app-mk/auth-service/internal/interfaces/http/server"
 )
 
 func main() {
-	// 1. Загрузить конфигурацию
-	cfg := config.LoadConfig()
-	if err := cfg.Validate(); err != nil {
-		log.Fatalf("Invalid configuration: %v", err)
+	// Load configuration from environment
+	config := &Config{
+		PostgreSQL: postgresInfra.DefaultConfig(),
+		Redis:      redisInfra.DefaultConfig(),
+		RabbitMQ:   rabbitmqInfra.DefaultConfig(),
+		Server: ServerConfig{
+			Port:     getEnv("AUTH_SERVICE_PORT", "8001"),
+			GrpcPort: getEnv("AUTH_SERVICE_GRPC_PORT", "9001"),
+		},
+		JWT: JWTConfig{
+			Secret:     getEnv("JWT_SECRET", "your-secret-key-change-in-production"),
+			AccessTTL:  3600,   // 1 hour
+			RefreshTTL: 604800, // 7 days
+		},
 	}
 
-	fmt.Printf("Starting Auth Service\n")
-	fmt.Printf("Environment: %s\n", cfg.Environment)
-	fmt.Printf("HTTP Port: %d\n", cfg.HttpPort)
-	fmt.Printf("gRPC Port: %d\n", cfg.GrpcPort)
-
-	// 2. Подключиться к PostgreSQL
-	db, err := sql.Open("postgres", cfg.DatabaseURL)
+	// Initialize database
+	db, err := postgresInfra.NewConnection(config.PostgreSQL)
 	if err != nil {
-		log.Fatalf("Failed to connect to database: %v", err)
+		log.Fatalf("Failed to connect to PostgreSQL: %v", err)
 	}
 	defer db.Close()
 
+	// Test database connection
 	if err := db.Ping(); err != nil {
-		log.Fatalf("Failed to ping database: %v", err)
+		log.Fatalf("Failed to ping PostgreSQL: %v", err)
 	}
-	fmt.Println("✓ Connected to PostgreSQL")
+	log.Println("✓ Connected to PostgreSQL")
 
-	// Инициализировать schema
-	if err := postgres.InitDB(db); err != nil {
-		log.Fatalf("Failed to initialize database: %v", err)
-	}
-	fmt.Println("✓ Database schema initialized")
-
-	// 3. Подключиться к Redis
-	redisClient := redis.NewClient(redis.Options{
-		Addr: cfg.RedisAddr,
-	})
-	if err := redisClient.Ping(context.Background()).Err(); err != nil {
+	// Initialize Redis
+	redisClient, err := redisInfra.NewConnection(config.Redis)
+	if err != nil {
 		log.Fatalf("Failed to connect to Redis: %v", err)
 	}
-	fmt.Println("✓ Connected to Redis")
+	defer redisClient.Close()
 
-	// 4. Подключиться к RabbitMQ
-	conn, err := amqp.Dial(cfg.RabbitMQURL)
+	// Test Redis connection
+	pong, err := redisClient.Ping(context.Background()).Result()
+	if err != nil {
+		log.Fatalf("Failed to ping Redis: %v", err)
+	}
+	log.Printf("✓ Connected to Redis: %s", pong)
+
+	// Initialize RabbitMQ
+	amqpConn, err := rabbitmqInfra.NewConnection(config.RabbitMQ)
 	if err != nil {
 		log.Fatalf("Failed to connect to RabbitMQ: %v", err)
 	}
-	defer conn.Close()
+	defer amqpConn.Close()
 
-	ch, err := conn.Channel()
+	// Create RabbitMQ channel
+	ch, err := rabbitmqInfra.NewChannel(amqpConn)
 	if err != nil {
 		log.Fatalf("Failed to create RabbitMQ channel: %v", err)
 	}
 	defer ch.Close()
-	fmt.Println("✓ Connected to RabbitMQ")
 
-	// 5. Инициализировать repositories и services
-	userRepo := postgres.NewUserRepositoryPostgres(db)
-	eventPublisher := rabbitmq.NewEventPublisherRabbitMQ(ch)
-	tokenBlacklist := redis.NewTokenBlacklistRedis(redisClient)
+	// Declare exchange
+	if err := rabbitmqInfra.DeclareExchange(ch, "tunduck.auth"); err != nil {
+		log.Fatalf("Failed to declare RabbitMQ exchange: %v", err)
+	}
+	log.Println("✓ Connected to RabbitMQ")
 
-	// JWT Manager and Token service
-	jwtManager := jwt.NewJWTManager(cfg.JwtSecret, cfg.JwtExpires)
-	tokenService := service.NewTokenService(jwtManager)
+	// Initialize repositories
+	userRepository := postgresInfra.NewUserRepositoryPostgres(db)
 
-	// Register and Login services
-	registerService := service.NewRegisterUserService(userRepo, eventPublisher)
-	loginService := service.NewLoginUserService(userRepo, tokenService, eventPublisher)
+	// Initialize infrastructure implementations
+	eventPublisher := rabbitmqInfra.NewEventPublisherRabbitMQ(ch)
+	tokenBlacklist := redisInfra.NewTokenBlacklistRedis(redisClient)
 
-	// 6. Запустить HTTP и gRPC серверы параллельно
-	httpServer := server.NewHTTPServer(
-		cfg,
-		registerService,
-		loginService,
-		tokenService,
-		userRepo,
+	// Initialize JWT manager
+	jwtManager := jwtInfra.NewJWTManager(config.JWT.Secret, int64(config.JWT.AccessTTL))
+
+	// Token service built on JWT manager
+	tokenService := authService.NewTokenService(jwtManager)
+
+	// Initialize services
+	registerService := authService.NewRegisterUserService(
+		userRepository,
+		eventPublisher,
 	)
 
-	// gRPC server
-	grpcAddr := fmt.Sprintf(":%d", cfg.GrpcPort)
-	authServiceServer := grpc.NewAuthServiceServer(
+	loginService := authService.NewLoginUserService(userRepository, tokenService, eventPublisher)
+
+	getUserService := authService.NewGetUserService(userRepository)
+
+	logoutService := authService.NewLogoutUserService(
+		tokenBlacklist,
+		eventPublisher,
+	)
+
+	refreshTokenService := authService.NewRefreshTokenService(userRepository, tokenService, tokenBlacklist)
+
+	validateTokenService := authService.NewValidateTokenService(tokenService, tokenBlacklist, userRepository)
+
+	// Initialize gRPC handler
+	grpcHandler := authgrpc.NewAuthServiceServer(
 		registerService,
 		loginService,
 		tokenService,
-		userRepo,
+		userRepository,
 		tokenBlacklist,
 	)
-	grpcServer := grpc.NewGRPCServer(grpcAddr, authServiceServer)
 
-	// Start HTTP server in goroutine
+	// Initialize HTTP router
+	httpRouter := httprouter.NewRouter(
+		registerService,
+		loginService,
+		validateTokenService,
+		getUserService,
+		logoutService,
+		refreshTokenService,
+	)
+
+	// Initialize HTTP server
+	httpServer := server.NewHTTPServer(
+		config.Server.Port,
+		httpRouter,
+	)
+
+	// Initialize gRPC server
+	grpcAddr := ":" + config.Server.GrpcPort
+	grpcServer := authgrpc.NewGRPCServer(grpcAddr, grpcHandler)
+
+	// Start HTTP server in a goroutine
 	go func() {
 		if err := httpServer.Start(); err != nil {
-			log.Fatalf("Failed to start HTTP server: %v", err)
+			log.Printf("HTTP server error: %v", err)
 		}
 	}()
 
-	// Start gRPC server (blocking)
-	if err := grpcServer.Start(); err != nil {
-		log.Fatalf("Failed to start gRPC server: %v", err)
+	// Start gRPC server in a goroutine
+	go func() {
+		if err := grpcServer.Start(); err != nil {
+			log.Printf("gRPC server error: %v", err)
+		}
+	}()
+
+	// Wait for interrupt signal
+	sigChan := make(chan os.Signal, 1)
+	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
+
+	<-sigChan
+	log.Println("\nShutting down gracefully...")
+
+	// Shutdown HTTP server
+	ctx, cancel := context.WithTimeout(context.Background(), 30*1000000000) // 30 seconds
+	defer cancel()
+
+	grpcServer.Stop()
+	if err := httpServer.Shutdown(ctx); err != nil {
+		log.Printf("HTTP server shutdown error: %v", err)
 	}
+
+	log.Println("✓ Server stopped")
+}
+
+// getEnv retrieves an environment variable or returns a default value
+func getEnv(key, defaultValue string) string {
+	if value := os.Getenv(key); value != "" {
+		return value
+	}
+	return defaultValue
+}
+
+// Config holds application configuration
+type Config struct {
+	PostgreSQL postgresInfra.Config
+	Redis      redisInfra.Config
+	RabbitMQ   rabbitmqInfra.Config
+	Server     ServerConfig
+	JWT        JWTConfig
+}
+
+// ServerConfig holds HTTP server configuration
+type ServerConfig struct {
+	Port     string
+	GrpcPort string
+}
+
+// JWTConfig holds JWT configuration
+type JWTConfig struct {
+	Secret     string
+	AccessTTL  int
+	RefreshTTL int
 }

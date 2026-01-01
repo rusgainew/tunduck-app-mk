@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"time"
 
 	amqp "github.com/rabbitmq/amqp091-go"
 	"github.com/rusgainew/tunduck-app-mk/auth-service/internal/domain/entity"
@@ -20,54 +19,26 @@ func NewEventPublisherRabbitMQ(ch *amqp.Channel) *EventPublisherRabbitMQ {
 	return &EventPublisherRabbitMQ{ch: ch}
 }
 
-// PublishUserRegistered - публикует событие регистрации
-func (p *EventPublisherRabbitMQ) PublishUserRegistered(ctx context.Context, user *entity.User) error {
-	event := map[string]interface{}{
-		"event_type": "user.registered",
-		"user_id":    user.ID,
-		"email":      user.Email,
-		"name":       user.Name,
-		"timestamp":  user.CreatedAt,
+// Publish - универсальный метод для публикации domain events
+func (p *EventPublisherRabbitMQ) Publish(ctx context.Context, event entity.DomainEvent) error {
+	// Создаем структуру сообщения
+	message := map[string]interface{}{
+		"event_name":   event.EventName(),
+		"aggregate_id": event.AggregateID(),
+		"occurred_at":  event.OccurredAt(),
+		"payload":      event,
 	}
 
-	return p.publishEvent(ctx, "tunduck.auth", "user.registered", event)
-}
-
-// PublishUserLoggedIn - публикует событие входа
-func (p *EventPublisherRabbitMQ) PublishUserLoggedIn(ctx context.Context, userID string) error {
-	event := map[string]interface{}{
-		"event_type": "user.logged_in",
-		"user_id":    userID,
-		"timestamp":  time.Now(),
-	}
-
-	return p.publishEvent(ctx, "tunduck.auth", "user.logged_in", event)
-}
-
-// PublishUserLoggedOut - публикует событие выхода
-func (p *EventPublisherRabbitMQ) PublishUserLoggedOut(ctx context.Context, userID string) error {
-	event := map[string]interface{}{
-		"event_type": "user.logged_out",
-		"user_id":    userID,
-		"timestamp":  time.Now(),
-	}
-
-	return p.publishEvent(ctx, "tunduck.auth", "user.logged_out", event)
-}
-
-// publishEvent - публикует событие на exchange
-func (p *EventPublisherRabbitMQ) publishEvent(
-	ctx context.Context,
-	exchange string,
-	routingKey string,
-	event interface{},
-) error {
-	body, err := json.Marshal(event)
+	body, err := json.Marshal(message)
 	if err != nil {
 		return fmt.Errorf("failed to marshal event: %w", err)
 	}
 
-	return p.ch.PublishWithContext(
+	// Определяем exchange и routing key на основе типа события
+	exchange := "tunduck.auth"
+	routingKey := event.EventName()
+
+	err = p.ch.PublishWithContext(
 		ctx,
 		exchange,   // exchange
 		routingKey, // routing key
@@ -76,6 +47,16 @@ func (p *EventPublisherRabbitMQ) publishEvent(
 		amqp.Publishing{
 			ContentType: "application/json",
 			Body:        body,
+			Headers: amqp.Table{
+				"event_name":   event.EventName(),
+				"aggregate_id": event.AggregateID(),
+			},
 		},
 	)
+
+	if err != nil {
+		return fmt.Errorf("failed to publish event %s: %w", event.EventName(), err)
+	}
+
+	return nil
 }

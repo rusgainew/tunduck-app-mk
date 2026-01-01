@@ -1,0 +1,5914 @@
+
+                                                                           2024
+                                                                           2024
+Техническое описание
+Сервиса ЭСФ в СМЭВ <<Түндүк>>
+ГУ <<Салык Сервис>>
+Техническое описание
+Сервиса ЭСФ в СМЭВ <<Түндүк>>
+ГУ <<Салык Сервис>>
+Оглавление
+Информация о документе	4
+Информация о сервисе	5
+Авторизация пользователей	6
+Описание методов по документам	7
+1.	Realization document By Exchange Code	7
+2.	Income document By Exchange Code	10
+3.	Correction document By Exchange Code	13
+4.	Realization documents	17
+5.	Income documents	21
+6.	Correction documents	25
+7.	Details by exchange code	29
+8.	Details by exchange code without pageable	30
+9.	Get legal person banks	32
+10.	Get legal person bank by id	34
+11.	Legal person catalogs	35
+12.	Legal person catalog by id	37
+13.	Foreign companies	38
+14.	Foreign company by id	39
+15.	Create document	40
+16.	Edit document	42
+17.	Delete document	44
+18.	Accept or Reject Document	45
+19.	Revoke Document	46
+20.	Create legal person/contractor bank account	48
+21.	Edit legal person/contractor bank account	50
+22.	Delete legal person/contractor bank account	53
+23.	Create legal person catalog	53
+24.	Edit legal person catalog	55
+25.	Delete legal person catalog	58
+26.	Sign documents with (Rutoken, Jacarta, Esmart)	58
+27.	Create foreign company	61
+28.	Edit foreign company	62
+29.	Delete foreign company	63
+30.	Create correction document	63
+31.	Edit correction document	65
+32.	Sign documents with Infocom	66
+Описание методов по справочным данным	67
+Описание общих полей	67
+Описание объекта pageableData	67
+Примечания:	67
+Пример получения справочных данных (на примере справочника валют):	67
+1.	Dictionary Types	69
+Запрос	69
+Пример запроса:	69
+Пример ответа:	69
+2.	Dictionaries	70
+Запрос	70
+Параметры запроса:	70
+Пример запроса:	70
+Пример ответа:	70
+3.	Banks	71
+Запрос	71
+Параметры запроса:	71
+Пример запроса:	71
+Пример ответа:	72
+4.	Goods Classification	73
+Запрос	73
+Пример ответа:	74
+5.	Countries	74
+Запрос	74
+Параметры запроса:	75
+Пример запроса:	75
+Пример ответа:	75
+6.	Document Statuses	76
+Запрос	76
+Параметры запроса	76
+Пример запроса:	76
+Пример ответа:	76
+7.	Services Classification	77
+Запрос	77
+Переменные запроса:	77
+Пример запроса:	78
+Пример ответа:	78
+8.	Taxes	79
+Запрос	79
+Параметры запроса:	79
+Пример запроса	79
+Пример ответа	79
+9.	Legal Person Info	80
+Запрос	80
+Параметры запроса:	80
+Пример запроса	80
+Пример ответа	81
+Описание ошибок	82
+1. Accept Or Reject	82
+2. Create	83
+Версия документа	86
+
+
+Информация о документе
+
+Заказчик
+Государственная налоговая служба при Министерстве финансов Кыргызской Республики
+Разработчик 
+ГУ <<Салык Сервис>> при ГНС при МФ КР
+Описание
+Сервис для взаимодействия с ИС <<ЭСФ>> через СМЭВ <<Түндүк>>
+Вид взаимодействия
+RestAPI
+Код сервиса
+esf-api-services
+Дата разработки
+25.01.2024
+
+
+Информация о сервисе
+
+Сервис для взаимодействия с информационной системой <<ЭСФ>> через СМЭВ <<ТУНДУК>>.
+Запросы необходимо отправлять на URL
+
+Тестовая среда: 
+{{TUNDUK_URL}}/r1/central-server/GOV/70000002/esf-test/esf-api-services{{PATH}}
+
+Боевая среда:
+ 
+{{TUNDUK_URL}}/r1/central-server/GOV/70000002/api-gateway/api-services{{PATH}}
+
+Все запросы должны содержать следующие заголовки:
+Название
+Описание
+X-Road-Client
+Наименование клиента в СМЭВ <<ТУНДУК>>
+ClientUUID
+Идентификатор клиента выдаваемый ГУ <<Салык Сервис>>
+Authorization
+Токен в формате "Bearer {{TOKEN}}"
+USER-TIN
+ИНН пользователя
+
+Авторизация пользователей
+Авторизация пользователя производится с использованием специального токена, который налогоплательщик может сгенерировать в <<Кабинете налогоплательщика>>:
+   1. Перейти в раздел <<Генерация токена>> (рис. 1)
+   2. Нажать на кнопку <<Сгенерировать токен>> (рис. 1)
+   3. Заполнить данные для генерации токена (рис. 2)
+         a. Срок действия токена
+         b. Выбрать агрегатора, через которого будет использован токен
+         c. Выбрать системы, в которых будет использован токен
+         d. Сохранить
+   4. Скачать токен (рис. 1)
+Сохраненный токен можно использовать в информационной системе агрегатора для авторизации.
+
+                                       
+               Рисунок 1 Генерация токена
+                                       
+Рисунок 2 Заполнение данных для генерации токена
+
+Описание методов по документам
+1. Realization document By Exchange Code
+Описание: 
+Получение ЭСФ - реализация по уникальному идентификатору документа
+Запрос:
+METHOD: GET 
+PATH: /api/query/invoice/realization/document-by-exchange-code
+Параметры запроса
+Параметр
+Обязательно
+Описание
+exchangeCode
+Да
+UUID документа
+
+Ответ:
+{
+  "requestId": "string",
+  "responseId": "string",
+  "userId": "string",
+  "clientId": "string",
+  "invoices": [
+    {
+      "documentUuid": "string",
+      "totalAmount": 0,
+      "createdDate": "2024-01-26",
+      "deliveryDate": "2024-01-26",
+      "invoiceDate": "2024-01-26",
+      "ownedCrmReceiptCode": "string",
+      "invoiceNumber": "string",
+      "number": "string",
+      "note": "string",
+      "correctedReceiptUuid": "string",
+      "legalPersonBankAccount": "string",
+      "contractorBankAccount": "string",
+      "isResident": "string",
+      "paymentType": {
+        "code": "string",
+        "name": "string"
+      },
+      "currency": {
+        "code": "string",
+        "name": "string"
+      },
+      "status": {
+        "code": "string",
+        "name": "string"
+      },
+      "receiptType": {
+        "code": "string",
+        "name": "string"
+      },
+      "deliveryType": {
+        "code": "string",
+        "name": "string"
+      },
+      "legalPerson": {
+        "pin": "string",
+        "fullName": "string",
+        "mainFullName": "string",
+        "mainPin": "string"
+      },
+      "contractor": {
+        "pin": "string",
+        "fullName": "string",
+        "mainFullName": "string",
+        "mainPin": "string"
+      },
+      "vatTaxType": {
+        "rate": "string",
+        "name": "string"
+      },
+         "correctedReceiptCode": "correctedReceiptCode_163571bd6e82",
+          "correctionReasonCode": "correctionReasonCode_0afebfc527e0",
+           "correctedReceiptCreationDate": "correctedReceiptCreationDate_713c5d699d89",
+           "correctionReasonName": "correctionReasonName_336776926c64",
+           "deliveryContractNumber": "deliveryContractNumber_0c318beb136c",
+           "deliveryContractDate": "deliveryContractDate_4435a7fd1330",
+            "vatDelivery": {
+                "code": "code_dcc2895be99b",
+                "name": "name_aa2d1fdafa5d"
+            },
+            "exchangeRate": 0.0,
+            "country": {
+                "code": code_c29104be5c54,
+                "name": name_67433dedc741
+            },
+            "foreignName": " foreignName_1a2b70da7eb9 ",
+            "sellerBranchPin": " sellerBranchPin_95c962b0b2e1 ",
+            "isPriceWithoutTaxes": false,
+            "isIndustry": false,
+            "openingBalances": 0.00,
+            "assessedContributionsAmount": 0.00,
+            "paidAmount": 0.00,
+            "penaltiesAmount": 0.00,
+            "finesAmount": 0.00,
+            "closingBalances": 0.00,
+            "amountToBePaid": 0.00,
+            "personalAccountNumber": 0.00
+    }
+  ],
+  "totalElements": 0,
+  "totalPage": 0,
+  "invoiceDate": "2024-01-26"
+}
+
+Описание полей ответа
+#
+Наименование поля
+Описание
+Тип данных
+1
+contractor
+Контрагент
+Object
+2
+contractorBankAccount
+Банковский счет контрагента
+String
+3
+correctedReceiptUuid
+
+String
+4
+createdDate
+Дата создания документа
+Date
+5
+currency
+Валюта
+Object
+6
+deliveryDate
+Дата поставки
+Date
+7
+deliveryType
+Вид поставки
+Object
+8
+documentUuid
+Уникальный идентификатор документа
+String
+9
+invoiceDate
+Дата подписания документа
+Date
+10
+invoiceNumber
+Номер документа
+String
+11
+isResident
+Статус резидентства
+String
+12
+legalPerson
+Информация о юр. лице
+Object
+13
+legalPersonBankAccount
+Банковский счет юр. лица
+String
+14
+note
+Пометки или комментарии
+String
+15
+ownedCrmReceiptCode
+Код учетной системы
+String
+16
+paymentType
+Тип оплаты
+Object
+17
+receiptType
+Тип операции
+Object
+18
+requestId
+Идентификатор запроса
+String
+19
+responseId
+Уникальный идентификатор ответа
+String
+20
+status
+Статус документа
+Object
+21
+vatTaxType
+Вид налога НДС
+Object
+22
+correctedReceiptCode
+Номер подписанной первоначальной ЭСФ
+String
+23
+correctionReasonCode
+Код причины корректировки
+String
+24
+correctedReceiptCreationDate
+Дата создания первоначальной ЭСФ
+LocalDate
+25
+correctionReasonName
+Наименование причины корректировки
+String
+26
+deliveryContractNumber
+Номер договора на поставку
+String
+27
+deliveryContractDate
+Дата заключения договора на поставку
+LocalDate
+28
+vatDelivery
+Вид поставки
+Object
+29
+exchangeRate
+Курс обмена валюты к сому
+BigDecimal
+30
+country
+Страна
+Object
+31
+foreignName
+Наименование иностранца
+String
+32
+sellerBranchPin
+ИНН поставщика
+String
+33
+isPriceWithoutTaxes
+Цена без налогов
+Boolean
+34
+isIndustry
+Отраслевые
+Boolean
+35
+openingBalances
+Сальдо на начало
+BigDecimal
+36
+assessedContributionsAmount
+Начислено
+BigDecimal
+37
+paidAmount
+Оплачено
+BigDecimal
+38
+penaltiesAmount
+Штраф
+BigDecimal
+39
+finesAmount
+Пеня
+BigDecimal
+40
+closingBalances
+Сальдо на конец
+BigDecimal
+41
+amountToBePaid
+К оплате
+BigDecimal
+42
+personalAccountNumber
+Лицевой счет
+BigDecimal
+
+Описание объектов paymentType, currency, status, receiptType, deliveryType
+#
+Наименование поля
+Описание
+Тип данных
+1
+code
+Код справочного элемента
+String
+2
+name
+Наименование справочного элемента
+String
+
+Описание объектов legalPerson, contractor
+#
+Наименование поля
+Описание
+Тип данных
+1
+pin
+ИНН
+String
+2
+fullName
+Наименование
+String
+3
+mainFullName
+Наименование головной орг.
+String
+4
+mainPin
+ИНН головной орг.
+String
+
+Описание объектов vatTaxType
+#
+Наименование поля
+Описание
+1
+rate
+Ставка
+2
+name
+Наименование ставки
+
+2. Income document By Exchange Code
+Описание: 
+Получение ЭСФ - приобретения по уникальному идентификатору документа
+Запрос:
+METHOD: GET 
+PATH: /api/query/invoice/income/document-by-exchange-code
+Параметры запроса
+Параметр
+Обязательно
+Описание
+exchangeCode
+Да
+UUID документа
+
+Ответ:
+{
+  "requestId": "string",
+  "responseId": "string",
+  "userId": "string",
+  "clientId": "string",
+  "invoices": [
+    {
+      "documentUuid": "string",
+      "totalAmount": 0,
+      "createdDate": "2024-01-26",
+      "deliveryDate": "2024-01-26",
+      "invoiceDate": "2024-01-26",
+      "ownedCrmReceiptCode": "string",
+      "invoiceNumber": "string",
+      "number": "string",
+      "note": "string",
+      "correctedReceiptUuid": "string",
+      "legalPersonBankAccount": "string",
+      "contractorBankAccount": "string",
+      "isResident": "string",
+      "paymentType": {
+        "code": "string",
+        "name": "string"
+      },
+      "currency": {
+        "code": "string",
+        "name": "string"
+      },
+      "status": {
+        "code": "string",
+        "name": "string"
+      },
+      "receiptType": {
+        "code": "string",
+        "name": "string"
+      },
+      "deliveryType": {
+        "code": "string",
+        "name": "string"
+      },
+      "legalPerson": {
+        "pin": "string",
+        "fullName": "string",
+        "mainFullName": "string",
+        "mainPin": "string"
+      },
+      "contractor": {
+        "pin": "string",
+        "fullName": "string",
+        "mainFullName": "string",
+        "mainPin": "string"
+      },
+      "vatTaxType": {
+        "rate": "string",
+        "name": "string"
+      },
+         "correctedReceiptCode": "correctedReceiptCode_163571bd6e82",
+          "correctionReasonCode": "correctionReasonCode_0afebfc527e0",
+           "correctedReceiptCreationDate": "correctedReceiptCreationDate_713c5d699d89",
+           "correctionReasonName": "correctionReasonName_336776926c64",
+           "deliveryContractNumber": "deliveryContractNumber_0c318beb136c",
+           "deliveryContractDate": "deliveryContractDate_4435a7fd1330",
+            "vatDelivery": {
+                "code": "code_dcc2895be99b",
+                "name": "name_aa2d1fdafa5d"
+            },
+            "exchangeRate": 0.0,
+            "country": {
+                "code": code_c29104be5c54,
+                "name": name_67433dedc741
+            },
+            "foreignName": " foreignName_1a2b70da7eb9 ",
+            "sellerBranchPin": " sellerBranchPin_95c962b0b2e1 ",
+            "isPriceWithoutTaxes": false,
+            "isIndustry": false,
+            "openingBalances": 0.00,
+            "assessedContributionsAmount": 0.00,
+            "paidAmount": 0.00,
+            "penaltiesAmount": 0.00,
+            "finesAmount": 0.00,
+            "closingBalances": 0.00,
+            "amountToBePaid": 0.00,
+            "personalAccountNumber": 0.00
+    }
+  ],
+  "totalElements": 0,
+  "totalPage": 0,
+  "invoiceDate": "2024-01-26"
+}
+
+Описание полей ответа
+#
+Наименование поля
+Описание
+Тип данных
+1
+contractor
+Контрагент
+Object
+2
+contractorBankAccount
+Банковский счет контрагента
+String
+3
+correctedReceiptUuid
+
+String
+4
+createdDate
+Дата создания документа
+Date
+5
+currency
+Валюта
+Object
+6
+deliveryDate
+Дата поставки
+Date
+7
+deliveryType
+Вид поставки
+Object
+8
+documentUuid
+Уникальный идентификатор документа
+String
+9
+invoiceDate
+Дата подписания документа
+Date
+10
+invoiceNumber
+Номер документа
+String
+11
+isResident
+Статус резидентства
+String
+12
+legalPerson
+Информация о юр. лице
+Object
+13
+legalPersonBankAccount
+Банковский счет юр. лица
+String
+14
+note
+Пометки или комментарии
+String
+15
+ownedCrmReceiptCode
+Код учетной системы
+String
+16
+paymentType
+Тип оплаты
+Object
+17
+receiptType
+Тип операции
+Object
+18
+requestId
+Идентификатор запроса
+String
+19
+responseId
+Уникальный идентификатор ответа
+String
+20
+status
+Статус документа
+Object
+21
+vatTaxType
+Вид налога НДС
+Object
+22
+correctedReceiptCode
+Номер подписанной первоначальной ЭСФ
+String
+23
+correctionReasonCode
+Код причины корректировки
+String
+24
+correctedReceiptCreationDate
+Дата создания первоначальной ЭСФ
+LocalDate
+25
+correctionReasonName
+Наименование причины корректировки
+String
+26
+deliveryContractNumber
+Номер договора на поставку
+String
+27
+deliveryContractDate
+Дата заключения договора на поставку
+LocalDate
+28
+vatDelivery
+Вид поставки
+Object
+29
+exchangeRate
+Курс обмена валюты к сому
+BigDecimal
+30
+country
+Страна
+Object
+31
+foreignName
+Наименование иностранца
+String
+32
+sellerBranchPin
+ИНН поставщика
+String
+33
+isPriceWithoutTaxes
+Цена без налогов
+Boolean
+34
+isIndustry
+Отраслевые
+Boolean
+35
+openingBalances
+Сальдо на начало
+BigDecimal
+36
+assessedContributionsAmount
+Начислено
+BigDecimal
+37
+paidAmount
+Оплачено
+BigDecimal
+38
+penaltiesAmount
+Штраф
+BigDecimal
+39
+finesAmount
+Пеня
+BigDecimal
+40
+closingBalances
+Сальдо на конец
+BigDecimal
+41
+amountToBePaid
+К оплате
+BigDecimal
+42
+personalAccountNumber
+Лицевой счет
+BigDecimal
+
+Описание объектов paymentType, currency, status, receiptType, deliveryType
+#
+Наименование поля
+Описание
+Тип данных
+1
+code
+Код справочного элемента
+String
+2
+name
+Наименование справочного элемента
+String
+
+Описание объектов legalPerson, contractor
+#
+Наименование поля
+Описание
+Тип данных
+1
+pin
+ИНН
+String
+2
+fullName
+Наименование
+String
+3
+mainFullName
+Наименование головной орг.
+String
+4
+mainPin
+ИНН головной орг.
+String
+
+Описание объектов vatTaxType
+#
+Наименование поля
+Описание
+1
+rate
+Ставка
+2
+name
+Наименование ставки
+
+
+3. Correction document By Exchange Code
+Описание: 
+Получение ЭСФ - корректировочные по уникальному идентификатору документа
+Запрос:
+METHOD: GET 
+PATH: /api/query/invoice/correction/document-by-exchange-code
+Параметры запроса
+Параметр
+Обязательно
+Описание
+exchangeCode
+Да
+UUID документа
+
+Ответ:
+{
+  "requestId": "string",
+  "responseId": "string",
+  "userId": "string",
+  "clientId": "string",
+  "invoices": [
+    {
+      "documentUuid": "string",
+      "totalAmount": 0,
+      "createdDate": "2024-01-26",
+      "deliveryDate": "2024-01-26",
+      "invoiceDate": "2024-01-26",
+      "ownedCrmReceiptCode": "string",
+      "invoiceNumber": "string",
+      "number": "string",
+      "note": "string",
+      "correctedReceiptUuid": "string",
+      "legalPersonBankAccount": "string",
+      "contractorBankAccount": "string",
+      "isResident": "string",
+      "paymentType": {
+        "code": "string",
+        "name": "string"
+      },
+      "currency": {
+        "code": "string",
+        "name": "string"
+      },
+      "status": {
+        "code": "string",
+        "name": "string"
+      },
+      "receiptType": {
+        "code": "string",
+        "name": "string"
+      },
+      "deliveryType": {
+        "code": "string",
+        "name": "string"
+      },
+      "legalPerson": {
+        "pin": "string",
+        "fullName": "string",
+        "mainFullName": "string",
+        "mainPin": "string"
+      },
+      "contractor": {
+        "pin": "string",
+        "fullName": "string",
+        "mainFullName": "string",
+        "mainPin": "string"
+      },
+      "vatTaxType": {
+        "rate": "string",
+        "name": "string"
+      },
+         "correctedReceiptCode": "correctedReceiptCode_163571bd6e82",
+          "correctionReasonCode": "correctionReasonCode_0afebfc527e0",
+           "correctedReceiptCreationDate": "correctedReceiptCreationDate_713c5d699d89",
+           "correctionReasonName": "correctionReasonName_336776926c64",
+           "deliveryContractNumber": "deliveryContractNumber_0c318beb136c",
+           "deliveryContractDate": "deliveryContractDate_4435a7fd1330",
+            "vatDelivery": {
+                "code": "code_dcc2895be99b",
+                "name": "name_aa2d1fdafa5d"
+            },
+            "exchangeRate": 0.0,
+            "country": {
+                "code": code_c29104be5c54,
+                "name": name_67433dedc741
+            },
+            "foreignName": " foreignName_1a2b70da7eb9 ",
+            "sellerBranchPin": " sellerBranchPin_95c962b0b2e1 ",
+            "isPriceWithoutTaxes": false,
+            "isIndustry": false,
+            "openingBalances": 0.00,
+            "assessedContributionsAmount": 0.00,
+            "paidAmount": 0.00,
+            "penaltiesAmount": 0.00,
+            "finesAmount": 0.00,
+            "closingBalances": 0.00,
+            "amountToBePaid": 0.00,
+            "personalAccountNumber": 0.00
+    }
+  ],
+  "totalElements": 0,
+  "totalPage": 0,
+  "invoiceDate": "2024-01-26"
+}
+
+Описание полей ответа
+#
+Наименование поля
+Описание
+Тип данных
+1
+contractor
+Контрагент
+Object
+2
+contractorBankAccount
+Банковский счет контрагента
+String
+3
+correctedReceiptUuid
+
+String
+4
+createdDate
+Дата создания документа
+Date
+5
+currency
+Валюта
+Object
+6
+deliveryDate
+Дата поставки
+Date
+7
+deliveryType
+Вид поставки
+Object
+8
+documentUuid
+Уникальный идентификатор документа
+String
+9
+invoiceDate
+Дата подписания документа
+Date
+10
+invoiceNumber
+Номер документа
+String
+11
+isResident
+Статус резидентства
+String
+12
+legalPerson
+Информация о юр. лице
+Object
+13
+legalPersonBankAccount
+Банковский счет юр. лица
+String
+14
+note
+Пометки или комментарии
+String
+15
+ownedCrmReceiptCode
+Код учетной системы
+String
+16
+paymentType
+Тип оплаты
+Object
+17
+receiptType
+Тип операции
+Object
+18
+requestId
+Идентификатор запроса
+String
+19
+responseId
+Уникальный идентификатор ответа
+String
+20
+status
+Статус документа
+Object
+21
+vatTaxType
+Вид налога НДС
+Object
+22
+correctedReceiptCode
+Номер подписанной первоначальной ЭСФ
+String
+23
+correctionReasonCode
+Код причины корректировки
+String
+24
+correctedReceiptCreationDate
+Дата создания первоначальной ЭСФ
+LocalDate
+25
+correctionReasonName
+Наименование причины корректировки
+String
+26
+deliveryContractNumber
+Номер договора на поставку
+String
+27
+deliveryContractDate
+Дата заключения договора на поставку
+LocalDate
+28
+vatDelivery
+Вид поставки
+Object
+29
+exchangeRate
+Курс обмена валюты к сому
+BigDecimal
+30
+country
+Страна
+Object
+31
+foreignName
+Наименование иностранца
+String
+32
+sellerBranchPin
+ИНН поставщика
+String
+33
+isPriceWithoutTaxes
+Цена без налогов
+Boolean
+34
+isIndustry
+Отраслевые
+Boolean
+35
+openingBalances
+Сальдо на начало
+BigDecimal
+36
+assessedContributionsAmount
+Начислено
+BigDecimal
+37
+paidAmount
+Оплачено
+BigDecimal
+38
+penaltiesAmount
+Штраф
+BigDecimal
+39
+finesAmount
+Пеня
+BigDecimal
+40
+closingBalances
+Сальдо на конец
+BigDecimal
+41
+amountToBePaid
+К оплате
+BigDecimal
+42
+personalAccountNumber
+Лицевой счет
+BigDecimal
+
+Описание объектов paymentType, currency, status, receiptType, deliveryType
+#
+Наименование поля
+Описание
+Тип данных
+1
+code
+Код справочного элемента
+String
+2
+name
+Наименование справочного элемента
+String
+
+Описание объектов legalPerson, contractor
+#
+Наименование поля
+Описание
+Тип данных
+1
+pin
+ИНН
+String
+2
+fullName
+Наименование
+String
+3
+mainFullName
+Наименование головной орг.
+String
+4
+mainPin
+ИНН головной орг.
+String
+
+Описание объектов vatTaxType
+#
+Наименование поля
+Описание
+1
+rate
+Ставка
+2
+name
+Наименование ставки
+
+
+4. Realization documents 
+Описание: 
+Получение списка ЭСФ-Реализация
+Запрос:
+METHOD: GET 
+PATH: /api/query/invoice/realization/all-documents
+Параметры запроса
+#
+Наименование поля
+Обязательно
+Описание
+1
+isFullInformation
+Нет
+Полная информация о документе
+2
+createdDateFrom
+Нет
+Дата создания с
+3
+createdDateTo
+Нет
+Дата создания по
+4
+deliveryDateFrom
+Нет
+Дата поставки с
+5
+deliveryDateTo
+Нет
+Дата поставки по
+6
+exchangeCode
+Нет
+Уникальный идентификатор документа
+7
+invoiceDateFrom
+Нет
+Дата подписания с
+8
+invoiceDateTo
+Нет
+Дата подписания по
+9
+invoiceNumber
+Нет
+Номер документа
+10
+receiptTypeCode
+Нет
+Код вида операции
+11
+statusCode
+Нет
+Код статуса
+12
+contractorTin
+Нет
+ИНН контрагента
+13
+page
+Нет
+Номер страницы
+14
+size
+Нет
+Количество элементов на страницу
+
+Ответ:
+{
+  "invoiceDate": "2024-01-26",
+  "invoices": [
+    {
+      "documentUuid": "documentUuid_c70d5eabc110",
+      "totalAmount": 0.00,
+      "createdDate": "2024-01-26",
+      "deliveryDate": "2024-01-26",
+      "invoiceDate": "2024-01-26",
+      "ownedCrmReceiptCode": "ownedCrmReceiptCode_9a6a7e253edb",
+      "invoiceNumber": "invoiceNumber_425bdb146627",
+      "number": "number_8bc97d6b2f4b",
+      "note": "note_e4119d81807d",
+      "correctedReceiptUuid": "correctedReceiptUuid_e6a5ebb9b51e",
+      "legalPersonBankAccount": "legalPersonBankAccount_a47dea20be0e",
+      "contractorBankAccount": "contractorBankAccount_d5b402362df2",
+      "isResident": "isResident_6d80f73fab92",
+      "paymentType": {
+        "code": "code_0dcfc27a3c72",
+        "name": "name_45a60bccb71b"
+      },
+      "currency": {
+        "code": "code_0d97842c8fb0",
+        "name": "name_75e7f95860d8"
+      },
+      "status": {
+        "code": "code_05a5a6f824c6",
+        "name": "name_7ab24b531cf2"
+      },
+      "receiptType": {
+        "code": "code_c12831200947",
+        "name": "name_ac6ed3d6257e"
+      },
+      "deliveryType": {
+        "code": "code_51ffb6bcb9b8",
+        "name": "name_49879becba3c"
+      },
+      "legalPerson": {
+        "pin": "pin_51d8a8015b8f",
+        "fullName": "fullName_c3425e3d2e77",
+        "mainFullName": "mainFullName_ed5f5e72af9a",
+        "mainPin": "mainPin_8ce49e602a75"
+      },
+      "contractor": {
+        "pin": "pin_974735c2547f",
+        "fullName": "fullName_56db0b57fa0a",
+        "mainFullName": "mainFullName_2ab90f712a69",
+        "mainPin": "mainPin_fa93db4c1cca"
+      },
+      "vatTaxType": {
+        "rate": "rate_78f2a6d4d304",
+        "name": "name_f39221e6c891"
+      },
+         "correctedReceiptCode": "correctedReceiptCode_163571bd6e82",
+          "correctionReasonCode": "correctionReasonCode_0afebfc527e0",
+           "correctedReceiptCreationDate": "correctedReceiptCreationDate_713c5d699d89",
+           "correctionReasonName": "correctionReasonName_336776926c64",
+           "deliveryContractNumber": "deliveryContractNumber_0c318beb136c",
+           "deliveryContractDate": "deliveryContractDate_4435a7fd1330",
+            "vatDelivery": {
+                "code": "code_dcc2895be99b",
+                "name": "name_aa2d1fdafa5d"
+            },
+            "exchangeRate": 0.0,
+            "country": {
+                "code": code_c29104be5c54,
+                "name": name_67433dedc741
+            },
+            "foreignName": " foreignName_1a2b70da7eb9 ",
+            "sellerBranchPin": " sellerBranchPin_95c962b0b2e1 ",
+            "isPriceWithoutTaxes": false,
+            "isIndustry": false,
+            "openingBalances": 0.00,
+            "assessedContributionsAmount": 0.00,
+            "paidAmount": 0.00,
+            "penaltiesAmount": 0.00,
+            "finesAmount": 0.00,
+            "closingBalances": 0.00,
+            "amountToBePaid": 0.00,
+            "personalAccountNumber": 0.00
+    }
+  ],
+  "totalElements": 0,
+  "totalPage": 0,
+  "requestId": "requestId_6002e2fc5fd7",
+  "responseId": "responseId_55913794cefa",
+  "userId": "userId_ce8cd1cf67fd",
+  "clientId": "clientId_d5fdca3fcd7c"
+}
+
+
+Описание полей ответа
+#
+Наименование поля
+Описание
+Тип данных
+1
+contractor
+Контрагент
+Object
+2
+contractorBankAccount
+Банковский счет контрагента
+String
+3
+correctedReceiptUuid
+Идентификатор корректируемого документа
+String
+4
+createdDate
+Дата создания документа
+String (formatted as date)
+5
+currency
+Валюта
+Object
+6
+deliveryDate
+Дата поставки
+String (formatted as date)
+7
+deliveryType
+Вид поставки
+Object
+8
+documentUuid
+Уникальный идентификатор документа
+String
+9
+invoiceDate
+Дата подписания документа
+String (formatted as date)
+10
+invoiceNumber
+Номер документа
+String
+11
+invoices
+Список документов
+Array of Objects
+12
+isResident
+Статус резидентства 
+String
+13
+legalPerson
+Информация о юридическом лице
+Object
+14
+legalPersonBankAccount
+Банковский счет юридического лица
+String
+15
+note
+Комментарий или пометка
+String
+16
+ownedCrmReceiptCode
+Код учетной системы
+String
+17
+paymentType
+Тип оплаты
+Object
+18
+receiptType
+Тип операции
+Object
+19
+requestId
+Идентификатор запроса
+String
+20
+responseId
+Уникальный идентификатор ответа
+String
+21
+status
+Статус документа
+Object
+22
+totalAmount
+Общая сумма документа
+Double
+23
+totalElements
+Общее количество элементов по данному запросу
+Integer
+24
+totalPage
+Общее количество страниц по данному запросу
+Integer
+25
+vatTaxType
+Вид налога НДС
+Object
+26
+correctedReceiptCode
+Номер подписанной первоначальной ЭСФ
+String
+27
+correctionReasonCode
+Код причины корректировки
+String
+28
+correctedReceiptCreationDate
+Дата создания первоначальной ЭСФ
+LocalDate
+29
+correctionReasonName
+Наименование причины корректировки
+String
+30
+deliveryContractNumber
+Номер договора на поставку
+String
+31
+deliveryContractDate
+Дата заключения договора на поставку
+LocalDate
+32
+vatDelivery
+Вид поставки
+Object
+33
+exchangeRate
+Курс обмена валюты к сому
+BigDecimal
+34
+country
+Страна
+Object
+35
+foreignName
+Наименование иностранца
+String
+36
+sellerBranchPin
+ИНН поставщика
+String
+37
+isPriceWithoutTaxes
+Цена без налогов
+Boolean
+38
+isIndustry
+Отраслевые
+Boolean
+39
+openingBalances
+Сальдо на начало
+BigDecimal
+40
+assessedContributionsAmount
+Начислено
+BigDecimal
+41
+paidAmount
+Оплачено
+BigDecimal
+42
+penaltiesAmount
+Штраф
+BigDecimal
+43
+finesAmount
+Пеня
+BigDecimal
+44
+closingBalances
+Сальдо на конец
+BigDecimal
+45
+amountToBePaid
+К оплате
+BigDecimal
+46
+personalAccountNumber
+Лицевой счет
+BigDecimal
+
+Описание объектов paymentType, currency, status, receiptType, deliveryType
+#
+Наименование поля
+Описание
+Тип данных
+1
+code
+Код справочного элемента
+String
+2
+name
+Наименование справочного элемента
+String
+
+Описание объектов legalPerson, contractor
+#
+Наименование поля
+Описание
+Тип данных
+1
+pin
+ИНН
+String
+2
+fullName
+Наименование
+String
+3
+mainFullName
+Наименование головной орг.
+String
+4
+mainPin
+ИНН головной орг.
+String
+
+Описание объектов vatTaxType
+#
+Наименование поля
+Описание
+Тип данных
+1
+rate
+Ставка
+String
+2
+name
+Наименование ставки
+String
+
+
+5. Income documents
+Описание: 
+Получение списка ЭСФ  -  приобретение 
+Запрос:
+METHOD: GET
+PATH: /api/query/invoice/income/all-documents
+Параметры запроса
+#
+Параметр
+Обязательный
+Описание
+1
+isFullInformation
+Нет
+Полная информация о документе
+2
+invoiceDateFrom
+Нет
+Дата подписания с
+3
+invoiceDateTo
+Нет
+Дата подписания по
+4
+createdDateFrom
+Нет
+Дата создания от
+5
+createdDateTo
+Нет
+Дата создания до
+6
+deliveryDateFrom
+Нет
+Дата поставки от
+7
+deliveryDateTo
+Нет
+Дата поставки до
+8
+invoiceNumber
+Нет
+Номер документа
+9
+receiptTypeCode
+Нет
+Код типа операции
+10
+statusCode
+Нет
+Код статуса
+11
+contractorTin
+Нет
+ИНН контрагента
+12
+exchangeCode
+Нет
+Уникальный идентификатор документа
+13
+page
+Нет
+Номер страницы
+14
+size
+Нет
+Количество элементов на страницу
+
+Ответ:
+{
+    "requestId": null,
+    "responseId": "c9cad486-e4c9-4750-bee1-57d23f5c9870",
+    "userId": null,
+    "clientId": null,
+    "invoices": [
+        {
+            "documentUuid": "75a7ca95-e51f-403e-9291-6b9263082575",
+            "totalAmount": 1300.0,
+            "createdDate": "2020-08-01",
+            "deliveryDate": "2020-07-31",
+            "invoiceDate": null,
+            "ownedCrmReceiptCode": null,
+            "invoiceNumber": null,
+            "number": "",
+            "note": null,
+            "correctedReceiptUuid": "NULL",
+            "legalPersonBankAccount": "1220000002020202",
+            "contractorBankAccount": null,
+            "isResident": "true",
+            "paymentType": {
+                "code": "20",
+                "name": "Безналичная"
+            },
+            "currency": {
+                "code": "KGS",
+                "name": "Сом"
+            },
+            "status": {
+                "code": "10",
+                "name": "Новый"
+            },
+            "receiptType": {
+                "code": "20",
+                "name": "Покупка услуг"
+            },
+            "deliveryType": {
+                "code": "100",
+                "name": "Облагаемые по ставке 12 процентов"
+            },
+            "legalPerson": {
+                "pin": "12345678901234",
+                "fullName": "Общество с ограниченной ответственностью охранно-детективное агенство Дордой-Секьюрити",
+                "mainFullName": null,
+                "mainPin": null
+            },
+            "contractor": {
+                "pin": "12345678901234",
+                "fullName": "Общество с ограниченной ответственностью \"JOSEF L.T.D.\" (\"ДЖОЗЕФ ЛТД\")",
+                "mainFullName": null,
+                "mainPin": null
+            },
+            "vatTaxType": {
+                "rate": "Стандартная 12%",
+                "name": "Стандартная 12%"
+            },
+         "correctedReceiptCode": "correctedReceiptCode_163571bd6e82",
+          "correctionReasonCode": "correctionReasonCode_0afebfc527e0",
+           "correctedReceiptCreationDate": "correctedReceiptCreationDate_713c5d699d89",
+           "correctionReasonName": "correctionReasonName_336776926c64",
+           "deliveryContractNumber": "deliveryContractNumber_0c318beb136c",
+           "deliveryContractDate": "deliveryContractDate_4435a7fd1330",
+            "vatDelivery": {
+                "code": "code_dcc2895be99b",
+                "name": "name_aa2d1fdafa5d"
+            },
+            "exchangeRate": 0.0,
+            "country": {
+                "code": code_c29104be5c54,
+                "name": name_67433dedc741
+            },
+            "foreignName": " foreignName_1a2b70da7eb9 ",
+            "sellerBranchPin": " sellerBranchPin_95c962b0b2e1 ",
+            "isPriceWithoutTaxes": false,
+            "isIndustry": false,
+            "openingBalances": 0.00,
+            "assessedContributionsAmount": 0.00,
+            "paidAmount": 0.00,
+            "penaltiesAmount": 0.00,
+            "finesAmount": 0.00,
+            "closingBalances": 0.00,
+            "amountToBePaid": 0.00,
+            "personalAccountNumber": 0.00
+
+        }
+    ],
+    "totalElements": 11,
+    "totalPage": 11,
+    "invoiceDate": null
+}
+
+Описание полей ответа
+#
+Наименование поля
+Описание
+Тип данных
+1
+contractor
+Контрагент
+Object
+2
+contractorBankAccount
+Банковский счет контрагента
+String
+3
+correctedReceiptUuid
+Идентификатор корректируемого документа
+String
+4
+createdDate
+Дата создания документа
+String (formatted as date)
+5
+currency
+Валюта
+Object
+6
+deliveryDate
+Дата поставки
+String (formatted as date)
+7
+deliveryType
+Вид поставки
+Object
+8
+documentUuid
+Уникальный идентификатор документа
+String
+9
+invoiceDate
+Дата подписания документа
+String (formatted as date)
+10
+invoiceNumber
+Номер документа
+String
+11
+invoices
+Список документов
+Array of Objects
+12
+isResident
+Статус резидентства 
+String
+13
+legalPerson
+Информация о поставщике
+Object
+14
+legalPersonBankAccount
+Банковский счет поставщика 
+String
+15
+note
+Комментарий или пометка
+String
+16
+ownedCrmReceiptCode
+Код учетной системы
+String
+17
+paymentType
+Тип оплаты
+Object
+18
+receiptType
+Тип операции
+Object
+19
+requestId
+Идентификатор запроса
+String
+20
+responseId
+Уникальный идентификатор ответа
+String
+21
+status
+Статус документа
+Object
+22
+totalAmount
+Общая сумма документа
+Double
+23
+totalElements
+Общее количество элементов по данному запросу
+Integer
+24
+totalPage
+Общее количество страниц по данному запросу
+Integer
+25
+vatTaxType
+Вид налога НДС
+Object
+26
+correctedReceiptCode
+Номер подписанной первоначальной ЭСФ
+String
+27
+correctionReasonCode
+Код причины корректировки
+String
+28
+correctedReceiptCreationDate
+Дата создания первоначальной ЭСФ
+LocalDate
+29
+correctionReasonName
+Наименование причины корректировки
+String
+30
+deliveryContractNumber
+Номер договора на поставку
+String
+31
+deliveryContractDate
+Дата заключения договора на поставку
+LocalDate
+32
+vatDelivery
+Вид поставки
+Object
+33
+exchangeRate
+Курс обмена валюты к сому
+BigDecimal
+34
+country
+Страна
+Object
+35
+foreignName
+Наименование иностранца
+String
+36
+sellerBranchPin
+ИНН поставщика
+String
+37
+isPriceWithoutTaxes
+Цена без налогов
+Boolean
+38
+isIndustry
+Отраслевые
+Boolean
+39
+openingBalances
+Сальдо на начало
+BigDecimal
+40
+assessedContributionsAmount
+Начислено
+BigDecimal
+41
+paidAmount
+Оплачено
+BigDecimal
+42
+penaltiesAmount
+Штраф
+BigDecimal
+43
+finesAmount
+Пеня
+BigDecimal
+44
+closingBalances
+Сальдо на конец
+BigDecimal
+45
+amountToBePaid
+К оплате
+BigDecimal
+46
+personalAccountNumber
+Лицевой счет
+BigDecimal
+
+Описание объектов paymentType, currency, status, receiptType, deliveryType
+#
+Наименование поля
+Описание
+Тип данных
+1
+code
+Код справочного элемента
+String
+2
+name
+Наименование справочного элемента
+String
+
+Описание объектов legalPerson, contractor
+#
+Наименование поля
+Описание
+Тип данных
+1
+pin
+ИНН
+String
+2
+fullName
+Наименование
+String
+3
+mainFullName
+Наименование головной орг.
+String
+4
+mainPin
+ИНН головной орг.
+String
+
+Описание объектов vatTaxType
+#
+Наименование поля
+Описание
+Тип данных
+1
+rate
+Ставка
+String
+2
+name
+Наименование ставки
+String
+
+
+6. Correction documents 
+Описание: 
+Получение списка ЭСФ-корректировочные
+Запрос:
+METHOD: GET 
+PATH: /api/query/invoice/correction/all-documents
+Параметры запроса
+#
+Наименование поля
+Обязательно
+Описание
+1
+isFullInformation
+Нет
+Полная информация о документе
+2
+contractorTin
+Нет
+ИНН контрагента
+3
+createdDateFrom
+Нет
+Дата создания с
+4
+createdDateTo
+Нет
+Дата создания по
+5
+deliveryDateFrom
+Нет
+Дата поставки с
+6
+deliveryDateTo
+Нет
+Дата поставки по
+7
+exchangeCode
+Нет
+Уникальный идентификатор документа
+8
+invoiceDateFrom
+Нет
+Дата подписания с
+9
+invoiceDateTo
+Нет
+Дата подписания по
+10
+invoiceNumber
+Нет
+Номер документа
+11
+receiptTypeCode
+Нет
+Код типа операции
+12
+statusCode
+Нет
+Код статуса
+13
+page
+Нет
+Номер страницы
+14
+size
+Нет
+Количество элементов на страницу
+
+Ответ:
+{
+  "invoiceDate": "2024-01-26",
+  "invoices": [
+    {
+      "documentUuid": "documentUuid_5eef5527677f",
+      "totalAmount": 0.00,
+      "createdDate": "2024-01-26",
+      "deliveryDate": "2024-01-26",
+      "invoiceDate": "2024-01-26",
+      "ownedCrmReceiptCode": "ownedCrmReceiptCode_950ac7fb1f19",
+      "invoiceNumber": "invoiceNumber_ba44f530b359",
+      "number": "number_14dbbf6a7fd4",
+      "note": "note_edd3fa8f4274",
+      "correctedReceiptUuid": "correctedReceiptUuid_bc8b1ac80d6c",
+      "legalPersonBankAccount": "legalPersonBankAccount_e6032b61f407",
+      "contractorBankAccount": "contractorBankAccount_b25f0ec04e81",
+      "isResident": "isResident_5c81dd88d2ab",
+      "paymentType": {
+        "code": "code_261c33c4df93",
+        "name": "name_8c2eecf2a79c"
+      },
+      "currency": {
+        "code": "code_34504dd0baba",
+        "name": "name_b325a4215179"
+      },
+      "status": {
+        "code": "code_eb7a8b3ae091",
+        "name": "name_c73668626938"
+      },
+      "receiptType": {
+        "code": "code_ae49c7927bcf",
+        "name": "name_3fef3e3ff8d3"
+      },
+      "deliveryType": {
+        "code": "code_b99c8373ddaa",
+        "name": "name_310a77788556"
+      },
+      "legalPerson": {
+        "pin": "pin_5e6beac51399",
+        "fullName": "fullName_da53cbb88fe2",
+        "mainFullName": "mainFullName_f5b2ffcb6cbd",
+        "mainPin": "mainPin_d510c30cca88"
+      },
+      "contractor": {
+        "pin": "pin_9c6dd6aed969",
+        "fullName": "fullName_3e6aa721a419",
+        "mainFullName": "mainFullName_a77cae4dabc8",
+        "mainPin": "mainPin_9d533ba6f875"
+      },
+      "vatTaxType": {
+        "rate": "rate_01974c1536bd",
+        "name": "name_a8627294200e"
+      },
+         "correctedReceiptCode": "correctedReceiptCode_163571bd6e82",
+          "correctionReasonCode": "correctionReasonCode_0afebfc527e0",
+           "correctedReceiptCreationDate": "correctedReceiptCreationDate_713c5d699d89",
+           "correctionReasonName": "correctionReasonName_336776926c64",
+           "deliveryContractNumber": "deliveryContractNumber_0c318beb136c",
+           "deliveryContractDate": "deliveryContractDate_4435a7fd1330",
+            "vatDelivery": {
+                "code": "code_dcc2895be99b",
+                "name": "name_aa2d1fdafa5d"
+            },
+            "exchangeRate": 0.0,
+            "country": {
+                "code": code_c29104be5c54,
+                "name": name_67433dedc741
+            },
+            "foreignName": " foreignName_1a2b70da7eb9 ",
+            "sellerBranchPin": " sellerBranchPin_95c962b0b2e1 ",
+            "isPriceWithoutTaxes": false,
+            "isIndustry": false,
+            "openingBalances": 0.00,
+            "assessedContributionsAmount": 0.00,
+            "paidAmount": 0.00,
+            "penaltiesAmount": 0.00,
+            "finesAmount": 0.00,
+            "closingBalances": 0.00,
+            "amountToBePaid": 0.00,
+            "personalAccountNumber": 0.00
+
+    }
+  ],
+  "totalElements": 0,
+  "totalPage": 0,
+  "requestId": "requestId_a1a87a9dc5f0",
+  "responseId": "responseId_edda566d1a9a",
+  "userId": "userId_43abe0ff1345",
+  "clientId": "clientId_4ffb9e594b12"
+}
+
+Описание полей ответа
+#
+Наименование поля
+Описание
+Тип данных
+1
+contractor
+Информация о контрагенте
+Object
+2
+contractorBankAccount
+Банковский счет контрагента
+String
+3
+correctedReceiptUuid
+Идентификатор корректируемого документа
+String
+4
+createdDate
+Дата создания документа
+String (formatted as date)
+5
+currency
+Валюта
+Object
+6
+deliveryDate
+Дата поставки
+String (formatted as date)
+7
+deliveryType
+Тип поставки
+Object
+8
+documentUuid
+Уникальный идентификатор документа
+String
+9
+invoiceDate
+Дата подписания
+String (formatted as date)
+10
+invoiceNumber
+Номер счета
+String
+11
+invoices
+Список документов
+Array of Objects
+12
+isResident
+Статус резидентства
+String
+13
+legalPerson
+Информация о юридическом лице
+Object
+14
+legalPersonBankAccount
+Банковский счет юридического лица
+String
+15
+note
+Комментарий или примечание
+String
+16
+ownedCrmReceiptCode
+Код учетной системы
+String
+17
+paymentType
+Тип оплаты
+Object
+18
+receiptType
+Тип операции
+Object
+19
+requestId
+Идентификатор запроса
+String
+20
+responseId
+Уникальный идентификатор ответа
+String
+21
+status
+Информация о статусе
+Object
+22
+totalAmount
+Общая сумма документа
+Double
+23
+totalElements
+Общее количество элементов для текущего запроса
+Integer
+24
+totalPage
+Общее количество страниц для текущего запроса
+Integer
+25
+vatTaxType
+Вид налога НДС
+Object
+26
+correctedReceiptCode
+Номер подписанной первоначальной ЭСФ
+String
+27
+correctionReasonCode
+Код причины корректировки
+String
+28
+correctedReceiptCreationDate
+Дата создания первоначальной ЭСФ
+LocalDate
+29
+correctionReasonName
+Наименование причины корректировки
+String
+30
+deliveryContractNumber
+Номер договора на поставку
+String
+31
+deliveryContractDate
+
+Дата заключения договора на поставку
+LocalDate
+32
+vatDelivery
+Вид поставки
+Object
+33
+exchangeRate
+Курс обмена валюты к сому
+BigDecimal
+34
+country
+Страна
+Object
+35
+foreignName
+Наименование иностранца
+String
+36
+sellerBranchPin
+ИНН поставщика
+String
+37
+isPriceWithoutTaxes
+Цена без налогов
+Boolean
+38
+isIndustry
+Отраслевые
+Boolean
+39
+openingBalances
+Сальдо на начало
+BigDecimal
+40
+assessedContributionsAmount
+Начислено
+BigDecimal
+41
+paidAmount
+Оплачено
+BigDecimal
+42
+penaltiesAmount
+Штраф
+BigDecimal
+43
+finesAmount
+Пеня
+BigDecimal
+44
+closingBalances
+Сальдо на конец
+BigDecimal
+45
+amountToBePaid
+К оплате
+BigDecimal
+46
+personalAccountNumber
+Лицевой счет
+BigDecimal
+
+Описание объектов paymentType, currency, status, receiptType, deliveryType
+#
+Наименование поля
+Описание
+Тип данных
+1
+code
+Код справочного элемента
+String
+2
+name
+Наименование справочного элемента
+String
+
+Описание объектов legalPerson, contractor
+#
+Наименование поля
+Описание
+Тип данных
+1
+pin
+ИНН
+String
+2
+fullName
+Наименование
+String
+3
+mainFullName
+Наименование головной орг.
+String
+4
+mainPin
+ИНН головной орг.
+String
+
+Описание объекта vatTaxType
+#
+Наименование поля
+Описание
+Тип данных
+1
+rate
+Ставка
+String
+2
+name
+Наименование ставки
+String
+
+7. Details by exchange code
+Описание: 
+Получение деталей документа по коду обмена с пагинацией
+Запрос:
+METHOD: GET 
+PATH: /api/query/detail/details-by-exchange-code
+Параметры запроса
+Параметр
+Тип
+Обязательно
+Описание
+exchangeCode
+UUID
+Да
+Уникальный идентификатор документа
+page
+Integer
+Нет
+Номер страницы
+size
+Integer
+Нет
+Размер страницы
+
+Ответ:
+{
+    "requestId": null,
+    "responseId": "202235c9-9e92-4709-a73c-ba50659f495d",
+    "userId": null,
+    "clientId": null,
+    "details": [
+        {
+            "invoiceUuid": "de5edb29-cff5-11ea-93c5-b06ebf37f08c",
+            "baseCount": 1.0,
+            "price": 1300.0,
+            "amount": 1300.0,
+            "amountWithoutVAT": 1160.71,
+            "amountVAT": 139.29,
+            "amountST": 0.0,
+            "fcdNumber": null,
+            "goodsName": "Охранные услуги",
+            "tnvedCode": null,
+            "gked": "80.10.0",
+            "unitClassification": {
+                "code": "362",
+                "name": "Месяц"
+            },
+            "goodsType": {
+                "code": "2",
+                "name": "Услуги"
+            },
+            "stTaxType": {
+                "name": "0%",
+                "rate": "0%"
+            }
+        }
+    ],
+    "totalElements": 1,
+    "totalPage": 1
+}
+
+
+Описание полей ответа 
+#
+Название
+Описание
+Data Type
+1
+invoiceUuid
+Идентификатор счета
+string
+2
+baseCount
+Количество
+double
+3
+price
+Цена
+double
+4
+amount
+Сумма
+double
+5
+amountWithoutVAT
+Сумма без НДС
+double
+6
+amountVAT
+Сумма НДС
+double
+7
+amountST
+Сумма НСП
+double
+8
+fcdNumber
+Номер ГТД
+string
+9
+goodsName
+Наименование товара/услуги
+string
+10
+tnvedCode
+Код ТНВЭД
+string
+11
+gked
+Код ГКЭД
+string
+12
+unitClassification
+Тип единиц измерения
+Object
+13
+goodsType
+Тип товаров
+Object
+14
+stTaxType
+Вид налога НСП
+Object
+15
+totalElements
+Общее количество элементов
+integer
+16
+totalPage
+Общее количество страниц
+integer
+
+Описание объектов unitClassification, goodsType
+#
+Наименование поля
+Описание
+Тип данных
+1
+code
+Код справочного элемента
+String
+2
+name
+Наименование справочного элемента
+String
+
+Описание объекта stTaxType
+#
+Наименование поля
+Описание
+Тип данных
+1
+rate
+Ставка 
+String
+2
+name
+Наименование ставки
+String
+
+8. Details by exchange code without pageable
+Описание: 
+Получение деталей документа по коду обмена без пагинации
+Запрос:
+METHOD: GET 
+PATH: /api/query/detail/v2/details-by-exchange-code
+Параметры запроса
+Параметр
+Тип
+Обязательно
+Описание
+exchangeCode
+UUID
+Да
+Уникальный идентификатор документа
+
+Ответ:
+{
+    "requestId": null,
+    "responseId": "3b8ff401-e69e-456a-a399-d0a83ac3c3da",
+    "userId": null,
+    "clientId": null,
+    "details": [
+        {
+            "id": 770086,
+            "invoiceUuid": "9d8ceacc-57aa-4caf-bcfd-f5844032fbed",
+            "baseCount": 1.0,
+            "price": 120000.0,
+            "amount": 120000.0,
+            "amountWithoutVAT": 120000.0,
+            "amountVAT": 0.0,
+            "amountST": 0.0,
+            "fcdNumber": null,
+            "goodsName": "SFG ЖидкМыло с Алоэ 225мл",
+            "tnvedCode": "3401300000",
+            "gked": null,
+            "unitClassification": {
+                "code": "796",
+                "name": "Штука"
+            },
+            "goodsType": {
+                "code": "1",
+                "name": "Товары"
+            },
+            "stTaxType": {
+                "name": "0%",
+                "rate": "0%",
+                "code": "50"
+            }
+        }
+    ]
+}
+
+Описание полей ответа 
+#
+Название
+Описание
+Data Type
+1
+Id
+Индентификатор товара
+Long
+2
+invoiceUuid
+Идентификатор счета
+string
+3
+baseCount
+Количество
+double
+4
+price
+Цена
+double
+5
+amount
+Сумма
+double
+6
+amountWithoutVAT
+Сумма без НДС
+double
+7
+amountVAT
+Сумма НДС
+double
+8
+amountST
+Сумма НСП
+double
+9
+fcdNumber
+Номер ГТД
+string
+10
+goodsName
+Наименование товара/услуги
+string
+11
+tnvedCode
+Код ТНВЭД
+string
+12
+gked
+Код ГКЭД
+string
+13
+unitClassification
+Тип единиц измерения
+Object
+14
+goodsType
+Тип товаров
+Object
+15
+stTaxType
+Вид налога НСП
+Object
+
+Описание объектов unitClassification, goodsType, deliveryType, invoiceDeliveryType
+#
+Наименование поля
+Описание
+Тип данных
+1
+code
+Код справочного элемента
+String
+2
+name
+Наименование справочного элемента
+String
+
+Описание объекта stTaxType
+#
+Наименование поля
+Описание
+Тип данных
+1
+rate
+Ставка 
+String
+2
+name
+Наименование ставки
+String
+
+9. Get legal person banks
+Описание: 
+Получение данных по банкам юридического лица 
+Запрос:
+PATH: /api/query/legal-person/bank-accounts
+METHOD: GET
+Параметры запроса
+Параметр
+Описание
+Тип данных
+accountName
+Название счета
+String
+bankAccount
+Номер банковского счета
+String
+currencyCod
+Код валюты
+String
+bankName
+Название банка
+String
+isForContractor
+Для контрагента
+Boolean
+page
+Номер страницы (отсчет с 0)
+Integer
+size
+Количество элементов на странице
+Integer
+sort
+Сортировка 
+String
+
+Пример запроса:
+curl --location 'http://{{TUNDUK_URL}}/r1/central-server/GOV/70000002/esf-test/esf-api-services /api/query/legal-person/bank-accounts?size=1&page=0&sort=id,desc' \
+--header 'X-Road-Client: {{TUNDUK_CLIENT}} ' \
+--header 'ClientUUID: {{CLIENT_UUID}}' \
+--header 'Authorization': {{TOKEN}}'\
+
+Пример ответа:
+{
+    "requestId": null,
+    "responseId": "7b9e0dff-5c99-41d8-b3ea-f6e3b2b94eee",
+    "userId": null,
+    "clientId": null,
+    "banks": [
+        {
+            "id": 12770,
+            "accountName": "Филиал ОАО Оптима Банк\" ЦОКБ, г.Бишкек",
+            "bankAccount": "123123123123123",
+            "currency": {
+                "code": "KGS",
+                "name": "Сом"
+            },
+            "bank": {
+                "id": 1351,
+                "name": "ФОАО \"ОптимаБанк\" \"Центр корпоративного бизнеса\"",
+                "bik": "109022",
+                "addressText": "КР, г.Бишкек, ул. Исанова, 75"
+            },
+            "isUsed": false,
+            "contractorTin": "01206200110146",
+            "isResident": true
+        }
+    ],
+    "totalElements": 10,
+    "totalPage": 10
+}
+
+Описание полей ответа
+Поле
+Описание
+Тип данных
+requestId
+Идентификатор запроса
+String
+responseId
+Идентификатор ответа
+String
+clientId
+Идентификатор клиента
+String
+banks
+Список банков
+List of Bank
+totalElements
+Общее количество элементов
+Integer
+totalPage
+Общее количество страниц
+Integer
+
+Описание banks
+Поле
+Описание
+Тип данных
+id
+Идентификатор банка
+Integer
+accountName
+Название счета
+String
+bankAccount
+Номер банковского счета
+String
+currency
+Объект валюты
+Currency object
+bank
+Объект банка
+Object
+isUsed
+Используется ли
+Boolean
+contractorTin
+ИНН контрагента
+String
+isResident
+Является ли резидентом
+Boolean
+
+Описание currency
+Поле
+Описание
+Тип данных
+code
+Код валюты
+String
+name
+Название валюты
+String
+
+Описание bank
+Поле
+Описание
+Тип данных
+id
+Идентификатор банка
+Integer
+name
+Название банка
+String
+bik
+БИК банка
+String
+addressText
+Текстовый адрес банка
+String
+
+
+10. Get legal person bank by id
+Описание: 
+Получение данных по банкам юридического лица по индентификатору
+Запрос:
+PATH: /api/query/legal-person/bank-account/{id}
+METHOD: GET
+Параметры запроса
+Параметр
+Описание
+Тип данных
+id
+Идентификатор
+Long
+tin
+ИНН поставщика
+String
+
+Пример запроса:
+curl --location 'http://{{TUNDUK_URL}}/r1/central-server/GOV/70000002/esf-test/esf-api-services /api/query/legal-person/bank-account/22232?tin=1212121121 ' \
+--header 'X-Road-Client: {{TUNDUK_CLIENT}} ' \
+--header 'ClientUUID: {{CLIENT_UUID}}' \
+--header 'Authorization': {{TOKEN}}'\
+
+Пример ответа:
+{
+    "requestId": null,
+    "responseId": null,
+    "userId": null,
+    "clientId": null,
+    "accountName": "ОАО \"Бакай Банк\"",
+    "bankAccount": "1242000200087393",
+    "currency": {
+        "code": "KGS",
+        "name": "Сом"
+    },
+    "bank": {
+        "id": 1440,
+        "name": "Филиал \"ВИП Центр\" ОАО \"Бакай Банк\"",
+        "bik": "124012",
+        "addressText": "КР, г.Бишкек, ул.Исанова, 77"
+    },
+    "isUsed": null,
+    "contractorTin": null,
+    "isResident": true
+}
+
+
+Описание полей ответа
+Поле
+Описание
+Тип данных
+id
+Идентификатор банка
+Integer
+accountName
+Название счета
+String
+bankAccount
+Номер банковского счета
+String
+currency
+Объект валюты
+Currency object
+bank
+Объект банка
+Object
+isUsed
+Используется ли
+Boolean
+contractorTin
+ИНН контрагента
+String
+isResident
+Является ли резидентом
+Boolean
+
+Описание currency
+Поле
+Описание
+Тип данных
+code
+Код валюты
+String
+name
+Название валюты
+String
+
+Описание bank
+Поле
+Описание
+Тип данных
+id
+Идентификатор банка
+Integer
+name
+Название банка
+String
+bik
+БИК банка
+String
+addressText
+Текстовый адрес банка
+String
+
+
+11. Legal person catalogs
+Описание: 
+Получение данных по наименованиям юридического лица
+Запрос:
+PATH: /api/query/legal-person/catalogs
+METHOD: GET
+Параметры запроса
+Параметр
+Описание
+Тип данных
+id
+Идентификатор
+Long
+name
+Название (вхождения)
+String
+tnvedCode
+ТН ВЭД код
+String
+gkedCode
+ГКЭД код
+String
+page
+Номер страницы (отсчет с 0)
+Integer
+catalogType
+Тип вхождения (1  -  товары, 2  -  услуги) 
+Integer
+size
+Количество элементов на странице
+Integer
+sort
+Сортировка 
+String
+
+Пример запроса: 
+curl --location 'http://{{TUNDUK_URL}}/r1/central-server/GOV/70000002/esf-test/esf-api-services /api/query/legal-person/catalogs?size=1&catalogType=1&page=0&sort=id,desc' \
+--header 'X-Road-Client: {{TUNDUK_CLIENT}} ' \
+--header 'ClientUUID: {{CLIENT_UUID}}' \
+--header 'Authorization': {{TOKEN}}'\
+
+Пример ответа:
+{
+    "requestId": null,
+    "responseId": "bce40ec0-b448-41ac-8805-431d1fa80bf2",
+    "userId": null,
+    "clientId": null,
+    "catalogs": [
+        {
+            "id": 2047,
+            "name": "подшипник 180200 (6200 2RS) FAG",
+            "number": null,
+            "tnvedCode": "8482109008",
+            "unitClassification": {
+                "code": "796",
+                "name": "Штука"
+            },
+	"catalogType ": {
+	   "code ":1",
+	   "name ": "Товары"
+	}
+        }
+    ],
+    "totalElements": 1572,
+    "totalPage": 1572
+}
+
+Описание полей ответа
+Поле
+Описание
+Тип данных
+catalogs
+Список каталогов
+Array catalog
+totalElements
+Общее количество элементов
+Integer
+totalPage
+Общее количество страниц
+Integer
+
+Описание catalog
+Поле
+Описание
+Тип данных
+name
+Название
+String
+number
+Номер
+String
+tnvedCode
+ТН ВЭД код
+String
+unitClassification
+Объект единицы измерения
+UnitClassification object
+
+Описание unitClassification и catalogType 
+Поле
+Описание
+Тип данных
+code
+Код cправочного объекта
+String
+name
+Название справочного объекта
+String
+
+
+12. Legal person catalog by id
+Описание: 
+Получение каталога по индентификатору
+Запрос:
+PATH: /api/query/legal-person/catalog/{id}
+METHOD: GET
+Параметры запроса
+Параметр
+Описание
+Тип данных
+id
+Идентификатор
+Long
+tin
+ИНН поставщика
+String
+
+Пример запроса: 
+curl --location 'http://{{TUNDUK_URL}}/r1/central-server/GOV/70000002/esf-test/esf-api-services /api/query/legal-person/catalog/12131?tin=12323231221' \
+--header 'X-Road-Client: {{TUNDUK_CLIENT}} ' \
+--header 'ClientUUID: {{CLIENT_UUID}}' \
+--header 'Authorization': {{TOKEN}}'\
+
+Пример ответа:
+{
+    "requestId": null,
+    "responseId": null,
+    "userId": null,
+    "clientId": null,
+    "name": "Фен Bellissima Bell-11313",
+    "number": null,
+    "tnvedCode": "8516310009",
+    "unitClassification": {
+        "code": "796",
+        "name": "Штука"
+    },
+    "catalogType": {
+        "code": "1",
+        "name": "Товары"
+    }
+}
+
+Описание полей ответа
+Поле
+Описание
+Тип данных
+name
+Название
+String
+number
+Номер
+String
+tnvedCode
+ТН ВЭД код
+String
+unitClassification
+Объект единицы измерения
+UnitClassification object
+catalogType
+Тип каталога
+catalogType object
+
+Описание unitClassification и catalogType 
+Поле
+Описание
+Тип данных
+code
+Код cправочного объекта
+String
+name
+Название справочного объекта
+String
+
+13. Foreign companies
+Описание: 
+Получение данных по иностранным компаниям
+Запрос:
+PATH: /api/query/legal-person/foreign-companies
+METHOD: GET
+Параметры запроса
+Параметр
+Описание
+Тип данных
+foreignTin
+ИНН иностранной компании
+String
+fullName
+Вхождение по наименованиям
+String
+address
+Адрес
+String
+page
+Номер страницы
+Integer
+size
+Количество элементов на странице
+Integer
+sort
+Сортировка 
+String
+
+Пример запроса: 
+curl --location 'http://{{TUNDUK_URL}}/r1/central-server/GOV/70000002/esf-test/esf-api-services /api/query/legal-person/foreign-companies?foreignTin=99999999999999&fullName=Систем&sort=id,desc' \
+--header 'X-Road-Client: {{TUNDUK_CLIENT}} ' \
+--header 'ClientUUID: {{CLIENT_UUID}}' \
+--header 'Authorization': {{TOKEN}}'\
+
+Пример ответа:
+{
+    "requestId": null
+    "responseId": "edd7139b-c16f-44b6-a911-866ab705cd0f",
+    "userId": null,
+    "clientId": null,
+    "foreignLegalPersons": [
+        {
+            "id": 12345,
+            "fullName": "ООО  \"Логистические Системы\"",
+            "inn": "99999999999999",
+            "address": null
+        }
+    ],
+    "totalElements": 1,
+    "totalPage": 1
+}
+
+Описание полей ответа
+Поле
+Описание
+Тип данных
+foreignLegalPersons
+Список иностранных компаний
+Array foreignLegalPersons
+totalElements
+Общее количество элементов
+Integer
+totalPage
+Общее количество страниц
+Integer
+
+Описание foreignLegalPersons
+Поле
+Описание
+Тип данных
+id
+Идентификатор
+Long
+fullName
+Наименование
+String
+Inn
+ИНН иностранной компании
+String
+Address
+Адрес
+String
+
+
+14. Foreign company by id
+Описание: 
+Получение данных иностранной компании по id
+Запрос:
+PATH: /api/query/legal-person/foreign-company/{id}
+METHOD: GET
+Параметры запроса
+Параметр
+Описание
+Тип данных
+id
+Идентификатор иностранной компании
+Long
+
+Пример запроса: 
+curl --location 'http://{{TUNDUK_URL}}/r1/central-server/GOV/70000002/esf-test/esf-api-services /api/query/legal-person/foreign-company? 12345' \
+--header 'X-Road-Client: {{TUNDUK_CLIENT}} ' \
+--header 'ClientUUID: {{CLIENT_UUID}}' \
+--header 'Authorization': {{TOKEN}}'\
+
+Пример ответа:
+{
+            "id": 12345,
+            "fullName": "ООО  \"Логистические Системы\"",
+            "inn": "99999999999999",
+            "address": null
+}
+
+Описание полей ответа
+Поле
+Описание
+Тип данных
+id
+Идентификатор
+Long
+fullName
+Наименование
+String
+Inn
+ИНН иностранной компании
+String
+Address
+Адрес
+String
+
+15. Create document
+Описание:
+Создание ЭСФ
+Запрос:
+METHOD: POST 
+PATH: /api/command/invoice/create
+Параметры запроса
+Параметр
+Обязательно
+Описание	
+Тип данных
+foreignName
+Нет
+Наименование иностранца
+String
+isBranchDataSent
+Да
+Отправить от имени филиала
+Boolean
+isPriceWithoutTaxes
+Да
+Цена без налогов
+Boolean
+affiliateTin
+Нет
+ИНН филиала
+String
+isIndustry
+Нет
+Отраслевые
+Boolean
+ownedCrmReceiptCode
+Нет
+Номер учетной системы
+String
+operationTypeCode
+Да
+Код вида операции
+String
+deliveryDate
+Да
+Дата поставки 
+LocalDate
+deliveryTypeCode
+Да
+Код вида поставки
+String
+isResident
+Да
+Субъект Кыргызской Республики
+Boolean
+contractorTin
+Да
+ИНН покупателя
+String
+supplierBankAccount
+Нет
+Номер банковского счета поставщика
+String
+contractorBankAccount
+Нет
+Номер банковского счета покупателя
+String
+currencyCode
+Да
+Код валюты
+String
+countryCode
+Нет
+Код страны
+String
+currencyRate
+Нет
+Курс валюты к сому
+BigDecimal
+
+totalCurrencyValue
+Нет
+Общая стоимость
+BigDecimal
+
+totalCurrencyValueWithoutTaxes
+Нет
+Общая стоимость без налогов
+BigDecimal
+
+supplyContractNumber
+Нет
+Номер договора на поставку 
+String
+contractStartDate
+Нет
+Дата заключения на поставку
+LocalDate
+comment
+Нет
+Комментарий
+String
+deliveryCode
+Да
+Код поставки
+String
+paymentCode
+Да
+Код формы оплаты
+String
+taxRateVATCode
+Да
+Код ставки НДС
+String
+catalogEntries {
+
+      id,
+      unitClassificationCode,
+
+      salesTaxCode,
+
+      customsAuthorityCode,
+      quantity,
+      price,
+
+
+    vatAmount,
+    salesTaxAmount,
+    amountWithoutTaxes,
+
+    totalAmount,
+    
+}
+Да
+Товары
+
+Идентификатор
+Код единицы измерения
+Код НСП
+
+Номер ГТД
+Количество
+Цена
+
+
+Сумма НДС,
+Сумма НСП,
+Стоимость без НДС и НСП,
+Общая стоимость
+
+Long
+String
+String
+String
+
+
+
+BigDecimal
+BigDecimal
+
+
+BigDecimal
+BigDecimal
+BigDecimal
+
+BigDecimal
+
+
+openingBalances
+Нет
+Сальдо на начало
+BigDecimal
+assessedContributionsAmount
+Нет
+Начислено
+BigDecimal
+paidAmount
+Нет
+Оплачено
+BigDecimal
+penaltiesAmount
+Нет
+Штраф
+BigDecimal
+finesAmount
+Нет
+Пеня
+BigDecimal
+closingBalances
+Нет
+Сальдо на конец
+BigDecimal
+amountToBePaid
+Нет
+К оплате
+BigDecimal
+personalAccountNumber
+Нет
+Лицевой счет
+String
+
+Пример запроса
+МЕТОД: POST.
+Модель данных запроса на создание ЭСФ: 
+{
+  "isBranchDataSent": "false",
+  "ownedCrmReceiptCode": "test_crm",
+  "operationTypeCode": "10",
+  "deliveryDate": "2024-01-01",
+  "deliveryTypeCode": "100",
+  "isResident": "true",
+  "contractorTin" "12345678901234",
+  "currencyCode": "KGS",
+  "supplyContractNumber": "test_contract",
+  "contractStartDate": "2024-01-05",
+  "comment": "test_comment",
+ "deliveryCode": "100",
+"paymentCode": "30",
+"taxRateVATCode": "10",
+"catalogEntries": [
+	"id": 2047,
+	"unitClassificationCode": "004",
+	"salesTaxCode": "110",
+"quantity": 30.00,
+	"price": 30.00
+],
+"isPriceWithoutTaxes": false,
+}
+
+
+Ответ:
+{ 
+   "responseId": "d1da764b-4a17-49ad-8d8f-d1a20d4fda04",  
+   "documentUuid": "7b57975e-3893-4cfd-a0c1-eab05f24c900",
+}
+
+
+16. Edit document
+Описание:
+Редактирование ЭСФ
+Запрос:
+METHOD: PUT 
+PATH: /api/command/invoice/edit/{id}
+Параметры запроса
+Параметр
+Обязательно
+Описание	
+Тип данных
+id
+Да
+UUID документа
+String
+foreignName
+Нет
+Наименование иностранца
+String
+isBranchDataSent
+Да
+Отправить от имени филиала
+Boolean
+isPriceWithoutTaxes
+Да
+Цена без налогов
+Boolean
+affiliateTin
+Нет
+ИНН филиала
+String
+isIndustry
+Нет
+Отраслевые
+Boolean
+ownedCrmReceiptCode
+Нет
+Номер учетной системы
+String
+operationTypeCode
+Да
+Код вида операции
+String
+deliveryDate
+Да
+Дата поставки 
+LocalDate
+deliveryTypeCode
+Да
+Код вида поставки
+String
+isResident
+Да
+Субъект Кыргызской Республики
+Boolean
+contractorTin
+Да
+ИНН покупателя
+String
+supplierBankAccount
+Нет
+Номер банковского счета поставщика
+String
+contractorBankAccount
+Нет
+Номер банковского счета покупателя
+String
+currencyCode
+Да
+Код валюты
+String
+countryCode
+Нет
+Код страны
+String
+currencyRate
+Нет
+Курс валюты к сому
+BigDecimal
+
+totalCurrencyValue
+Нет
+Общая стоимость
+BigDecimal
+
+totalCurrencyValueWithoutTaxes
+Нет
+Общая стоимость без налогов
+BigDecimal
+
+supplyContractNumber
+Нет
+Номер договора на поставку 
+String
+contractStartDate
+Нет
+Дата заключения на поставку
+LocalDate
+comment
+Нет
+Комментарий
+String
+deliveryCode
+Да
+Код поставки
+String
+paymentCode
+Да
+Код формы оплаты
+String
+taxRateVATCode
+Да
+Код ставки НДС
+String
+catalogEntries {
+      id,
+
+      detailId,
+
+
+      unitClassificationCode,
+
+      salesTaxCode,
+
+      customsAuthorityCode,
+      quantity,
+      price,
+      vatAmount,
+      salesTaxAmount,
+
+    amountWithoutTaxes,
+
+    totalAmount
+    
+}
+Да
+Товары
+Идентификатор товара
+Идентификатор созданного товара в рамках документа
+Код единицы измерения
+Код НСП
+
+Номер ГТД
+Количество
+Цена
+Сумма НДС
+Сумма НСП
+Стоимость без НДС и НСП
+Общая стоимость
+
+Long
+
+Long
+
+
+String
+
+String
+
+String
+BigDecimal
+BigDecimal
+BigDecimal
+BigDecimal
+
+BigDecimal
+
+BigDecimal
+openingBalances
+Нет
+Сальдо на начало
+BigDecimal
+assessedContributionsAmount
+Нет
+Начислено
+BigDecimal
+paidAmount
+Нет
+Оплачено
+BigDecimal
+penaltiesAmount
+Нет
+Штраф
+BigDecimal
+finesAmount
+Нет
+Пеня
+BigDecimal
+closingBalances
+Нет
+Сальдо на конец
+BigDecimal
+amountToBePaid
+Нет
+К оплате
+BigDecimal
+personalAccountNumber
+Нет
+Лицевой счет
+String
+
+Пример запроса
+МЕТОД: PUT.
+Модель данных запроса на редактирование ЭСФ: 
+{
+  "tin": "00311200910053",
+  "operationTypeCode": "10",
+  "deliveryDate": "2024-03-11",
+  "deliveryTypeCode": "101",
+  "isResident": true,
+  "contractorTin": "99999999999999",
+  "currencyCode": "KGS",
+  "supplyContractNumber": "Номер договора на поставку",
+  "contractStartDate": "2024-03-11",
+  "comment": "комментарий",
+  "deliveryCode": "213",
+  "paymentCode": "10",
+  "taxRateVATCode": "10",
+  "isPriceWithoutTaxes": true,
+  "isBranchDataSent": false,
+  "isIndustry": false,
+  "ownedCrmReceiptCode": null,
+  "catalogEntries": [
+    {
+      "id": 572047,
+      "detailId": 770096,
+      "unitClassificationCode": "796",
+      "salesTaxCode": "110",
+      "customsAuthorityCode": "42",
+      "quantity": 0.00,
+      "price": 0.00,
+      "amountWithoutTaxes": 333,
+      "totalAmount": 3,
+      "salesTaxAmount": 1,
+      "vatAmount": 322
+    }
+  ]
+} 
+
+Ответ:
+{ 
+   "responseId": " aae3b72b-bd67-40dd-9a8b-18baa4dbea37",  
+   "documentUuid": " de69c8a2-b8e3-4979-aa64-4bda0bf1021d",
+}
+
+
+17. Delete document
+Описание:
+Удаление ЭСФ
+Запрос:
+METHOD: DELETE 
+PATH: /api/command/invoice/delete/{id}
+Параметры запроса
+Параметр
+Обязательно
+Описание	
+Тип данных
+id
+Да
+UUID документа
+String
+tin
+Да
+ИНН поставщика
+String
+ 
+Пример запроса
+Модель данных запроса на удаление ЭСФ: 
+{
+  "tin": "12345678901234
+}
+
+Ответ:
+{ 
+   "responseId": "d1da764b-4a17-49ad-8d8f-d1a20d4fda04",  
+   "affectedDocuments": [
+	{
+		"documentUuid": " db4998e9-721c-478b-a236-459f6804e773",
+		"newStatus": {
+			"code": "70",
+			"name": "Удален"  		
+                                 }
+            }
+           ]
+}
+
+18. Accept or Reject Document
+Описание: 
+Принятие/Отклонение покупателем ЭСФ
+Запрос:
+METHOD: POST 
+PATH: /api/command/invoice/accept-or-reject
+Параметры запроса
+Параметр
+Обязательно
+Описание	
+Тип данных
+statusCode
+Да
+Статус кода
+Long
+documentUuids
+Да
+Номер ЭСФ
+Array <String>
+
+Пример запроса
+МЕТОД: POST.
+Модель данных запроса на принятие/отклонение ЭСФ: 
+{
+  "statusCode": 40,
+  "documentUuids": [
+	  "db4998e9-721c-478b-a236-459f6804e773"	
+],
+  "tin": "12345678901234
+}
+
+Ответ
+{ 
+   "responseId": "d1da764b-4a17-49ad-8d8f-d1a20d4fda04",  
+   "affectedDocuments": [
+	{
+		"documentUuid": " db4998e9-721c-478b-a236-459f6804e773",
+		"newStatus": {
+			"code": "40",
+			"name": "Принят"  		
+                                 }
+            }
+           ]
+}
+
+Описание полей ответа
+Поле
+Тип данных
+Описание поля
+responseId
+String
+Идентификатор ответа.
+affectedDocuments
+Array Object
+Объект, содержащий информацию о документах, на которые повлиял запрос.
+
+Описание объекта affectedDocuments
+Поле
+Тип данных
+Описание поля
+documentUuid
+String
+Идентификатор документа.
+newStatus
+Object
+Объект, содержащий информацию о новом статусе документа.
+
+
+Описание объекта newStatus
+Поле
+Тип данных
+Описание поля
+code
+String
+Код нового статуса 
+name
+String
+Название нового статуса
+
+19. Revoke Document
+Описание: 
+Отозвать поставщиком ЭСФ
+Запрос:
+METHOD: PUT 
+PATH: /api/command/invoice/revoke
+Параметры запроса
+Параметр
+Обязательно
+Описание	
+Тип данных
+documentUuids
+Да
+Номер ЭСФ
+Array <String>
+
+Пример запроса
+МЕТОД: PUT.
+Модель данных запроса на Отзыв ЭСФ: 
+{
+  "documentUuids": [
+	  "db4998e9-721c-478b-a236-459f6804e773"	
+],
+  "tin": "12345678901234
+}
+
+Ответ
+{ 
+   "responseId": "d1da764b-4a17-49ad-8d8f-d1a20d4fda04",  
+   "affectedDocuments": [
+	{
+		"documentUuid": " db4998e9-721c-478b-a236-459f6804e773",
+		"newStatus": {
+			"code": "20",
+			"name": "Отозван"  		
+                                 }
+            }
+           ]
+}
+
+Описание полей ответа
+Поле
+Тип данных
+Описание поля
+responseId
+String
+Идентификатор ответа.
+affectedDocuments
+Array Object
+Объект, содержащий информацию о документах, на которые повлиял запрос.
+
+Описание объекта affectedDocuments
+Поле
+Тип данных
+Описание поля
+documentUuid
+String
+Идентификатор документа.
+newStatus
+Object
+Объект, содержащий информацию о новом статусе документа.
+
+Описание объекта newStatus
+Поле
+Тип данных
+Описание поля
+code
+String
+Код нового статуса 
+name
+String
+Название нового статуса
+
+
+20. Create legal person/contractor bank account
+
+Описание:
+Создание собственного банковского счета и банковского счета для контрагента
+
+При указании поля contractorId банковский счет создается для указанного контрагента, иначе создается обычный счет налогоплательщика
+Запрос:
+METHOD: POST
+PATH: /api/command/legal-person/bank/create
+
+Поля запроса:
+                           Название поля
+                              Тип данных
+                           Описание поля
+                            Обязательно
+contractorId
+Integer
+Идентификатор контрагента
+Нет
+number
+String
+Номер банковского счета
+Да
+name
+String
+Название банковского счета
+Да
+bankId
+Integer
+Идентификатор банка
+Да
+currencyCode
+String
+Код валюты
+Да
+
+Пример запроса:
+{
+  "contractorId": 13,
+  "number": " Test account ",
+  "name": " TEST 123123901085",
+  "bankId": 1265,
+  "currencyCode": "KGZ"
+}
+
+Пример ответа:
+{
+   "legalPersonBankAccount": {
+        "id": 55484,
+        "accountName": "Test account",
+        "accountNumber": "TEST 123123901085",
+        "currency": {
+            "code": "USD",
+            "name": "Доллар США"
+        },
+        "bank": {
+            "id": 1265,
+            "name": "Таласское областное управление",
+            "bik": "101000",
+            "addressText": "г. Талас, ул. Фрунзе, 123"
+        },
+        "contractor": {
+            "tin": "12345687901234",
+            "fullName": "Тестов тест тестович",
+            "mainFullName": null,
+            "mainTin": null,
+            "address": null
+        },
+        "owner": {
+            "tin": "01234567891234",
+            "fullName": "Государственная налоговая служба при Министерстве финансов Кыргызской Республики",
+            "mainFullName": null,
+            "mainTin": null,
+            "address": "г.Бишкек пр.Чуй, д. 123"
+        },
+        "isResident": true
+    }
+}
+
+Описание объекта legalPersonBankAccount:
+Название поля
+Тип
+Описание
+id
+number
+Идентификатор банковского счета
+accountName
+string
+Название счета
+accountNumber
+string
+Номер счета
+currency
+object
+Валюта
+bank
+object
+Банк
+contractor
+object
+Контрагент, для которого создан данный счет
+owner
+object
+Владелец счета
+isResident
+boolean
+Флаг, указывающий на резидентство юридического лица
+Описание объекта currency:
+Название поля
+Тип
+Описание
+code
+string
+Код валюты
+name
+string
+Название валюты
+Описание объекта bank:
+Название поля
+Тип
+Описание
+id
+number
+Идентификатор банка
+name
+string
+Название банка
+bik
+string
+БИК
+addressText
+string
+Адрес банка
+
+Описание объектов owner и contractor:
+Название поля
+Тип
+Описание
+tin
+string
+ИНН
+fullName
+string
+Наименование
+mainFullName
+null or string
+Наименование головной орг.
+mainTin
+null or string
+ИНН головной орг.
+address
+null or string
+Адрес 
+
+21. Edit legal person/contractor bank account
+
+Описание:
+Редактирование собственного банковского счета и банковского счета для контрагента
+Запрос:
+METHOD: PUT
+PATH: /api/command/legal-person/bank/edit/{id}
+Поля запроса:
+                           Название поля
+                              Тип данных
+                           Описание поля
+                            Обязательно
+Id
+Long
+Идентификатор банковского счета
+Да
+contractorId
+Integer
+Идентификатор контрагента
+Нет
+number
+String
+Номер банковского счета
+Да
+name
+String
+Название банковского счета
+Да
+bankId
+Integer
+Идентификатор банка
+Да
+currencyCode
+String
+Код валюты
+Да
+
+Пример запроса:
+{
+  "contractorId": 14,
+  "number": " Test account2 ",
+  "name": " TEST 1232123901085",
+  "bankId": 1265,
+  "currencyCode": "KGZ"
+}
+
+Пример ответа:
+{
+   "legalPersonBankAccount": {
+        "id": 55484,
+        "accountName": "Test account",
+        "accountNumber": "TEST 123123901085",
+        "currency": {
+            "code": "USD",
+            "name": "Доллар США"
+        },
+        "bank": {
+            "id": 1265,
+            "name": "Таласское областное управление",
+            "bik": "101000",
+            "addressText": "г. Талас, ул. Фрунзе, 123"
+        },
+        "contractor": {
+            "tin": "12345687901234",
+            "fullName": "Тестов тест тестович",
+            "mainFullName": null,
+            "mainTin": null,
+            "address": null
+        },
+        "owner": {
+            "tin": "01234567891234",
+            "fullName": "Государственная налоговая служба при Министерстве финансов Кыргызской Республики",
+            "mainFullName": null,
+            "mainTin": null,
+            "address": "г.Бишкек пр.Чуй, д. 123"
+        },
+        "isResident": true
+    }
+}
+
+Описание объекта legalPersonBankAccount:
+Название поля
+Тип
+Описание
+id
+number
+Идентификатор банковского счета
+accountName
+string
+Название счета
+accountNumber
+string
+Номер счета
+currency
+object
+Валюта
+bank
+object
+Банк
+contractor
+object
+Контрагент, для которого создан данный счет
+owner
+object
+Владелец счета
+isResident
+boolean
+Флаг, указывающий на резидентство юридического лица
+Описание объекта currency:
+Название поля
+Тип
+Описание
+code
+string
+Код валюты
+name
+string
+Название валюты
+Описание объекта bank:
+Название поля
+Тип
+Описание
+id
+number
+Идентификатор банка
+name
+string
+Название банка
+bik
+string
+БИК
+addressText
+string
+Адрес банка
+
+
+Описание объектов owner и contractor:
+Название поля
+Тип
+Описание
+tin
+string
+ИНН
+fullName
+string
+Наименование
+mainFullName
+null or string
+Наименование головной орг.
+mainTin
+null or string
+ИНН головной орг.
+address
+null or string
+Адрес 
+
+
+22. Delete legal person/contractor bank account
+Описание:
+Удаление банковского счета
+Запрос:
+METHOD: DELETE
+PATH: /api/command/legal-person/bank/delete/{id}
+
+Поля запроса: 
+Название поля
+Тип
+Описание
+Обязательность
+Id
+Long
+Идентификатор каталога
+Да
+tin
+string
+ИНН поставщика
+Да
+
+Пример запроса:
+{
+  "tin": "12345678901234",
+}
+
+Пример ответа:
+{
+    "responseId": "04e18a57-97e6-4bdd-967a-8a2cfc18050a",
+    "id": 3333,
+}
+
+
+23. Create legal person catalog
+Описание:
+Создание товаров/услуг
+Запрос:
+METHOD: POST
+PATH: /api/command/legal-person/catalog/create
+Поля запроса: 
+Название поля
+Тип
+Описание
+Обязательность
+tnvedCode
+string
+Код справочника ТНВЭД
+Нет
+gkedCode
+string
+Код справочника ГКЭД
+Нет
+number
+string
+Номер 
+Нет
+unitClassificationCode
+string
+Код справочника единиц измерения
+Обязательное
+catalogName
+string
+Название объекта
+Обязательное
+
+Пример запроса:
+{
+  "tnvedCode": "0201202001",
+  "number": "123",
+  "unitClassificationCode": "796",
+  "catalogName": "test_name2"
+}
+ 
+Пример ответа:
+{
+    "requestId": null,
+    "responseId": "04e18a57-97e6-4bdd-967a-8a2cfc18050a",
+    "userId": null,
+    "clientId": null,
+    "legalPersonCatalog": {
+        "id": 615086,
+        "legalPerson": {
+            "tin": "01234567891234",
+            "fullName": "Государственная налоговая служба при Министерстве финансов Кыргызской Республики",
+            "mainFullName": null,
+            "mainTin": null,
+            "address": "г.Бишкек пр.Чуй, д. 123"
+        },
+        "number": "123",
+        "catalogName": "test_name2",
+        "tnved": {
+            "code": "0201202001",
+            "name": "\"КОМПЕНСИРОВАННЫЕ\" ЧЕТВЕРТИНЫ КРУПНОГО РОГ.СКОТА, НЕОБВАЛ.СВЕЖИЕ ИЛИ ОХЛАЖД.,В ПОРЯДКЕ, УКАЗАН. В ДОП.ПРИМЕЧ. 3 ТАМОЖЕННОГО СОЮЗА К ГРУППЕ 02, КРОМЕ ВКЛЮЧ.В ПОДСУБПОЗ. 0201 20 000 2 ИЛИ 0201 20 000 3"
+        },
+        "unitClassification": {
+            "code": "796",
+            "name": "Штука"
+        }
+    }
+}
+
+Описание объекта legalPersonCatalog:
+Название поля
+Тип
+Описание
+id
+number
+Идентификатор каталога
+legalPerson
+object
+Юридическое лицо
+number
+string
+Номер каталога
+catalogName
+string
+Название каталога
+tnved
+object
+ТНВЭД
+gked
+Object 
+ГКЭД
+unitClassification
+object
+Единица измерения
+
+Описание объекта legalPerson:
+Название поля
+Тип
+Описание
+tin
+string
+ИНН
+fullName
+string
+Наименование
+mainFullName
+string
+Наименование головной орг.
+mainTin
+string
+ИНН головной орг.
+address
+null or string
+Адрес юридического лица.
+
+Описание объекта tnved и gked:
+Название поля
+Тип
+Описание
+code
+string
+Код ТНВЭД
+name
+string
+Название товара по коду ТНВЭД
+
+Описание объекта unitClassification:
+Название поля
+Тип
+Описание
+code
+string
+Код классификации единицы измерения.
+name
+string
+Название классификации единицы измерения.
+
+
+24. Edit legal person catalog
+Описание:
+Редактирование товара/услуги
+Запрос:
+METHOD: PUT
+PATH: /api/command/legal-person/catalog/edit/{id}
+Поля запроса: 
+Название поля
+Тип
+Описание
+Обязательность
+Id
+Long
+Идентификатор каталога
+Да
+tnvedCode
+string
+Код справочника ТНВЭД
+Нет
+gkedCode
+string
+Код справочника ГКЭД
+Нет
+number
+string
+Номер 
+Нет
+unitClassificationCode
+string
+Код справочника единиц измерения
+Обязательное
+catalogName
+string
+Название объекта
+Обязательное
+
+Пример запроса:
+{
+  "tnvedCode": "0201202001",
+  "number": "123",
+  "unitClassificationCode": "796",
+  "catalogName": "test_name3"
+}
+ 
+Пример ответа:
+{
+    "requestId": null,
+    "responseId": "04e18a57-97e6-4bdd-967a-8a2cfc18050a",
+    "userId": null,
+    "clientId": null,
+    "legalPersonCatalog": {
+        "id": 615086,
+        "legalPerson": {
+            "tin": "01234567891234",
+            "fullName": "Государственная налоговая служба при Министерстве финансов Кыргызской Республики",
+            "mainFullName": null,
+            "mainTin": null,
+            "address": "г.Бишкек пр.Чуй, д. 123"
+        },
+        "number": "123",
+        "catalogName": "test_name2",
+        "tnved": {
+            "code": "0201202001",
+            "name": "\"КОМПЕНСИРОВАННЫЕ\" ЧЕТВЕРТИНЫ КРУПНОГО РОГ.СКОТА, НЕОБВАЛ.СВЕЖИЕ ИЛИ ОХЛАЖД.,В ПОРЯДКЕ, УКАЗАН. В ДОП.ПРИМЕЧ. 3 ТАМОЖЕННОГО СОЮЗА К ГРУППЕ 02, КРОМЕ ВКЛЮЧ.В ПОДСУБПОЗ. 0201 20 000 2 ИЛИ 0201 20 000 3"
+        },
+        "unitClassification": {
+            "code": "796",
+            "name": "Штука"
+        }
+    }
+}
+
+Описание объекта legalPersonCatalog:
+Название поля
+Тип
+Описание
+id
+number
+Идентификатор каталога
+legalPerson
+object
+Юридическое лицо
+number
+string
+Номер каталога
+catalogName
+string
+Название каталога
+tnved
+object
+ТНВЭД
+gked
+Object 
+ГКЭД
+unitClassification
+object
+Единица измерения
+
+Описание объекта legalPerson:
+Название поля
+Тип
+Описание
+tin
+string
+ИНН
+fullName
+string
+Наименование
+mainFullName
+string
+Наименование головной орг.
+mainTin
+string
+ИНН головной орг.
+address
+null or string
+Адрес юридического лица.
+
+Описание объекта tnved и gked:
+Название поля
+Тип
+Описание
+code
+string
+Код ТНВЭД
+name
+string
+Название товара по коду ТНВЭД
+
+Описание объекта unitClassification:
+Название поля
+Тип
+Описание
+code
+string
+Код классификации единицы измерения.
+name
+string
+Название классификации единицы измерения.
+
+
+25. Delete legal person catalog
+Описание:
+Удаление товара/услуги
+Запрос:
+METHOD: DELETE
+PATH: /api/command/legal-person/catalog/delete/{id}
+Поля запроса: 
+Название поля
+Тип
+Описание
+Обязательность
+Id
+Long
+Идентификатор каталога
+Да
+tin
+string
+ИНН поставщика
+Да
+
+Пример запроса:
+{
+  "tin": "12345678901234",
+}
+
+Пример ответа:
+{
+    "responseId": "04e18a57-97e6-4bdd-967a-8a2cfc18050a",
+    "id": 615086,
+}
+
+26. Sign documents with (Rutoken, Jacarta, Esmart)
+Описание:
+Подписание документов с помощью (Рутокена, Джакарты, ЕноТокена)
+Запрос:
+METHOD: PUT
+PATH: /api/command/invoice/sign
+Поля запроса: 
+Название поля
+Тип
+Описание
+Обязательность
+xmlToSignWithCmsData
+Key-value map
+Key  -  uuid документа
+Value  -  cmsData токена
+Да
+
+
+Пример запроса:
+{
+  " xmlToSignWithCmsData ": {
+              "5c5bfa6b-e513-11ea-9a5b-000c29f6c0ac ":                                   "MIAGCSqGSIb3DQEHAqCAMIACAQExDDAKBggqhQMHAQECAjCABgkqhkiG9w0BBwGggCSABIID6DxyZWNlaXB0PjxleGNoYW5nZUNvZGU+OTg2ZTBmZGUtMjdlOC00NTU3LThmNTgtOTM2MWI2NzY3ZDIxPC9leGNoYW5nZUNvZGU+PHJlY2VpcHRUeXBlQ29kZT4xMDwvcmVjZWlwdFR5cGVDb2RlPjxjcmVhdGVkRGF0ZT4yMDI0LTAxLTI1PC9jcmVhdGVkRGF0ZT48b3duZWRDcm1SZWNlaXB0Q29kZT48L293bmVkQ3JtUmVjZWlwdENvZGU+PGNvcnJlY3RlZFJlY2VpcHRDb2RlPjwvY29ycmVjdGVkUmVjZWlwdENvZGU+PGNvcnJlY3Rpb25SZWFzb25Db2RlPjwvY29ycmVjdGlvblJlYXNvbkNvZGU+PGludm9pY2VOdW1iZXI+PC9pbnZvaWNlTnVtYmVyPjxjb3JyZWN0ZWRSZWNlaXB0Q3JlYXRpb25EYXRlPjIwMjQtMDEtMjU8L2NvcnJlY3RlZFJlY2VpcHRDcmVhdGlvbkRhdGU+PGNvcnJlY3Rpb25SZWFzb25OYW1lPjwvY29ycmVjdGlvblJlYXNvbk5hbWU+PGJhbmtBY2NvdW50PjwvYmFua0FjY291bnQ+PGNvbnRyYWN0b3JQaW4+MTI3MDcxOTUzMTAwMTE8L2NvbnRyYWN0b3JQaW4+PGNvbnRyYWN0b3JCYW5rQWNjb3VudD48L2NvbnRyYWN0b3JCYW5rQWNjb3VudD48ZGVsaXZlcnlDb250cmFjdE51bWJlcj48L2RlbGl2ZXJ5Q29udHJhY3ROdW1iZXI+PGRlbGl2ZXJ5Q29udHJhY3REYXRlPjwvZGVsaXZlcnlDb250cmFjdERhdGU+PHBheW1lbnRUeXBlQ29kZT4xMDwvcGF5bWVudFR5cGVDb2RlPjxpbnZvaWNlRGVsaXZlcnlUeXBlQ29kZT4yMjA8L2ludm9pY2VEZWxpdmVyeVR5cGVDb2RlPjx2YXREZWxpdmVyeVR5cGVDb2RlPjEwMTwvdmF0RGVsaXZlcnlUeXBlQ29kZT48Y3VycmVuY3lDb2RlPktHUzwvY3VycmVuY3lDb2RlPjxleGNoYW5nZVJhdGU+MS4wMDAwPC9leGNoYW5nZVJhdGU+PGNvbnRyYWN0b3JDaXRpemVuc2hpcENvZGU+PC9jb250cmFjdG9yQ2l0aXplbnNoaXBDb2RlPjxpc1ByaWNlV2l0aG91dFRheGVzPmZhbHNlPC9pc1ByaWNlV2l0aG91dFRheGVzPjxub3RlPjwvbm90ZT48Y29udHJhY3Rvck5hbWU+0KHQsNGA0LHQsNGI0L7QstCwINCX0YMEggNk0YPRgNCw0LrQsNC9INCY0LHRgNCw0LjQvNC+0LLQvdCwPC9jb250cmFjdG9yTmFtZT48Y3VycmVuY3lOYW1lPtCh0L7QvDwvY3VycmVuY3lOYW1lPjxjb250cmFjdG9yQ2l0aXplbnNoaXBOYW1lPjwvY29udHJhY3RvckNpdGl6ZW5zaGlwTmFtZT48dmF0Q29kZT4xMDwvdmF0Q29kZT48aXNSZXNpZGVudD50cnVlPC9pc1Jlc2lkZW50Pjxmb3JlaWduTmFtZT7QodCw0YDQsdCw0YjQvtCy0LAg0JfRg9GD0YDQsNC60LDQvSDQmNCx0YDQsNC40LzQvtCy0L3QsDwvZm9yZWlnbk5hbWU+PHNlbGxlckJyYW5jaFBpbj4wMDIxMTIwMDAxMDAzMjwvc2VsbGVyQnJhbmNoUGluPjxpc0luZHVzdHJ5PmZhbHNlPC9pc0luZHVzdHJ5PjxvcGVuaW5nQmFsYW5jZXM+PC9vcGVuaW5nQmFsYW5jZXM+PGFzc2Vzc2VkQ29udHJpYnV0aW9uc0Ftb3VudD48L2Fzc2Vzc2VkQ29udHJpYnV0aW9uc0Ftb3VudD48cGFpZEFtb3VudD48L3BhaWRBbW91bnQ+PHBlbmFsdGllc0Ftb3VudD48L3BlbmFsdGllc0Ftb3VudD48ZmluZXNBbW91bnQ+PC9maW5lc0Ftb3VudD48Y2xvc2luZ0JhbGFuY2VzPjwvY2xvc2luZ0JhbGFuY2VzPjxhbW91bnRUb0JlUGFpZD48L2Ftb3VudFRvQmVQYWlkPjxwZXJzb25hbEFjY291bnROdW1iZXI+PC9wZXJzb25hbEFjY291bnROdW1iZXI+PGdvb2RzPjxnb29kPjx2YXRBbW91bnQ+MjguMzE8L3ZhdEFtb3VudD48c3RDb2RlPjgwPC9zdENvZGU+PHN0QW1vdW50PjExLjc5PC9zdEFtb3VudD48Z29vZHNOYW1lPlNGRyDQltC40LTQutCc0YvQu9C+INGBINCQ0LvQvtGNIDIyNdC80Ls8L2dvb2RzTmFtZT48YmFzZUNvdW50PjEyLjA8L2Jhc2VDb3VudD48cHJpY2U+MjMuMDwvcHJpY2U+PC9nb29kPjwvZ29vZHM+PC9yZWNlaXB0PgAAAAAAAKCAMIIGCDCCBXSgAwIBAgILAObr+iON1mYrCwAwCgYIKoUDBwEBAwMwggGKMRwwGgYJKoZIhvcNAQkBFg1wa2lAZG9zdGVrLmtnMQswCQYDVQQGEwJLRzEVMBMGA1UEBwwM0JHQuNGI0LrQtdC6MWUwYwYJKoZIhvcNAQkCDFbQo9C/0L7Qu9C90L7QvNC+0YfQtdC90L3QvtC1INC70LjRhtC+IC0g0JDRgdCw0L3QvtCyINCa0LDQvdGL0LHQtdC6INCa0LDQsdGL0LvQvtCy0LjRhzEjMCEGA1UEDAwa0JDQtNC80LjQvdC40YHRgtGA0LDRgtC+0YAxRDBCBgNVBAsMO9Cj0LTQvtGB0YLQvtCy0LXRgNGP0Y7RidC40Lkg0Lgg0JrQu9GO0YfQtdCy0L7QuSDRhtC10L3RgtGAMTgwNgYDVQQKDC/Qn9Cj0KYgRE9TIFRFSyBHUk9VUCAo0JTQntChINCi0K3QmiDQk9Cg0KPQn9CfKTE6MDgGA1UEAwwx0J7RgdCe0J4gRE9TIFRFSyBHUk9VUCAo0JTQntChINCi0K3QmiDQk9Cg0KPQn9CfKTAeFw0yNDAxMTcxMDQyMDVaFw0yNTAxMTcxMDQyMDVaMIIBEDEgMB4GCSqGSIb3DQEJARYRb2ZmaWNlQGRvc3Rlay5jb20xCzAJBgNVBAYTAktHMRUwEwYDVQQHDAzQkdC40YjQutC10LoxGjAYBgkqhkiG9w0BCQIMC04vQSAzMjIzMjIxMRcwFQYDVQQFEw45OTk5OTk5OTk5OTk5NzEcMBoGA1UEDAwTQ9C/0LXRhtC40LDQu9C40YHRgjEiMCAGA1UECgwZ0J7RgdCe0J4g0KLQtdGB0YLQmtC+0LzQvzEcMBoGCCqFAwOBAwEBEg4xMTIzMTEzMzMzMzMzMzEzMDEGA1UEAwwq0KLQtdGB0YIg0JLQsNGB0LjQu9C40Lkg0JDQvdC00YDQtdC10LLQuNGHMGYwHwYIKoUDBwEBAQEwEwYHKoUDAgIkAAYIKoUDBwEBAgIDQwAEQNdAA9RO9nR1h8Ikq9MbQ5/rPDS+Pwh1MwDHZ4S6R2nU1N4OxsAFrVjBnhN+ux7Pqk2KC2UMilNwKayalJpCb9aBCQAwNTY0MDAwMaOCAh0wggIZMA4GA1UdDwEB/wQEAwID+DA3BgNVHSUBAf8ELTArBggrBgEFBQcDAgYIKwYBBQUHAwQGCisGAQQBgjcKAwwGCSsGAQQBgjdQATAdBgNVHQ4EFgQU2Koq4SSPPdfp4NdqsM2Ew7QSvKowCQYDVR0TBAIwADBDBggrBgEFBQcBAQQ3MDUwMwYIKwYBBQUHMAKGJ2h0dHBzOi8vcGtpLmRvc3Rlay5rZy9jZXJ0L2R0Z18yMDEyLmNlcjBDBgNVHR8EPDA6MDigNqA0hjJodHRwczovL3BraS5kb3N0ZWsua2cvY2VydC92aXBuZXRjZHAvMjAyMi0yMDI4LmNybDCCARgGA1UdIwSCAQ8wggELgBQx90aZsMWzS1TPXsGxOdUrvpzlVaGB3KSB2TCB1jELMAkGA1UEBhMCS0cxFTATBgNVBAcMDNCR0LjRiNC60LXQujFKMEgGA1UECgxB0JzQuNC90LjRgdGC0LXRgNGB0YLQstC+INGG0LjRhNGA0L7QstC+0LPQviDRgNCw0LfQstC40YLQuNGPINCa0KAxQTA/BgNVBAMMONCa0L7RgNC90LXQstC+0Lkg0YPQtNC+0YHRgtC+0LLQtdGA0Y/RjtGJ0LjQuSDRhtC10L3RgtGAMSEwHwYJKoZIhvcNAQkBFhJwa2lAZGlnaXRhbC5nb3Yua2eCFCtJHYd+cLl1yu+JMnxtexqhsCD0MAoGCCqFAwcBAQMDA4GBACEteukf8FWGBwpJAh8G52eTvD9+2KcneQXlvxFtRnZfHB0D/q8cASK+eMdd0OGcg+WbVUSH9qaqoCfU7NmpPD0ubBt5wNupbKsCPuPDsZCZpR0/YFwY/c0IcNTJ70/vFtsIo0eAMzt/WwFG1R1NT2Ftq5xth5h4h8B1oUMwEYKzAAAxggKVMIICkQIBATCCAZswggGKMRwwGgYJKoZIhvcNAQkBFg1wa2lAZG9zdGVrLmtnMQswCQYDVQQGEwJLRzEVMBMGA1UEBwwM0JHQuNGI0LrQtdC6MWUwYwYJKoZIhvcNAQkCDFbQo9C/0L7Qu9C90L7QvNC+0YfQtdC90L3QvtC1INC70LjRhtC+IC0g0JDRgdCw0L3QvtCyINCa0LDQvdGL0LHQtdC6INCa0LDQsdGL0LvQvtCy0LjRhzEjMCEGA1UEDAwa0JDQtNC80LjQvdC40YHRgtGA0LDRgtC+0YAxRDBCBgNVBAsMO9Cj0LTQvtGB0YLQvtCy0LXRgNGP0Y7RidC40Lkg0Lgg0JrQu9GO0YfQtdCy0L7QuSDRhtC10L3RgtGAMTgwNgYDVQQKDC/Qn9Cj0KYgRE9TIFRFSyBHUk9VUCAo0JTQntChINCi0K3QmiDQk9Cg0KPQn9CfKTE6MDgGA1UEAwwx0J7RgdCe0J4gRE9TIFRFSyBHUk9VUCAo0JTQntChINCi0K3QmiDQk9Cg0KPQn9CfKQILAObr+iON1mYrCwAwCgYIKoUDBwEBAgKggZIwGAYJKoZIhvcNAQkDMQsGCSqGSIb3DQEHATAcBgkqhkiG9w0BCQUxDxcNMjQwMjE1MDUyMDE3WjAnBgkqhkiG9w0BCTQxGjAYMAoGCCqFAwcBAQICoQoGCCqFAwcBAQEBMC8GCSqGSIb3DQEJBDEiBCBSsm5E/xYb0P6NuL75VG8XxP+hEeiaXJC5DrJftdZMrjAKBggqhQMHAQEBAQRAPXOSs2TewnyP5uIK7A/qm9HHKnya7EUdSL6hY3xCVAPY2j5aHfTcnfRbimDjU9JTLHMlJ6IXGcwIvNafnoyD8AAAAAAAAA=="
+}
+}
+ 
+Пример ответа:
+{
+    "requestId": null,
+    "responseId": "04e18a57-97e6-4bdd-967a-8a2cfc18050a",
+    "userId": null,
+    "clientId": null,
+    "invoiceNumbers": [
+         "0042020-001-0000005",
+         "0042020-001-0000006"
+]
+}
+
+Описание объекта invoiceNumbers:
+Название поля
+Тип
+Описание
+invoiceNumbers
+Array Object
+Объект, содержащий информацию о номерах подписанных документах
+
+27. Create foreign company
+Описание:
+Создание иностранных клиентов
+Запрос:
+METHOD: POST
+PATH: /api/command/legal-person/foreign-company /create
+Поля запроса: 
+Название поля
+Тип
+Описание
+Обязательность
+foreignInn
+string
+ИНН иностранного клиента
+Да
+fullName
+string
+Наименование
+Да
+address
+string
+Адрес
+Нет
+
+Пример запроса:
+{
+  "foreignInn": "99999999999999",
+  "fullName": " Иностранный клиент",
+  "address": "Адрес иностранного клиента"
+}
+ 
+Пример ответа:
+{
+    "requestId": null,
+    "responseId": "04e18a57-97e6-4bdd-967a-8a2cfc18050a",
+    "userId": null,
+    "clientId": null,
+        "legalPerson": {
+            "tin": "01234567891234",
+            "fullName": "Государственная налоговая служба при Министерстве финансов Кыргызской Республики",
+            "mainFullName": null,
+            "mainTin": null,
+            "address": "г.Бишкек пр.Чуй, д. 123"
+        }
+}
+
+Описание объекта legalPerson:
+Название поля
+Тип
+Описание
+tin
+string
+ИНН
+fullName
+string
+Наименование
+mainFullName
+string
+Наименование головной орг.
+mainTin
+string
+ИНН головной орг.
+address
+null or string
+Адрес юридического лица.
+
+
+28. Edit foreign company
+Описание:
+Редактирование иностранного клиента
+Запрос:
+METHOD: PUT
+PATH: /api/command/legal-person/foreign-company /edit/{id}
+Поля запроса: 
+Название поля
+Тип
+Описание
+Обязательность
+Id
+Long
+Идентификатор иностранной компании
+Да
+foreignInn
+string
+ИНН иностранного клиента
+Да
+fullName
+string
+Наименование
+Да
+address
+string
+Адрес
+Нет
+
+Пример запроса:
+{
+  "foreignInn": "99999999999999",
+  "fullName": " Иностранный клиент",
+  "address": "Адрес иностранного клиента"
+}
+ 
+Пример ответа:
+{
+    "requestId": null,
+    "responseId": "04e18a57-97e6-4bdd-967a-8a2cfc18050a",
+    "userId": null,
+    "clientId": null,
+        "legalPerson": {
+            "tin": "01234567891234",
+            "fullName": "Государственная налоговая служба при Министерстве финансов Кыргызской Республики",
+            "mainFullName": null,
+            "mainTin": null,
+            "address": "г.Бишкек пр.Чуй, д. 123"
+        }
+}
+
+Описание объекта legalPerson:
+Название поля
+Тип
+Описание
+tin
+string
+ИНН
+fullName
+string
+Наименование
+mainFullName
+string
+Наименование головной орг.
+mainTin
+string
+ИНН головной орг.
+address
+null or string
+Адрес юридического лица.
+
+29. Delete foreign company
+Описание:
+Удаление иностранной компании
+Запрос:
+METHOD: DELETE 
+PATH: /api/command/legal-person/foreign-company/delete/{id}
+Параметры запроса
+Параметр
+Обязательно
+Описание	
+Тип данных
+id
+Да
+UUID документа
+String
+tin
+Да
+ИНН поставщика
+String
+ 
+Пример запроса
+Модель данных запроса на удаление иностранной компании: 
+{
+  "tin": "12345678901234
+}
+
+Ответ:
+{ 
+   "responseId": "d1da764b-4a17-49ad-8d8f-d1a20d4fda04",  
+   "id": 12121
+}
+
+30. Create correction document
+Описание:
+Создание корректировочного ЭСФ
+Запрос:
+METHOD: POST
+PATH: /api/command/invoice/correction/create/{primaryId}
+
+Параметры запроса
+Параметр
+Обязательно
+Описание	
+Тип данных
+primaryId
+Да
+UUID документа со Статусом "Принят"
+String
+correctionReasonCode
+Да
+Код причины корректировки
+String
+deliveryDate
+Да
+Дата поставки
+LocalDate
+comment
+Нет
+комментарий
+String
+deliveryCode
+Да
+Код поставки
+String
+countryCode
+Нет
+Код страны
+String
+totalCurrencyValue
+Нет
+Общая стоимость
+BigDecimal
+totalCurrencyValueWithoutTaxes
+Нет
+Общая стоимость без налогов
+BigDecimal
+
+catalogEntries {
+      detailId,
+
+
+
+     quantity,
+     price
+}
+Да
+Товары:
+Идентификатор товара из первичного документа
+
+Количество
+Цена
+
+Long
+
+
+
+BigDecimal
+BigDecimal
+
+
+Пример запроса
+МЕТОД: POST.
+Модель данных запроса на создание корректировочного ЭСФ: 
+{
+    "correctionReasonCode": "10",
+    "deliveryDate": "2024-08-23",
+    "comment": "comment_c95c8a7690cc",
+    "deliveryCode": "100",
+    "catalogEntries": [
+        {
+            "detailId": 770124
+        },
+          {
+            "detailId": 770123
+        }
+    ]
+}
+
+Ответ:
+{ 
+   "responseId": " 6a63595c-8e6f-4e47-aab2-db3eaf81f313",  
+   "documentUuid": " 287da924-9ac0-48f8-8aa6-24f30ea35602",
+}
+
+
+31. Edit correction document
+Описание:
+Редактирование корректировочного ЭСФ
+Пример запроса:
+METHOD: PUT
+PATH: /api/command/invoice/correction/edit/{id}
+Параметры запроса
+Параметр
+Обязательно
+Описание	
+Тип данных
+id
+Да
+UUID корректировочного документа
+String
+correctionReasonCode
+Да
+Код причины корректировки
+String
+deliveryDate
+Да
+Дата поставки
+LocalDate
+comment
+Нет
+комментарий
+String
+deliveryCode
+Да
+Код поставки
+String
+countryCode
+Нет
+Код страны
+String
+totalCurrencyValue
+Нет
+Общая стоимость
+BigDecimal
+totalCurrencyValueWithoutTaxes
+Нет
+Общая стоимость без налогов
+BigDecimal
+
+catalogEntries {
+      detailId,
+
+
+
+     quantity,
+     price
+}
+Да
+Товары:
+Идентификатор товара корректировочного документа
+
+Количество
+Цена
+
+Long
+
+
+
+BigDecimal
+BigDecimal
+
+Модель данных запроса на редактирование корректировочного ЭСФ: 
+{
+    "correctionReasonCode": "20",
+    "deliveryDate": "2024-08-23",
+    "comment": "comment_c95c8a7690cc",
+    "deliveryCode": "100",
+    "catalogEntries": [
+        {
+            "detailId": 770142,
+            "quantity": 5
+        },
+          {
+            "detailId": 770143,
+            "quantity": 10
+        }
+    ]
+}
+
+
+
+Ответ:
+{ 
+   "responseId": " 6a63595c-8e6f-4e47-aab2-db3eaf81f313",  
+   "documentUuid": " 287da924-9ac0-48f8-8aa6-24f30ea35602",
+}
+
+
+
+32. Sign documents with Infocom
+Описание:
+Подписание документов с помощью облачной подписи Инфокома
+Пример запроса:
+METHOD: PUT
+PATH: /api/command/invoice/sign-with-infocom
+Поля запроса: 
+Название поля
+Тип
+Описание
+Обязательность
+userToken
+String
+Токен, который нужно получить от Инфокома по адресу /api/account/auth
+Да
+documentUuids
+Array String
+UUID документов
+Да
+
+
+Пример запроса:
+{
+  "userToken": "eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3NDExNTMzOTQsInN1YiI6IjIxODA0MjAwMDAwOTkzIiwiYXVkIjoiMDAxMDQyMDIyMTAxMjAiLCJpc3MiOiIwMTIxMTIwMDcxMDAyOSIsImV4cCI6MTc0MTE1MzQ1NH0.RxFKvhkOoLixwTRkGtulIv6NTiZUQ7nFcn1qNrPTldo",
+  "documentUuids": [
+    "9f03ca7c-0500-4869-8aaa-1e8d8ec6554a"
+  ]
+}
+ 
+Пример ответа:
+{
+    "requestId": null,
+    "responseId": "04e18a57-97e6-4bdd-967a-8a2cfc18051a",
+    "userId": null,
+    "clientId": null,
+    "invoiceNumbers": [
+         "0042020-001-0000009",
+         "0042020-001-0000016"
+]
+}
+
+Описание объекта invoiceNumbers:
+Название поля
+Тип
+Описание
+invoiceNumbers
+Array String
+Объект, содержащий информацию о номерах подписанных документах
+
+
+Описание методов по справочным данным
+
+Описание общих полей
+Данное описание актуально для всех соответствующих полей ответа, если таковые присутствуют
+Поле
+Тип данных
+Описание
+id
+Integer
+Идентификатор элемента
+code
+String
+Код элемента
+name
+String
+Наименование элемента
+shortName
+String
+Короткое наименование элемента
+fullName
+String
+Полное наименование элемента
+parentId
+Integer
+Идентификатор родительского элемента
+
+Описание объекта pageableData
+Поле
+Тип данных
+Описание
+pageNumber
+Integer
+Номер текущей страницы
+pageSize
+Integer
+Размер страницы
+totalElements
+Integer
+Общее количество элементов для текущего запроса
+totalPages
+Integer
+Общее количество страниц для текущего запроса
+
+Примечания:
+   1. Описание параметров запроса так же описывает соответствующие поля, возвращаемые в ответе
+   2. В штатном режиме работы приложения выброс ошибок не предполагается
+   3. Нумерация страниц начинается с 0
+Пример получения справочных данных (на примере справочника валют):
+   1. Получить идентификатор типа справочника:
+      1.1 curl: {path}/api/dictionary-service/dictionary-types?name=Валюты
+      1.2 Результат запроса:
+
+{
+            "id": 16,
+            "name": "Валюты",
+            "shortName": "currency",
+            "typeId": null
+        }
+      
+   2. Получить сам справочник на основе полученного type из предыдущего запроса
+      2.1 curl: {path}/api/dictionary-service/dictionaries?type=16
+      2.2 Результат запроса:
+
+{
+            "id": 803,
+            "code": "PYG",
+            "name": "Гуарани",
+            "shortName": "600"
+        },
+        {
+            "id": 804,
+            "code": "PEN",
+            "name": "Новый соль",
+            "shortName": "604"
+        }
+
+   1. Dictionary Types
+
+Запрос
+PATH: /api/dictionary-service/dictionary-types
+METHOD: GET
+Описание: Сервис предоставляет информацию о типах справочников.
+Параметр
+Тип данных
+Описание 
+id
+Integer
+Идентификатор
+name
+String
+Название
+shortName
+String
+Короткое название
+page
+Integer
+Номер страницы
+size
+Integer
+Размер страницы
+sort
+String
+Сортировка
+Пример запроса:
+curl --location 'http://{{TUNDUK_URL}}/r1/central-server/GOV/70000002/esf-test/esf-api-services/api/dictionary-service/dictionary-types?shortName=currency' \
+--header 'X-Road-Client: {{TUNDUK_CLIENT}} ' \
+--header 'ClientUUID: {{CLIENT_UUID}}' \
+--header 'Authorization': {{TOKEN}}'\
+
+Пример ответа:
+{
+    "content": [
+        {
+            "id": 16,
+            "name": "Валюты",
+            "shortName": "currency"
+        }
+    ],
+    "pageableData": {
+        "pageNumber": 0,
+        "pageSize": 10,
+        "totalElements": 1,
+        "totalPages": 1
+    }
+}
+
+
+
+   2. Dictionaries
+Запрос
+PATH: /api/dictionary-service/dictionaries
+METHOD: GET
+Описание: Сервис предоставляет доступ к различным справочникам.
+Параметры запроса:
+Параметр
+Тип данных
+Описание 
+shortName
+String
+Короткое название
+deliveryCode
+String
+Код Вида поставки
+type
+Integer
+Тип словаря
+id
+Integer
+Идентификатор
+code
+String
+Код
+name
+String
+Название
+query
+String
+Запрос (вхождения по нескольким полям)
+page
+Integer
+Номер страницы
+size
+Integer
+Размер страницы
+sort
+String
+Сортировка
+Пример запроса:
+curl --location 'http://10.111.12.247/r1/central-server/GOV/70000002/esf-test/esf-api-services/api/dictionary-service/dictionaries?type=16&sort=id%2Cdesc&size=3' \
+--header 'X-Road-Client: {{TUNDUK_CLIENT}} ' \
+--header 'ClientUUID: {{CLIENT_UUID}}' \
+--header 'Authorization': {{TOKEN}}'\
+
+Пример ответа:
+{
+    "content": [
+        {
+            "id": 868,
+            "code": "BRL",
+            "name": "Бразильский реал",
+            "shortName": "986"
+        },
+        {
+            "id": 867,
+            "code": "PLN",
+            "name": "Злотый",
+            "shortName": "985"
+        },
+        {
+            "id": 866,
+            "code": "GEL",
+            "name": "Лари",
+            "shortName": "981"
+        }
+    ],
+    "pageableData": {
+        "pageNumber": 0,
+        "pageSize": 3,
+        "totalElements": 166,
+        "totalPages": 56
+    }
+}
+Примечание: Чтобы получить Коды поставки (type = 19) для начала получите Вид поставки (deliveryCode) и вставьте в query параметр
+   3. Banks
+Запрос
+PATH: /api/dictionary-service/banks
+METHOD: GET
+Описание: Сервис предоставляет информацию о банках.
+Параметры запроса:
+Параметр
+Тип данных
+Описание 
+bik
+String
+БИК
+addressText
+String
+Адрес
+id
+Integer
+Идентификатор
+name
+String
+Название
+page
+Integer
+Номер страницы
+size
+Integer
+Размер страницы
+sort
+String
+Сортировка
+
+
+
+Пример запроса:
+curl --location '{{TUNDUK_URL}}//r1/central-server/GOV/70000002/esf-test/esf-api-services/api/dictionary-service/banks' \
+--header 'X-Road-Client: {{TUNDUK_CLIENT}} ' \
+--header 'ClientUUID: {{CLIENT_UUID}}' \
+--header 'Authorization': {{TOKEN}}'\
+Пример ответа:
+{
+    "content": [
+        {
+            "id": 23104,
+            "name": "СИБИРСКОЕ ГУ БАНКА РОССИИ",
+            "bik": "000000000",
+            "addressText": "Новосибирск"
+        },
+        {
+            "id": 23105,
+            "name": "ГУ БАНКА РОССИИ ПО ЦФО",
+            "bik": "000000000",
+            "addressText": "Москва 35"
+        },
+        {
+            "id": 23106,
+            "name": "ДАЛЬНЕВОСТОЧНОЕ ГУ БАНКА РОССИИ",
+            "bik": "000000000",
+            "addressText": "Владивосток"
+        },
+        {
+            "id": 23107,
+            "name": "СЕВЕРО-ЗАПАДНОЕ ГУ БАНКА РОССИИ",
+            "bik": "000000000",
+            "addressText": "Санкт-Петербург"
+        },
+        {
+            "id": 23108,
+            "name": "УРАЛЬСКОЕ ГУ БАНКА РОССИИ",
+            "bik": "000000000",
+            "addressText": "Екатеринбург"
+        },
+        {
+            "id": 23109,
+            "name": "ЮЖНОЕ ГУ БАНКА РОССИИ",
+            "bik": "000000000",
+            "addressText": "Краснодар"
+        },
+        {
+            "id": 23110,
+            "name": "ВОЛГО-ВЯТСКОЕ ГУ БАНКА РОССИИ",
+            "bik": "000000000",
+            "addressText": "Нижний Новгород"
+        },
+        {
+            "id": 23111,
+            "name": "РКЦ БИЙСК",
+            "bik": "000000000",
+            "addressText": "Бийск"
+        },
+        {
+            "id": 23112,
+            "name": "РКЦ НОВОРОССИЙСК",
+            "bik": "000000000",
+            "addressText": "Новороссийск"
+        },
+        {
+            "id": 23113,
+            "name": "РКЦ СОЧИ",
+            "bik": "000000000",
+            "addressText": "Сочи"
+        }
+    ],
+    "pageableData": {
+        "pageNumber": 0,
+        "pageSize": 10,
+        "totalElements": 8506,
+        "totalPages": 851
+    }
+}
+   4. Goods Classification
+Запрос
+URL: /api/dictionary-service/goods-classification
+METHOD: GET
+Описание: Сервис предоставляет информацию о классификации товаров.
+Параметры запроса:
+Параметр
+Тип данных
+Описание
+rate
+Double
+Ставка
+hasChild
+Boolean
+Есть ли дочерние элементы
+parentId
+Integer
+Идентификатор родительского элемента
+id
+Integer
+Идентификатор
+name
+String
+Название
+code
+String
+Код
+fullName
+String
+Полное название
+page
+Integer
+Номер страницы
+size
+Integer
+Размер страницы
+sort
+String
+Сортировка
+Пример запроса:
+curl --location ' {{TUNDUK_URL}}/r1/central-server/GOV/70000002/esf-test/esf-api-services/api/dictionary-service/goods-classification?size=3&name=печень' \
+--header 'X-Road-Client: {{TUNDUK_CLIENT}} ' \
+--header 'ClientUUID: {{CLIENT_UUID}}' \
+--header 'Authorization': {{TOKEN}}'\
+
+Пример ответа:
+{
+    "content": [
+        {
+            "id": 2913,
+            "parentId": 2911,
+            "code": "0207121009",
+            "name": "ПРОЧИЕ ОЩИПАННЫЕ И ПОТРОШЕННЫЕ, БЕЗ ГОЛОВЫ И ПЛЮСЕН НОГ, НО С ШЕЙКОЙ, СЕРДЦЕМ, ПЕЧЕНЬЮ И МУСКУЛЬНЫМ ЖЕЛОДКОМ, ПРЕДСТАВЛЕННЫЕ КАК \"70%-НЫЕ ЦЫПЛЯТА\", НЕ РАЗДЕЛЕННЫЕ НА ЧАСТИ, МОРОЖЕНЫЕ",
+            "fullName": null,
+            "rate": null,
+            "hasChild": false
+        },
+        {
+            "id": 2940,
+            "parentId": 2939,
+            "code": "0207139101",
+            "name": "ПЕЧЕНЬ, СВЕЖАЯ ИЛИ ОХЛАЖДЕННАЯ, ДОМАШНИХ КУР ВИДА GALLUS DOMESTICUS ПРИ НАЛИЧИИ ЛИЦЕНЗИИ, ВЫДАННОЙ КОМПЕТЕНТНЫМИ ОРГАНАМИ",
+            "fullName": null,
+            "rate": null,
+            "hasChild": false
+        },
+        {
+            "id": 2941,
+            "parentId": 2939,
+            "code": "0207139109",
+            "name": "ПРОЧАЯ ПЕЧЕНЬ, СВЕЖАЯ ИЛИ ОХЛАЖДЕННАЯ, ДОМАШНИХ КУР ВИДА GALLUS DOMESTICUS",
+            "fullName": null,
+            "rate": null,
+            "hasChild": false
+        }
+    ],
+    "pageableData": {
+        "pageNumber": 0,
+        "pageSize": 3,
+        "totalElements": 105,
+        "totalPages": 35
+    }
+}
+
+   5. Countries
+Запрос
+URL: /api/dictionary-service/countries
+METHOD: GET
+Описание: Сервис предоставляет информацию о странах.
+
+Параметры запроса:
+Параметр
+Тип данных
+Описание 
+id
+Integer
+Идентификатор
+code
+String
+Код
+name
+String
+Название
+fullName
+String
+Полное название
+page
+Integer
+Номер страницы
+size
+Integer
+Размер страницы
+sort
+String
+Сортировка
+Пример запроса:
+curl --location ' {{TUNDUK_URL}}/r1/central-server/GOV/70000002/esf-test/esf-api-services/api/dictionary-service/countries?size=3' \
+--header 'X-Road-Client: {{TUNDUK_CLIENT}} ' \
+--header 'ClientUUID: {{CLIENT_UUID}}' \
+--header 'Authorization': {{TOKEN}}'\
+
+Пример ответа:
+{
+    "content": [
+        {
+            "id": 1,
+            "code": "4",
+            "name": "АФГАНИСТАН ",
+            "fullName": "Исламское Государство Афганистан"
+        },
+        {
+            "id": 2,
+            "code": "8",
+            "name": "АЛБАНИЯ ",
+            "fullName": "Республика Албания"
+        },
+        {
+            "id": 3,
+            "code": "10",
+            "name": "АНТАРКТИДА ",
+            "fullName": ""
+        }
+    ],
+    "pageableData": {
+        "pageNumber": 0,
+        "pageSize": 3,
+        "totalElements": 239,
+        "totalPages": 80
+    }
+}
+ 
+
+
+
+   6. Document Statuses
+Запрос
+URL: /api/dictionary-service/document-statuses
+METHOD: GET
+Описание: Сервис предоставляет информацию о статусах документов.
+Параметры запроса
+Параметр
+Тип данных
+Описание
+id
+Integer
+Идентификатор
+name
+String
+Название
+query
+String
+Запрос (Вхождения по всем полям)
+page
+Integer
+Номер страницы
+size
+Integer
+Размер страницы
+sort
+String
+Сортировка
+Пример запроса:
+curl --location ' {{TUNDUK_URL}}/r1/central-server/GOV/70000002/esf-test/esf-api-services/api/dictionary-service/document-statuses' \
+--header 'X-Road-Client: {{TUNDUK_CLIENT}} ' \
+--header 'ClientUUID: {{CLIENT_UUID}}' \
+--header 'Authorization': {{TOKEN}}'\
+
+Пример ответа:
+{
+    "content": [
+        {
+            "id": 10,
+            "name": "Новый"
+        },
+        {
+            "id": 20,
+            "name": "Отозван"
+        },
+        {
+            "id": 30,
+            "name": "Отправлен"
+        },
+        {
+            "id": 40,
+            "name": "Принят"
+        },
+        {
+            "id": 50,
+            "name": "Отклонен"
+        },
+        {
+            "id": 90,
+            "name": "Все"
+        },
+        {
+            "id": 70,
+            "name": "Удален"
+        }
+    ],
+    "pageableData": {
+        "pageNumber": 0,
+        "pageSize": 10,
+        "totalElements": 7,
+        "totalPages": 1
+    }
+}
+
+
+   7. Services Classification
+Запрос
+URL: /api/dictionary-service/services-classification
+METHOD: GET
+Описание: Сервис предоставляет информацию о видах экономической деятельности (ГКЭД).
+Переменные запроса:
+Параметр
+Тип данных
+Описание 
+parentId
+Integer
+Идентификатор родительского элемента
+section
+String
+Раздел
+id
+Integer
+Идентификатор
+code
+String
+Код
+name
+String
+Название
+page
+Integer
+Номер страницы
+size
+Integer
+Размер страницы
+sort
+String
+Сортировка
+
+
+Пример запроса:
+curl --location ' {{TUNDUK_URL}}/r1/central-server/GOV/70000002/esf-test/esf-api-services/api/dictionary-service/services-classification?size=3' \
+--header 'X-Road-Client: {{TUNDUK_CLIENT}} ' \
+--header 'ClientUUID: {{CLIENT_UUID}}' \
+--header 'Authorization': {{TOKEN}}'\
+Пример ответа:
+{
+    "content": [
+        {
+            "id": 5,
+            "parentId": null,
+            "code": "01.11.1",
+            "section": "A",
+            "name": "Выращивание зерновых культур (кроме риса и гречихи)"
+        },
+        {
+            "id": 6,
+            "parentId": null,
+            "code": "01.11.2",
+            "section": "A",
+            "name": "Выращивание бобовых культур"
+        },
+        {
+            "id": 7,
+            "parentId": null,
+            "code": "01.11.9",
+            "section": "A",
+            "name": "Выращивание масличных культур и их семян"
+        }
+    ],
+    "pageableData": {
+        "pageNumber": 0,
+        "pageSize": 3,
+        "totalElements": 803,
+        "totalPages": 268
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+   8. Taxes
+Запрос
+URL: /api/dictionary-service/taxes
+METHOD: GET
+Описание: Сервис предоставляет информацию о видах налога.
+Параметры запроса:
+Параметр
+Тип данных
+Описание 
+rate
+Double
+Ставка
+id
+Integer
+Идентификатор
+name
+String
+Название
+page
+Integer
+Номер страницы
+size
+Integer
+Размер страницы
+sort
+String
+Сортировка
+
+Пример запроса 
+curl --location ' {{TUNDUK_URL}}/r1/central-server/GOV/70000002/esf-test/esf-api-services/api/dictionary-service/taxes?size=3 ' \
+--header 'X-Road-Client: {{TUNDUK_CLIENT}} ' \
+--header 'ClientUUID: {{CLIENT_UUID}}' \
+--header 'Authorization': {{TOKEN}}'\
+
+Пример ответа
+{
+    "content": [
+        {
+            "id": 1,
+            "name": "Стандартная 12%",
+            "code": "10",
+            "rate": 12.00
+        },
+        {
+            "id": 2,
+            "name": "Нулевая 0%",
+            "code": "20",
+            "rate": 0.00
+        },
+        {
+            "id": 16,
+            "name": "Освобожденная",
+            "code": "90",
+            "rate": 0.00
+        }
+    ],
+    "pageableData": {
+        "pageNumber": 0,
+        "pageSize": 3,
+        "totalElements": 11,
+        "totalPages": 4
+    }
+} 
+   9. Legal Person Info
+Запрос
+URL: /api/dictionary-service/legal-person-info
+METHOD: GET
+Описание: Информация о налогоплательщиках в системе
+Параметры запроса:
+Параметр
+Тип данных
+Описание 
+tin
+String
+Поиск по вхождению ИНН
+fullName
+String
+Поиск по вхождениям в наименовании
+isResident
+Boolean
+Поиск по признаку резидентства
+isBranchDataSent
+Boolean
+Поиск по филиалу
+size
+Integer
+Размер страницы
+sort
+String
+Сортировка
+page
+Integer
+Номер страницы
+
+Пример запроса 
+curl --location ' {{TUNDUK_URL}}/r1/central-server/GOV/70000002/esf-test/esf-api-services/api/dictionary-service/legal-person-info?isResident=true&fullName=проф&tin=123&size=1 ' \
+--header 'X-Road-Client: {{TUNDUK_CLIENT}} ' \
+--header 'ClientUUID: {{CLIENT_UUID}}' \
+--header 'Authorization': {{TOKEN}}'\
+
+
+
+Пример ответа
+{
+    "content": [
+        {
+            "id": 3785881,
+            "inn": "99999999990123",
+            "fullName": "Общество с ограниченной ответственностью \"Центр обучения широкого профиля\"",
+            "isResident": true
+        }
+    ],
+    "pageableData": {
+        "pageNumber": 0,
+        "pageSize": 1,
+        "totalElements": 6,
+        "totalPages": 6
+    }
+}
+
+Описание ошибок
+1. Accept Or Reject
+URL: /api/command/invoice/accept-or-reject
+
+1.1 
+HTTP status: 400 Bad Request
+Response Message:
+{
+    "message": "Validation error",
+    "errors": {
+        "statusCode": "Incorrect status code"
+    }
+}
+Возникает, когда в запросе отправлен некорректный statusCode, допустимые значения statusCode для accept-or-reject
+   * 40 (принят)
+   * 50 (отклонен)
+
+1.2
+HTTP status: 404 Not Found
+Response Message:
+{
+    "message": "Документ с кодом статуса 30 и UUID %s не обнаружен"
+}
+Возникает, когда в массиве documentUuids был передан недействительный UUID документа
+
+1.3
+HTTP status: Bad Request
+Response Message:
+{
+    "message": " Документ с UUID %UUID% уже в статусе %status name%"
+}
+Возникает, когда в statusCode передано значение, которое уже присвоено данному документу
+
+1.4
+HTTP status: 400 Bad Request
+Response Message:
+{
+    "message": " Статус документа с UUID %s не может быть изменен, так как его статус не равен 30 "
+}
+Возникает, когда документ, статус которого клиент пытается изменить не является Отправлен (30)
+
+2. Create
+URL: /api/command/invoice/create
+
+2.1
+HTTP status: 404 Not Found
+Response message:
+{
+    "message": "Налогоплательщика с ИНН - 11111111111 не существует в базе"
+}
+Возникает, когда в запросе отправлен не существующий ИНН
+
+2.2
+HTTP status: 404 Not Found
+Response message:
+{
+    "message": " У главного офиса с ИНН 11111111111 не существует филиала с ИНН 22222222222222"
+}
+Возникает, когда в запросе указывается отправка от имени филиала "isBranchDataSent = true" и не находит его филиал
+
+2.3
+HTTP status: 404 Not Found
+Response message:
+{
+    "message": " Иностранца с ИНН - 11111111111 и именем Дэмиан не существует в базе"
+}
+Возникает, когда в запросе указывается иностранное лицо "isResident = false", но такое лицо не обнаружено в системе
+
+2.4
+HTTP status: 404 Not Found
+Response message:
+{
+    "message": " Вид операции с кодом  -  999 не найден в базе данных"
+}
+Возникает, когда в запросе указывается неверный код для таких полей как: 
+   * operationTypeCode
+   * deliveryTypeCode
+   * currencyCode
+   * deliveryTypeCode
+   * paymentCode
+   * countryCode
+   * taxRateVATCode
+
+2.5
+HTTP status: 404 Not Found
+Response message:
+{
+    "message": " Номера счета - 12122121212 не существует в базе данных"
+}
+Возникает, когда в запросе указывается некорректный банковский счет
+
+2.6
+HTTP status: 404 Not Found
+Response message:
+{
+    "message": " Названия товара/услуги с id  -  99999 не существует в базе данных"
+}
+Возникает, когда в запросе указывается неверный id товара
+
+2.7
+HTTP status: 404 Bad Request
+Response message:
+{
+    "message": " У товара с наименованием - Бензин газовый стабильный (Лукойл) должна быть единица измерения с кодом - 112"
+}
+Возникает, когда в запросе указывается неверный (unitClassificationCode) код единицы измерения для товара
+
+2.8
+HTTP status: 404 Bad Request
+Response message:
+{
+    "message": " У услуги с наименованием - Земельный участок должна быть единица измерения с кодом - 055"
+}
+Возникает, когда в запросе указывается неверный (unitClassificationCode) код единицы измерения для услуги
+
+2.9
+HTTP status: 404 Bad Request
+Response message:
+{
+    "message": " Покупатель с ИНН - 1111111111111 является обезличенным субъектом поэтому товар с наименованием Тест и с видом поставки облагаемая 12% имеет неверный процент stCode(НСП), который равен 50"
+}
+Возникает, когда в запросе указывается неверный код (salesTaxCode) НСП для обезличенного субъекта
+Версия документа
+Версия
+Дата
+Автор
+Описание изменений
+1.0
+13-02-2024
+Ч.Карыпов
+Документ создан
+1.1
+27-02-2024
+Ч.Карыпов
+Добавлена информация по API
+1.2
+27-02-2024
+Б.Альфит
+Добавлена информация по API 
+1.3
+08-04-2024
+Т.Алмаматов
+Добавлена информация по токену
+1.4
+13-04-2024
+Ч.Карыпов
+Добавлена информация по API
+1.5
+16-04-2024
+Б.Альфит
+Добавлена информация по API
+1.6
+16-04-2024
+Ч.Карыпов
+Добавлена информация по API по справочным данным
+1.7
+01-06-2024
+Ч.Карыпов
+Добавлена информация по API (информация о контрагенте/налогоплательщике, информация о контрагенте, пример получения справочных данных)
+1.8
+20-06-2024
+Ч.Карыпов
+Изменен контракт данных catalogEntries на create document
+1.9
+30-08-2024
+Б.Альфит
+Добавлена информация по API а так же обновлена информация
+1.10
+30-09-2024
+Б.Альфит
+Добавлена информация по API
+1.11
+06-03-2025
+Б.Альфит
+Добавлена облачная подпись с помощью Инфокома
+

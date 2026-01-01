@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package api.auth;
 
-option go_package = "github.com/rusgainew/tunduck/gen/proto/auth";
+option go_package = "github.com/rusgainew/tunduck-app-mk/proto-lib/auth";
 
 /**
  * User aggregate root
@@ -23,6 +23,8 @@ message User {
   int64 updated_at = 6;
   // User status: "active", "inactive", "banned"
   string status = 7;
+    // User role: "admin", "user", "organization_owner"
+    string role = 8;
 }
 
 /**

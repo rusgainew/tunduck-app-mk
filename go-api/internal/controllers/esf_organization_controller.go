@@ -20,20 +20,24 @@ import (
 )
 
 type EsfOrganizationController struct {
-	logger  *logger.Logger
-	service services.EsfOrganizationService
-	db      *gorm.DB
+	logger           *logger.Logger
+	service          services.EsfOrganizationService
+	db               *gorm.DB
+	logrus           *logrus.Logger
+	authProxyService services.AuthProxyService
 }
 
-func NewEsfOrganizationController(app *fiber.App, log *logrus.Logger, db *gorm.DB) {
+func NewEsfOrganizationController(app *fiber.App, authProxyService services.AuthProxyService, log *logrus.Logger, db *gorm.DB) {
 	// Инициализируем слои
 	repo := repositorypostgres.NewEsfOrganizationRepositoryPostgres(db, log)
 	service := serviceimpl.NewEsfOrganizationService(repo, log)
 
 	controller := &EsfOrganizationController{
-		logger:  logger.New(log),
-		service: service,
-		db:      db,
+		logger:           logger.New(log),
+		service:          service,
+		db:               db,
+		logrus:           log,
+		authProxyService: authProxyService,
 	}
 
 	controller.logger.Info(context.Background(), "EsfOrganizationController initialized", logrus.Fields{})
@@ -50,7 +54,7 @@ func (c *EsfOrganizationController) registerRoutes(app *fiber.App) {
 
 	// Защищенные routes (с JWT)
 	protected := esfOrganizationGroup.Group("")
-	protected.Use(middleware.JWTMiddleware())
+	protected.Use(middleware.JWTAuthMiddleware(c.authProxyService, c.logrus))
 	protected.Post("/", c.createEsfOrganization)
 	protected.Put("/:id", c.updateEsfOrganization)
 	protected.Delete("/:id", c.deleteEsfOrganization)

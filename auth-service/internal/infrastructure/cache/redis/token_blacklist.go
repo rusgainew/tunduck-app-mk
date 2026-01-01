@@ -19,13 +19,11 @@ func NewTokenBlacklistRedis(client *redis.Client) *TokenBlacklistRedis {
 }
 
 // AddToBlacklist - добавить токен в черный список
-func (r *TokenBlacklistRedis) AddToBlacklist(ctx context.Context, token string, expiresIn int64) error {
+func (r *TokenBlacklistRedis) AddToBlacklist(ctx context.Context, token string) error {
 	// Ключ: "blacklist:token_hash"
-	// Значение: "true"
-	// TTL: время истечения токена
-
+	// TTL: 24 часа (стандартное время жизни JWT)
 	key := fmt.Sprintf("blacklist:%s", token)
-	ttl := time.Duration(expiresIn) * time.Second
+	ttl := 24 * time.Hour
 
 	err := r.client.Set(ctx, key, "true", ttl).Err()
 	if err != nil {

@@ -38,7 +38,7 @@ func LoadConfig() *Config {
 		RedisAddr:   getEnv("REDIS_ADDR", "localhost:6379"),
 		RabbitMQURL: getEnv("RABBITMQ_URL", "amqp://guest:guest@localhost:5672/"),
 		JwtSecret:   getEnv("JWT_SECRET", "your-secret-key-change-in-production"),
-		JwtExpires:  parseInt(os.Getenv("JWT_EXPIRES"), 3600), // 1 hour
+		JwtExpires:  int64(parseInt(os.Getenv("JWT_EXPIRES"), 3600)), // 1 hour
 		Environment: getEnv("ENVIRONMENT", "development"),
 	}
 }

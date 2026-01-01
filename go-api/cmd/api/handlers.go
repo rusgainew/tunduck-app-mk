@@ -16,10 +16,17 @@ func RegisterHandlers(app *fiber.App, cnt *container.Container, orgDBService ser
 
 	// Инициализируем контроллеры с зависимостями из контейнера
 	// Передаем сервисы из контейнера вместо их создания в контроллерах
-	controllers.NewAuthController(app, cnt.GetUserService(), logger, cnt.GetCacheManager())
-	controllers.NewEsfDocumentController(app, cnt.GetLogrus(), cnt.GetDatabase())
-	controllers.NewEsfOrganizationController(app, cnt.GetLogrus(), cnt.GetDatabase())
-	controllers.NewUserController(app, cnt.GetLogrus(), cnt.GetDatabase())
+	// Auth endpoints проксируются на auth-service через gRPC
+	controllers.NewAuthController(
+		app,
+		cnt.GetAuthProxyService(), // NEW: auth-service gRPC proxy
+		cnt.GetUserService(),      // LEGACY: для обратной совместимости
+		logger,
+		cnt.GetCacheManager(),
+	)
+	controllers.NewEsfDocumentController(app, cnt.GetAuthProxyService(), cnt.GetLogrus(), cnt.GetDatabase())
+	controllers.NewEsfOrganizationController(app, cnt.GetAuthProxyService(), cnt.GetLogrus(), cnt.GetDatabase())
+	controllers.NewUserController(app, cnt.GetAuthProxyService(), cnt.GetLogrus(), cnt.GetDatabase())
 
 	// Применяем Rate Limiting для публичных endpoints (регистрация, логин)
 	// Эти routes переопределяются в auth_controller.go

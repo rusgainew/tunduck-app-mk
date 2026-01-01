@@ -29,20 +29,14 @@ type UserRepository interface {
 
 // EventPublisher - Interface для публикации событий
 type EventPublisher interface {
-	// PublishUserRegistered - публикует событие регистрации
-	PublishUserRegistered(ctx context.Context, user *entity.User) error
-
-	// PublishUserLoggedIn - публикует событие входа
-	PublishUserLoggedIn(ctx context.Context, userID string) error
-
-	// PublishUserLoggedOut - публикует событие выхода
-	PublishUserLoggedOut(ctx context.Context, userID string) error
+	// Publish - универсальный метод для публикации любого domain event
+	Publish(ctx context.Context, event entity.DomainEvent) error
 }
 
 // TokenBlacklist - Interface для управления черным списком токенов
 type TokenBlacklist interface {
 	// AddToBlacklist - добавить токен в черный список
-	AddToBlacklist(ctx context.Context, token string, expiresIn int64) error
+	AddToBlacklist(ctx context.Context, token string) error
 
 	// IsBlacklisted - проверить в черном списке
 	IsBlacklisted(ctx context.Context, token string) (bool, error)
