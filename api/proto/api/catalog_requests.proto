@@ -4,7 +4,7 @@ package api;
 
 option go_package = "github.com/rusgainew/tunduck-app-mk/proto-lib/api";
 
-import "dictionaries/reference_item.proto";
+import "api/proto/dictionaries/reference_item.proto";
 
 // CreateCatalogRequest представляет запрос на создание элемента справочника.
 // Используется для POST запроса /api/command/legal-person/catalog/create

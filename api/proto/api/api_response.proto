@@ -5,10 +5,10 @@ package api;
 option go_package = "github.com/rusgainew/tunduck-app-mk/proto-lib/api";
 
 import "google/protobuf/wrappers.proto";
-import "entities/invoice.proto";
-import "entities/invoice_detail.proto";
-import "dictionaries/bank_account.proto";
-import "dictionaries/catalog.proto";
+import "api/proto/entities/invoice.proto";
+import "api/proto/entities/invoice_detail.proto";
+import "api/proto/dictionaries/bank_account.proto";
+import "api/proto/dictionaries/catalog.proto";
 
 // APIResponse представляет базовый обобщенный ответ API.
 // Используется как базовая структура для всех endpoints в ESF API.

@@ -5,10 +5,10 @@ package api;
 option go_package = "github.com/rusgainew/tunduck-app-mk/proto-lib/api";
 
 import "google/protobuf/wrappers.proto";
-import "entities/party.proto";
-import "entities/invoice_detail.proto";
-import "dictionaries/reference_item.proto";
-import "dictionaries/vat_tax_type.proto";
+import "api/proto/entities/party.proto";
+import "api/proto/entities/invoice_detail.proto";
+import "api/proto/dictionaries/reference_item.proto";
+import "api/proto/dictionaries/vat_tax_type.proto";
 
 // CreateInvoiceRequest представляет запрос на создание счета-фактуры.
 // Используется для POST запроса /api/command/invoice/{type}/create
